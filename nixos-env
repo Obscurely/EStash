@@ -1,2 +1,0 @@
-nix-shell --packages rustc cmake git gcc xorg.libXext xorg.libXft xorg.libXinerama xorg.libXcursor xorg.libXrender xorg.libXfixes 
-libcerf pango cairo libGL mesa pkg-config

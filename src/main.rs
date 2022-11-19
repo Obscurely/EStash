@@ -19,14 +19,6 @@ use encrypter::key_encrypt::KeyEncrypt;
 use std::sync::{Arc, Mutex};
 
 fn main() {
-    // load necessary databases
-    let mut estashdb = utils::db::EstashDb::new().unwrap();
-
-    // create necessary objects
-    let mut argon = Argon2id::new();
-    let mut ecies = ECIES::new();
-    let mut key_encrypt = KeyEncrypt::new();
-
     // Configure app and theme it
     let app = app::App::default().with_scheme(app::Scheme::Gtk);
     let theme = ColorTheme::new(color_themes::BLACK_THEME);
@@ -35,7 +27,7 @@ fn main() {
     widget_scheme.apply();
 
     // Create signup window
-    let mut signup_wind = signup::window::create(&mut estashdb, &mut argon, &mut ecies, &mut key_encrypt, utils::is_windows()); 
+    let mut signup_wind = signup::window::create(utils::is_windows()); 
     signup_wind.show();
 
     // Start the app

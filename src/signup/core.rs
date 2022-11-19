@@ -176,7 +176,3 @@ pub fn create_vault(vault_name: &str, password: &str, estashdb: &mut db::EstashD
 
     true
 }
-
-pub fn get_vault_keys(vault_name: &str) {
-    // TODO: implement
-}

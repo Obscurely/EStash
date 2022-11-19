@@ -38,7 +38,7 @@ impl EstashDb {
                 Ok(db) => db,
                 Err(error) => return Err(error),
             };
-            let vault_priv_key_db = match sled::open(constants::VAULT_PRIV_KEY_DB_PATH_WINDOWS){
+            let vault_priv_key_db = match sled::open(constants::VAULT_PRIV_KEY_DB_PATH_UNIX){
                 Ok(db) => db,
                 Err(error) => return Err(error),
             };  

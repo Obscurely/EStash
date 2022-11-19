@@ -13,7 +13,7 @@ use crate::hasher::blake3;
 use crate::hasher::argon2id;
 use std::sync::{Arc, Mutex};
 
-pub fn create(estashdb: &mut db::EstashDb, argon: &mut Argon2id, ecies: &mut ECIES, key_encrypt: &mut KeyEncrypt, is_windows: bool) -> fltk::window::DoubleWindow {
+pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
     // Create signup window
     let mut wind = Window::default().with_size(700, 200).with_label("Singup");
     let mut flex = Flex::default()
@@ -57,11 +57,21 @@ pub fn create(estashdb: &mut db::EstashDb, argon: &mut Argon2id, ecies: &mut ECI
 
     // Window callbacks
     but_signup.set_callback(move |btn| {
+        // parse some stuff
         let vault_name = input_user.value();
         let password = input_pass.value();
         let password_again = input_pass_again.value();
+
+        // load necessary databases
+        let mut estashdb = db::EstashDb::new().unwrap();
+
+        // create necessary objects
+        let mut argon = Argon2id::new();
+        let mut ecies = ECIES::new();
+        let mut key_encrypt = KeyEncrypt::new();
+
         if password == password_again {
-            super::core::create_vault(&vault_name, &password, estashdb, argon, ecies, key_encrypt, is_windows);
+            super::core::create_vault(&vault_name, &password, &mut estashdb, &mut argon, &mut ecies, &mut key_encrypt, is_windows);
             
             // will handle db later, for now just print
             let mut text_status_buf = fltk::text::TextBuffer::default();
@@ -72,7 +82,6 @@ pub fn create(estashdb: &mut db::EstashDb, argon: &mut Argon2id, ecies: &mut ECI
             text_status_buf.set_text("Status: Passwords don't match");
             text_status.set_buffer(text_status_buf);
         }
-        
     });
     
     wind

@@ -3,7 +3,6 @@ use crate::hasher::blake3;
 use crate::hasher::argon2id;
 use std::str;
 use serde::{Serialize, Deserialize};
-use std::sync::{Arc, Mutex};
 
 #[derive(Serialize, Deserialize)]
 pub struct VaultDbValue {
@@ -11,46 +10,11 @@ pub struct VaultDbValue {
     password: Vec<u8>,
 }
     
-pub fn create_vault(vault_name: &str, password: &str, estashdb: Arc<Mutex<db::EstashDb>>, argon: Arc<Mutex<Argon2id>>, ecies: Arc<Mutex<ECIES>>, key_encrypt: Arc<Mutex<KeyEncrypt>>, is_windows: bool ) -> bool {
+pub fn create_vault(vault_name: &str, password: &str, estashdb: &mut db::EstashDb, argon: &mut Argon2id, ecies: &mut ECIES, key_encrypt: &mut KeyEncrypt, is_windows: bool ) -> bool {
     // check if hashed vault_name isn't already present  
     let hashed_vault_name = blake3::hash_str(&vault_name);
 
-    // lock structs
-    let estashdb_locked = match estashdb.lock() {
-        Ok(db) => db,
-        Err(error) => {
-            println!("{error}");
-            std::process::exit(200);
-            // TODO: handle error
-        }
-    };
-    let mut argon_locked = match argon.lock() {
-        Ok(argon) => argon,
-        Err(error) => {
-            println!("{error}");
-            std::process::exit(200);
-            // TODO: handle error
-        }
-    };
-    let mut ecies_locked = match ecies.lock() {
-        Ok(ecies) => ecies,
-        Err(error) => {
-            println!("{error}");
-            std::process::exit(200);
-            // TODO: handle error
-        }
-    };
-    let mut key_encrypt_locked = match key_encrypt.lock() {
-        Ok(key_encrypt) => key_encrypt,
-        Err(error) => {
-            println!("{error}");
-            std::process::exit(200);
-            // TODO: handle error
-        }
-    };
-
-    // continue
-    match estashdb_locked.vault_db.contains_key(hashed_vault_name) {
+    match estashdb.vault_db.contains_key(hashed_vault_name) {
         Ok(is_already_present) => {
             if is_already_present {
                 // TODO: Handle error
@@ -65,7 +29,7 @@ pub fn create_vault(vault_name: &str, password: &str, estashdb: Arc<Mutex<db::Es
     }
 
     // get the last db id and increment that by 1 if there is one, if not set it to 1
-    let new_id = match estashdb_locked.vault_db.last() {
+    let new_id = match estashdb.vault_db.last() {
         Ok(entry) => match entry {
             Some(ent) => {
                 let value_str = match str::from_utf8(&ent.1) {
@@ -116,7 +80,7 @@ pub fn create_vault(vault_name: &str, password: &str, estashdb: Arc<Mutex<db::Es
     };
 
     // hash password
-    let hashed_password = match argon_locked.hash_str(&password) {
+    let hashed_password = match argon.hash_str(&password) {
         Ok(hash) => hash,
         Err(error) => {
             println!("{error}");
@@ -141,13 +105,13 @@ pub fn create_vault(vault_name: &str, password: &str, estashdb: Arc<Mutex<db::Es
 
     // create encryption keys
     // gen key pair
-    let key_pair = ecies_locked.gen_key_pair();
+    let key_pair = ecies.gen_key_pair();
     let mut public_key = key_pair.0;
     let mut private_key = key_pair.1;
 
     // encrypt private key
     let mut encrypted_private_key = match
-        key_encrypt_locked
+        key_encrypt
         .encrypt_with_password_bytes(password.as_bytes(), &private_key)
     {
         Ok(cipher) => cipher,
@@ -180,7 +144,7 @@ pub fn create_vault(vault_name: &str, password: &str, estashdb: Arc<Mutex<db::Es
     }
 
     // store new vault entry
-    match estashdb_locked.vault_db.insert(hashed_vault_name.as_ref(), vault_value_string.as_bytes())
+    match estashdb.vault_db.insert(hashed_vault_name.as_ref(), vault_value_string.as_bytes())
     {
         Ok(_) => (),
         Err(error) => {
@@ -191,7 +155,7 @@ pub fn create_vault(vault_name: &str, password: &str, estashdb: Arc<Mutex<db::Es
     };
 
     // store the private key
-    match estashdb_locked.vault_priv_key_db.insert(hashed_vault_name.as_ref(), encrypted_private_key) {
+    match estashdb.vault_priv_key_db.insert(hashed_vault_name.as_ref(), encrypted_private_key) {
         Ok(_) => (),
         Err(error) => {
             println!("{error}");
@@ -201,7 +165,7 @@ pub fn create_vault(vault_name: &str, password: &str, estashdb: Arc<Mutex<db::Es
     };
 
     // store the public key
-    match estashdb_locked.vault_pub_key_db.insert(hashed_vault_name.as_ref(), public_key.as_ref()) {
+    match estashdb.vault_pub_key_db.insert(hashed_vault_name.as_ref(), public_key.as_ref()) {
         Ok(_) => (),
         Err(error) => {
             println!("{error}");

@@ -20,12 +20,12 @@ use std::sync::{Arc, Mutex};
 
 fn main() {
     // load necessary databases
-    let estashdb = Arc::new(Mutex::new(utils::db::EstashDb::new().unwrap()));
+    let mut estashdb = utils::db::EstashDb::new().unwrap();
 
     // create necessary objects
-    let argon = Arc::new(Mutex::new(Argon2id::new()));
-    let ecies = Arc::new(Mutex::new(ECIES::new()));
-    let key_encrypt = Arc::new(Mutex::new(KeyEncrypt::new()));
+    let mut argon = Argon2id::new();
+    let mut ecies = ECIES::new();
+    let mut key_encrypt = KeyEncrypt::new();
 
     // Configure app and theme it
     let app = app::App::default().with_scheme(app::Scheme::Gtk);
@@ -35,7 +35,7 @@ fn main() {
     widget_scheme.apply();
 
     // Create signup window
-    let mut signup_wind = signup::window::create(estashdb, argon, ecies, key_encrypt, utils::is_windows()); 
+    let mut signup_wind = signup::window::create(&mut estashdb, &mut argon, &mut ecies, &mut key_encrypt, utils::is_windows()); 
     signup_wind.show();
 
     // Start the app

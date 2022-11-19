@@ -13,7 +13,7 @@ use crate::hasher::blake3;
 use crate::hasher::argon2id;
 use std::sync::{Arc, Mutex};
 
-pub fn create(estashdb: Arc<Mutex<db::EstashDb>>, argon: Arc<Mutex<Argon2id>>, ecies: Arc<Mutex<ECIES>>, key_encrypt: Arc<Mutex<KeyEncrypt>>, is_windows: bool) -> fltk::window::DoubleWindow {
+pub fn create(estashdb: &mut db::EstashDb, argon: &mut Argon2id, ecies: &mut ECIES, key_encrypt: &mut KeyEncrypt, is_windows: bool) -> fltk::window::DoubleWindow {
     // Create signup window
     let mut wind = Window::default().with_size(700, 200).with_label("Singup");
     let mut flex = Flex::default()
@@ -61,8 +61,7 @@ pub fn create(estashdb: Arc<Mutex<db::EstashDb>>, argon: Arc<Mutex<Argon2id>>, e
         let password = input_pass.value();
         let password_again = input_pass_again.value();
         if password == password_again {
-
-            super::core::create_vault(&vault_name, &password, estashdb.clone(), argon.clone(), ecies.clone(), key_encrypt.clone(), is_windows);
+            super::core::create_vault(&vault_name, &password, estashdb, argon, ecies, key_encrypt, is_windows);
             
             // will handle db later, for now just print
             let mut text_status_buf = fltk::text::TextBuffer::default();

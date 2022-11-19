@@ -62,7 +62,7 @@ pub fn create(estashdb: Arc<Mutex<db::EstashDb>>, argon: Arc<Mutex<Argon2id>>, e
         let password_again = input_pass_again.value();
         if password == password_again {
 
-            super::core::create_vault(&vault_name, &password, estashdb.clone(), ecies.clone(), key_encrypt.clone(), is_windows);
+            super::core::create_vault(&vault_name, &password, estashdb.clone(), argon.clone(), ecies.clone(), key_encrypt.clone(), is_windows);
             
             // will handle db later, for now just print
             let mut text_status_buf = fltk::text::TextBuffer::default();

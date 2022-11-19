@@ -11,13 +11,21 @@ pub struct VaultDbValue {
     password: Vec<u8>,
 }
     
-pub fn create_vault(vault_name: &str, password: &str, estashdb: Arc<Mutex<db::EstashDb>>, ecies: Arc<Mutex<ECIES>>, key_encrypt: Arc<Mutex<KeyEncrypt>>, is_windows: bool ) -> bool {
+pub fn create_vault(vault_name: &str, password: &str, estashdb: Arc<Mutex<db::EstashDb>>, argon: Arc<Mutex<Argon2id>>, ecies: Arc<Mutex<ECIES>>, key_encrypt: Arc<Mutex<KeyEncrypt>>, is_windows: bool ) -> bool {
     // check if hashed vault_name isn't already present  
     let hashed_vault_name = blake3::hash_str(&vault_name);
 
     // lock structs
     let estashdb_locked = match estashdb.lock() {
         Ok(db) => db,
+        Err(error) => {
+            println!("{error}");
+            std::process::exit(200);
+            // TODO: handle error
+        }
+    };
+    let mut argon_locked = match argon.lock() {
+        Ok(argon) => argon,
         Err(error) => {
             println!("{error}");
             std::process::exit(200);
@@ -40,9 +48,6 @@ pub fn create_vault(vault_name: &str, password: &str, estashdb: Arc<Mutex<db::Es
             // TODO: handle error
         }
     };
-
-    // create argon2id object
-    let mut argon_locked = Argon2id::new();
 
     // continue
     match estashdb_locked.vault_db.contains_key(hashed_vault_name) {

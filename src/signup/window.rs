@@ -15,7 +15,7 @@ use std::sync::{Arc, Mutex};
 
 pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
     // Create signup window
-    let mut wind = Window::default().with_size(700, 200).with_label("Singup");
+    let mut wind = Window::default().with_size(710, 200).with_label("Singup");
     let mut flex = Flex::default()
         .with_size(500, 160)
         .center_of_parent()

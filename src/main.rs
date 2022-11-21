@@ -3,6 +3,7 @@ mod hasher;
 mod encrypter;
 mod login;
 mod signup;
+mod vault;
 use fltk::{
     app,
     button::Button,
@@ -16,6 +17,7 @@ use fltk_theme::{color_themes, ColorTheme, SchemeType, WidgetScheme};
 use hasher::argon2id::Argon2id;
 use encrypter::ecies::ECIES;
 use encrypter::key_encrypt::KeyEncrypt;
+use utils::Vault;
 use std::sync::{Arc, Mutex};
 
 fn main() {
@@ -27,8 +29,16 @@ fn main() {
     widget_scheme.apply();
 
     // Create signup window
-    let mut signup_wind = signup::window::create(utils::is_windows()); 
-    signup_wind.show();
+    // let mut signup_wind = signup::window::create(utils::is_windows()); 
+    // signup_wind.show();
+    
+    // Create login window
+    // let mut login_wind = login::window::create(utils::is_windows());
+    // login_wind.show();
+    
+    // Create vault window
+    let mut vault_wind = vault::window::create(utils::is_windows(), Vault::new_empty());
+    vault_wind.show();
 
     // Start the app
     app.run().unwrap();

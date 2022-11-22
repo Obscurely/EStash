@@ -37,24 +37,77 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     // grid.debug(true); // set to true to show cell outlines and numbers
     // grid.set_layout(5, 1); // 5 rows, 5 columns
 
-    // value in entrie
-    let mut entrie_name = fltk::text::TextDisplay::default().with_size(700, 25).right_of(&entries, 50);
-    entrie_name.set_color(entrie_name.color().lighter());
-    entrie_name.set_text_size(15);
+    // values in entrie
+    // let mut entrie_name = fltk::text::TextDisplay::default().with_size(700, 25).right_of(&entries, 50);
+    // entrie_name.set_color(entrie_name.color().lighter());
+    // entrie_name.set_text_size(15);
+    // entrie_name.set_pos(entrie_name.x(), 20);
+
+    let mut entrie_name = fltk::frame::Frame::default().with_size(700, 25).right_of(&entries, 50);
+    entrie_name.set_label_size(30);
     entrie_name.set_pos(entrie_name.x(), 20);
-    
+    entrie_name.hide();
+
+    let mut install_path_label = fltk::frame::Frame::default().with_size(700, 20).below_of(&entrie_name, 15);
+    install_path_label.set_label_size(20);
+    install_path_label.set_label("Install Path");
+    install_path_label.hide();
+    let mut install_path = fltk::input::Input::default().with_size(700, 20).below_of(&install_path_label, 1);
+    install_path.set_color(install_path.color().lighter());
+    install_path.set_text_size(15);
+    install_path.hide();
+
+    let mut content_label = fltk::frame::Frame::default().with_size(700, 20).below_of(&install_path, 15);
+    content_label.set_label_size(20);
+    content_label.set_label("Content");
+    content_label.hide();
+    let mut content = fltk::input::MultilineInput::default().with_size(700, 150).below_of(&content_label, 1);
+    content.set_color(content.color().lighter());
+    content.set_text_size(15);
+    content.hide();
+
+    let mut notes_label = fltk::frame::Frame::default().with_size(700, 20).below_of(&content, 15);
+    notes_label.set_label_size(20);
+    notes_label.set_label("Notes");
+    notes_label.hide();
+    let mut notes = fltk::input::MultilineInput::default().with_size(700, 150).below_of(&notes_label, 1);
+    notes.set_color(notes.color().lighter());
+    notes.set_text_size(15);
+    notes.hide();
+
     // End customizing window
     // flex.end();
     wind.end();
 
     // Window callbacks
     entries.set_callback(move |e| {
-        let mut entrie_name_buf = text::TextBuffer::default();
-        // TODO: handle error
         let selected_item = &e.first_selected_item().unwrap().label().unwrap();
-        entrie_name_buf.set_text(selected_item);
-        // let insert_pos = (selected_item.len() as f64 / 2.0).floor() as i32;
-        entrie_name.set_buffer(entrie_name_buf.clone());    
+
+        if selected_item == "ROOT" {
+            entrie_name.hide();
+            install_path_label.hide();
+            install_path.hide();
+            content_label.hide();
+            content.hide();
+            notes_label.hide();
+            notes.hide();
+            panic!(); // using panic to leave callback, because of fltk's nature this works with no
+                      // problem
+        }
+
+        // TODO: load entry
+        // TODO: set values
+
+        // Unhide widgets
+        entrie_name.show();
+        install_path_label.show();
+        install_path.show();
+        content_label.show();
+        content.show();
+        notes_label.show();
+        notes.show();
+        // TODO: handle error
+        entrie_name.set_label(selected_item);
     });
     
     wind

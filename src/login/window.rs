@@ -12,6 +12,7 @@ use crate::{utils::db, encrypter::{ecies::ECIES, key_encrypt::KeyEncrypt}, hashe
 use crate::hasher::blake3;
 use crate::hasher::argon2id;
 use std::sync::{Arc, Mutex};
+use crate::vault;
 
 pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
     // Create login window
@@ -49,6 +50,8 @@ pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
     flex.end();
     wind.end();
 
+    let mut wind_clone = wind.clone();
+
     // Window callbacks
     but_login.set_callback(move |btn| {
         // parse some stuff
@@ -66,7 +69,10 @@ pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
         // super::core::create_vault(&vault_name, &password, &mut estashdb, &mut argon, &mut ecies, &mut key_encrypt, is_windows);
         let vault = super::core::login_vault(&vault_name, &password, &mut estashdb, &mut argon, &mut ecies, &mut key_encrypt, is_windows);
 
-        println!("{:#?}", vault);
+        // open vault window
+        wind_clone.hide();
+        let mut vault_wind = vault::window::create(is_windows, vault);
+        vault_wind.show();
     });
     
     wind

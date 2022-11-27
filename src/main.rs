@@ -4,6 +4,7 @@ mod encrypter;
 mod login;
 mod signup;
 mod vault;
+mod start;
 use fltk::{
     app,
     button::Button,
@@ -37,8 +38,12 @@ fn main() {
     // login_wind.show();
     
     // Create vault window
-    let mut vault_wind = vault::window::create(utils::is_windows(), Vault::new_empty());
-    vault_wind.show();
+    // let mut vault_wind = vault::window::create(utils::is_windows(), Vault::new_empty());
+    // vault_wind.show();
+    
+    // Create start window
+    let mut start_wind = start::window::create();
+    start_wind.show();
 
     // Start the app
     app.run().unwrap();

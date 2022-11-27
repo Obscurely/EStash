@@ -11,6 +11,20 @@ pub struct VaultDbValue {
     password: Vec<u8>,
 }
 
+// Extension method for Vec obj in order to be able to easily convert between Vec<u8> and [u8;
+// usize]
+pub trait ToOwnedArray {
+    fn to_owned_array<T, const N: usize>(v: Vec<T>) -> Result<[T; N], Vec<T>> {
+        v.try_into()
+    }
+}
+
+impl ToOwnedArray for Vec<u8> {
+    fn to_owned_array<T, const N: usize>(v: Vec<T>) -> Result<[T; N], Vec<T>> {
+        v.try_into()
+    }
+}
+
 pub fn login_vault(vault_name: &str, password: &str, estashdb: &mut db::EstashDb, argon: &mut Argon2id, ecies: &mut ECIES, key_encrypt: &mut KeyEncrypt, is_windows: bool ) -> Vault {
     let vault_name_hashed = blake3::hash_str(vault_name);
     // check if the vault is present in the database
@@ -115,10 +129,14 @@ pub fn login_vault(vault_name: &str, password: &str, estashdb: &mut db::EstashDb
         }
     };
 
+    // TODO: handle errors
+    let vault_priv_key_bytes: [u8; 32] = Vec::to_owned_array(vault_priv_key).unwrap();
+    let vault_pub_key_bytes: [u8; 32] = Vec::to_owned_array(vault_pub_key).unwrap();
+
     Vault {
         vault_name: vault_name.to_string(),
         id: vault_id,
-        priv_key: vault_priv_key,
-        pub_key: vault_pub_key,
+        priv_key: vault_priv_key_bytes,
+        pub_key: vault_pub_key_bytes,
     }
 }

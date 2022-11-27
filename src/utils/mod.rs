@@ -6,8 +6,8 @@ use serde::{Serialize, Deserialize};
 pub struct Vault {
     pub vault_name: String,
     pub id: u64,
-    pub priv_key: Vec<u8>,
-    pub pub_key: Vec<u8>,
+    pub priv_key: [u8; 32],
+    pub pub_key: [u8; 32],
 }
 
 impl Vault {
@@ -15,8 +15,8 @@ impl Vault {
         Vault {
             vault_name: String::new(),
             id: 0,
-            priv_key: Vec::new(),
-            pub_key: Vec::new(),
+            priv_key: [0; 32],
+            pub_key: [0; 32],
         }
     }
 }

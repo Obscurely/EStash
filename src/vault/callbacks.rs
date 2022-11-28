@@ -23,18 +23,17 @@ use fltk_theme::{color_themes, ColorTheme, SchemeType, WidgetScheme};
 use sled;
 use sled::Db;
 use std::collections::HashMap;
-use std::str;
 use std::sync::{Arc, Mutex};
 
 pub fn entries_callback(
     entries: &mut tree::Tree,
     entrie_name: &mut frame::Frame,
     install_path_label: &mut frame::Frame,
-    install_path: &mut input::Input,
+    install_path_arc: Arc<Mutex<input::Input>>,
     content_label: &mut frame::Frame,
-    content: &mut input::MultilineInput,
+    content_arc: Arc<Mutex<input::MultilineInput>>,
     notes_label: &mut frame::Frame,
-    notes: &mut input::MultilineInput,
+    notes_arc: Arc<Mutex<input::MultilineInput>>,
     save_button_arc: Arc<Mutex<button::Button>>,
     current_selected_entry_arc_clone: Arc<Mutex<String>>,
     db_entries_dict_arc_clone: Arc<Mutex<HashMap<String, Vec<u8>>>>,
@@ -43,6 +42,11 @@ pub fn entries_callback(
     vault_arc_clone: Arc<Mutex<Vault>>,
 ) {
     let selected_item = &entries.first_selected_item().unwrap().label().unwrap();
+    // get the actual object from arcs
+    let mut install_path = install_path_arc.lock().unwrap();
+    let mut content = content_arc.lock().unwrap();
+    let mut notes = notes_arc.lock().unwrap();
+
     // save the currently selected item
     *current_selected_entry_arc_clone.lock().unwrap() = selected_item.to_owned();
 

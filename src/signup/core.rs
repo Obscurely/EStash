@@ -7,10 +7,9 @@ use serde::{Serialize, Deserialize};
 #[derive(Serialize, Deserialize)]
 pub struct VaultDbValue {
     id: u64,
-    password: Vec<u8>,
 }
     
-pub fn create_vault(vault_name: &str, password: &str, estashdb: &mut db::EstashDb, argon: &mut Argon2id, ecies: &mut ECIES, key_encrypt: &mut KeyEncrypt, is_windows: bool ) -> bool {
+pub fn create_vault(vault_name: &str, password: &str, estashdb: &mut db::EstashDb, ecies: &mut ECIES, key_encrypt: &mut KeyEncrypt, is_windows: bool ) -> bool {
     // check if hashed vault_name isn't already present  
     let hashed_vault_name = blake3::hash_str(&vault_name);
 
@@ -79,20 +78,9 @@ pub fn create_vault(vault_name: &str, password: &str, estashdb: &mut db::EstashD
         },
     };
 
-    // hash password
-    let hashed_password = match argon.hash_str(&password) {
-        Ok(hash) => hash,
-        Err(error) => {
-            println!("{error}");
-            std::process::exit(100)
-            // TODO handle error
-        }
-    };
-
     // create the vaule to store under the key (json of password and vault id)
     let vault_value_obj = VaultDbValue {
         id: new_id,
-        password: hashed_password.to_owned(),
     };
     let vault_value_string = match serde_json::to_string(&vault_value_obj) {
         Ok(value) => value,
@@ -124,7 +112,7 @@ pub fn create_vault(vault_name: &str, password: &str, estashdb: &mut db::EstashD
     
     // create vault
     if is_windows {
-        let vault = match sled::open(utils::constants::VAULTS_ROOT_PATH_WINDOWS.to_string() + &new_id.to_string()) {
+        match sled::open(utils::constants::VAULTS_ROOT_PATH_WINDOWS.to_string() + &new_id.to_string()) {
             Ok(db) => db,
             Err(error) => {
                 println!("{error}");
@@ -133,7 +121,7 @@ pub fn create_vault(vault_name: &str, password: &str, estashdb: &mut db::EstashD
             },
         };
     } else {
-        let vault = match sled::open(utils::constants::VAULTS_ROOT_PATH_UNIX.to_string() + &new_id.to_string()) {
+        match sled::open(utils::constants::VAULTS_ROOT_PATH_UNIX.to_string() + &new_id.to_string()) {
             Ok(db) => db,
             Err(error) => {
                 println!("{error}");

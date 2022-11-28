@@ -66,12 +66,11 @@ pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
         let mut estashdb = db::EstashDb::new().unwrap();
 
         // create necessary objects
-        let mut argon = Argon2id::new();
         let mut ecies = ECIES::new();
         let mut key_encrypt = KeyEncrypt::new();
 
         if password == password_again {
-            super::core::create_vault(&vault_name, &password, &mut estashdb, &mut argon, &mut ecies, &mut key_encrypt, is_windows);
+            super::core::create_vault(&vault_name, &password, &mut estashdb, &mut ecies, &mut key_encrypt, is_windows);
             
             // will handle db later, for now just print
             let mut text_status_buf = fltk::text::TextBuffer::default();

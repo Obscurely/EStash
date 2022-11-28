@@ -8,7 +8,6 @@ use crate::utils::Vault;
 #[derive(Serialize, Deserialize)]
 pub struct VaultDbValue {
     id: u64,
-    password: Vec<u8>,
 }
 
 // Extension method for Vec obj in order to be able to easily convert between Vec<u8> and [u8;
@@ -75,22 +74,7 @@ pub fn login_vault(vault_name: &str, password: &str, estashdb: &mut db::EstashDb
     };
 
     // extract data into separate values
-    let mut vault_id = vault_value.id;
-    let mut vault_password = vault_value.password;
-
-    // check if passwords match
-    let is_password_right = match argon.verify_str(&vault_password, password) {
-        Ok(status) => status,
-        Err(error) => {
-            panic!("{error}");
-            // TODO: handle error
-        }
-    };
-
-    if !is_password_right {
-        panic!("Password is not right!");
-        // TODO: handle error
-    }
+    let vault_id = vault_value.id;
 
     // extract and decrypt the private encryption key for the vault
     let vault_priv_key_encrypted = match estashdb.vault_priv_key_db.get(vault_name_hashed) {
@@ -109,7 +93,7 @@ pub fn login_vault(vault_name: &str, password: &str, estashdb: &mut db::EstashDb
     let vault_priv_key = match key_encrypt.decrypt_with_password_bytes(password.as_bytes(), &vault_priv_key_encrypted) {
         Ok(key) => key,
         Err(error) => {
-            panic!("{error}");
+            panic!("{error}: Password is not right!");
             // TODO: handle error
         }
     };

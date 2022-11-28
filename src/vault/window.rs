@@ -1,11 +1,7 @@
-use crate::ECIES;
 use crate::utils::constants;
 use crate::utils::Vault;
-use fltk::{
-    prelude::*,
-    window::Window,
-    *,
-};
+use crate::ECIES;
+use fltk::{prelude::*, window::Window, *};
 use sled;
 use std::collections::HashMap;
 use std::str;
@@ -86,6 +82,13 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     save_button.hide();
     let save_button_arc = Arc::new(Mutex::new(save_button.clone()));
 
+    let mut error_label = fltk::frame::Frame::default()
+        .with_size(750, 20)
+        .below_of(&notes, 5);
+    error_label.set_label_size(14);
+    error_label.hide();
+    let error_label_arc = Arc::new(Mutex::new(error_label.clone()));
+
     // End customizing window
     wind.end();
 
@@ -135,7 +138,9 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     let ecies_arc_clone = ecies.clone();
     let notes_arc_clone = notes_arc.clone();
     let install_path_arc_clone = install_path_arc.clone();
-    let content_arc_clone = content_arc.clone();   let vault_db_arc_clone = vault_db.clone();
+    let content_arc_clone = content_arc.clone();
+    let vault_db_arc_clone = vault_db.clone();
+    let error_label_arc_clone = error_label_arc.clone();
     // Window callbacks
     // set entries callback
     entries.set_callback(move |e| {
@@ -149,6 +154,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
             &mut notes_label,
             notes_arc_clone.clone(),
             save_button_arc.clone(),
+            error_label_arc_clone.clone(),
             current_selected_entry_arc_clone.clone(),
             db_entries_dict_arc_clone.clone(),
             vault_db_arc_clone.clone(),
@@ -184,12 +190,14 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     let notes_arc_clone = notes_arc.clone();
     let install_path_arc_clone = install_path_arc.clone();
     let content_arc_clone = content_arc.clone();
+    let error_label_arc_clone = error_label_arc.clone();
     // set save button callback
     save_button.set_callback(move |_| {
         super::callbacks::save_button_callback(
             install_path_arc_clone.clone(),
             content_arc_clone.clone(),
             notes_arc_clone.clone(),
+            error_label_arc_clone.clone(),
             current_selected_entry_arc_clone.clone(),
             vault_db_arc_clone.clone(),
             vault_arc_clone.clone(),

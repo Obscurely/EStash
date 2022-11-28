@@ -23,6 +23,9 @@ use fltk_theme::{color_themes, ColorTheme, SchemeType, WidgetScheme};
 use sled;
 use sled::Db;
 use std::collections::HashMap;
+use std::path::Path;
+use std::path::PathBuf;
+use std::str::FromStr;
 use std::sync::{Arc, Mutex};
 
 pub fn entries_callback(
@@ -35,6 +38,7 @@ pub fn entries_callback(
     notes_label: &mut frame::Frame,
     notes_arc: Arc<Mutex<input::MultilineInput>>,
     save_button_arc: Arc<Mutex<button::Button>>,
+    error_label_arc: Arc<Mutex<frame::Frame>>,
     current_selected_entry_arc_clone: Arc<Mutex<String>>,
     db_entries_dict_arc_clone: Arc<Mutex<HashMap<String, Vec<u8>>>>,
     vault_db_arc_clone: Arc<Mutex<Db>>,
@@ -46,6 +50,8 @@ pub fn entries_callback(
     let mut install_path = install_path_arc.lock().unwrap();
     let mut content = content_arc.lock().unwrap();
     let mut notes = notes_arc.lock().unwrap();
+    let mut save_button = save_button_arc.lock().unwrap();
+    let mut error_label = error_label_arc.lock().unwrap();
 
     // save the currently selected item
     *current_selected_entry_arc_clone.lock().unwrap() = selected_item.to_owned();
@@ -59,7 +65,8 @@ pub fn entries_callback(
         content.hide();
         notes_label.hide();
         notes.hide();
-        save_button_arc.lock().unwrap().hide();
+        save_button.hide();
+        error_label.hide();
     } else {
         let entry_value_json = super::core::get_entry_value_plain(
             vault_db_arc_clone.clone(),
@@ -82,7 +89,8 @@ pub fn entries_callback(
         content.show();
         notes_label.show();
         notes.show();
-        save_button_arc.lock().unwrap().show();
+        save_button.show();
+        error_label.hide();
         // TODO: handle error
         entrie_name.set_label(selected_item);
     }
@@ -130,19 +138,33 @@ pub fn save_button_callback(
     install_path_arc: Arc<Mutex<input::Input>>,
     content_arc: Arc<Mutex<input::MultilineInput>>,
     notes_arc: Arc<Mutex<input::MultilineInput>>,
+    error_label_arc: Arc<Mutex<frame::Frame>>,
     current_selected_entry_arc_clone: Arc<Mutex<String>>,
     vault_db_arc_clone: Arc<Mutex<Db>>,
     vault_arc_clone: Arc<Mutex<Vault>>,
     db_entries_dict_arc_clone: Arc<Mutex<HashMap<String, Vec<u8>>>>,
     ecies_arc_clone: Arc<Mutex<ECIES>>,
 ) {
+    // get references from arcs
     let vault = vault_arc_clone.lock().unwrap();
-
     let selected_item = current_selected_entry_arc_clone.lock().unwrap().to_owned();
-
     let install_path_value = install_path_arc.lock().unwrap().value();
     let content_value = content_arc.lock().unwrap().value();
     let notes_value = notes_arc.lock().unwrap().value();
+    let mut error_label = error_label_arc.lock().unwrap(); 
+
+    // empty error label
+    error_label.set_label("");
+
+    // check if the given path is valid
+    let install_path_value_as_path = match PathBuf::from_str(&install_path_value) {
+        Ok(path) => path,
+        Err(_) => {
+            error_label.set_label("The given path is invalid!");
+            error_label.show();
+            return;
+        }
+    };
 
     let entry_value = VaultValue {
         install_path: install_path_value,

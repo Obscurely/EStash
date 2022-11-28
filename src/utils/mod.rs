@@ -2,7 +2,7 @@ pub mod db;
 pub mod constants;
 use serde::{Serialize, Deserialize};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Vault {
     pub vault_name: String,
     pub id: u64,

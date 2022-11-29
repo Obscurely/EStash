@@ -2,6 +2,8 @@ pub mod db;
 pub mod constants;
 use serde::{Serialize, Deserialize};
 
+const FORBIDDEN_WINDOWS_CHARS: [&str; 29] = [">", "<", ":", "/", "|", "?", "*", "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"];
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Vault {
     pub vault_name: String,
@@ -27,4 +29,87 @@ pub fn is_windows() -> bool {
     } else {
         false
     }
+}
+
+pub fn is_path_os_valid(path: &str) -> bool {
+    if path.len() == 0 {
+        return false;
+    }
+
+    if is_windows() {
+        if path.chars().next().unwrap() == ' ' {
+            return false;
+        }
+
+        if path.chars().last().unwrap() == ' ' {
+            return false;
+        }
+
+        for invalid_char in FORBIDDEN_WINDOWS_CHARS {
+            if path.contains(invalid_char) {
+                return false;
+            }
+        }
+
+        for x in path.split("\\") {
+            if x == "" {
+                return false;
+            }
+
+            if x.chars().next().unwrap() == ' ' {
+                return false;
+            }
+
+            if x.chars().last().unwrap() == ' ' {
+                return false;
+            }
+
+            if x.chars().last().unwrap() == '.' {
+                return false;
+            }
+        }
+
+    } else {
+        let mut path_replaced: String = String::from("");
+        if path.chars().next().unwrap() == '/' {
+            path_replaced = path.replacen("/", "", 1);
+        }
+
+        let mut path_replaced = path_replaced.as_str();
+        
+        if path_replaced.chars().next().unwrap() == ' ' {
+            return false;
+        }
+
+        if path_replaced.chars().last().unwrap() == ' ' {
+            return false;
+        }
+
+        for x in path_replaced.split("/") {
+            if x == "" {
+                return false;
+            }
+
+            let mut x_temp_iter = x.chars();
+            if x_temp_iter.next().unwrap() == '.' {
+                if x_temp_iter.next().unwrap() == '.' {
+                    return false
+                }
+            }
+
+            if x.chars().next().unwrap() == ' ' {
+                return false;
+            }
+
+            if x.chars().last().unwrap() == ' ' {
+                return false;
+            }
+
+            if x.chars().last().unwrap() == '.' {
+                return false;
+            }
+        }
+    }
+
+    true
 }

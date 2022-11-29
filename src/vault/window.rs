@@ -82,6 +82,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     save_button.hide();
     let save_button_arc = Arc::new(Mutex::new(save_button.clone()));
 
+
     let mut error_label = fltk::frame::Frame::default()
         .with_size(750, 20)
         .below_of(&notes, 5);

@@ -3,6 +3,7 @@ use crate::hasher::argon2id;
 use crate::hasher::blake3;
 use crate::utils::constants;
 use crate::utils::Vault;
+use crate::utils;
 use crate::{
     encrypter::{ecies::ECIES, key_encrypt::KeyEncrypt},
     hasher::argon2id::Argon2id,
@@ -157,14 +158,11 @@ pub fn save_button_callback(
     error_label.set_label("");
 
     // check if the given path is valid
-    let install_path_value_as_path = match PathBuf::from_str(&install_path_value) {
-        Ok(path) => path,
-        Err(_) => {
-            error_label.set_label("The given path is invalid!");
-            error_label.show();
-            return;
-        }
-    };
+    if !utils::is_path_os_valid(&install_path_value) {
+        error_label.set_label("The given path is invalid on the current operating system!");
+        error_label.show();
+        return;
+    }
 
     let entry_value = VaultValue {
         install_path: install_path_value,

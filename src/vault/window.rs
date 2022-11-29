@@ -13,6 +13,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
 
     // entries coloumn
     let mut entries = tree::Tree::default().with_size(200, 475);
+    let entries_arc = Arc::new(Mutex::new(entries.clone()));
 
     // add entrie portion
     let mut entrie_add_input = fltk::input::Input::default()
@@ -82,6 +83,12 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     save_button.hide();
     let save_button_arc = Arc::new(Mutex::new(save_button.clone()));
 
+    let mut delete_button = fltk::button::Button::default()
+        .with_size(75, 25)
+        .below_of(&notes, 5);
+    delete_button.set_label("Delete");
+    delete_button.hide();
+    let delete_button_arc = Arc::new(Mutex::new(delete_button.clone()));
 
     let mut error_label = fltk::frame::Frame::default()
         .with_size(750, 20)
@@ -155,6 +162,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
             &mut notes_label,
             notes_arc_clone.clone(),
             save_button_arc.clone(),
+            delete_button_arc.clone(),
             error_label_arc_clone.clone(),
             current_selected_entry_arc_clone.clone(),
             db_entries_dict_arc_clone.clone(),
@@ -169,6 +177,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     let ecies_arc_clone = ecies.clone();
     let db_entries_dict_arc_clone = db_entries_dict.clone();
     let vault_db_arc_clone = vault_db.clone();
+    let entries_arc_clone = entries_arc.clone();
     // set entrie add button callback
     entrie_add_button.set_callback(move |_| {
         super::callbacks::entrie_add_button_callback(
@@ -177,7 +186,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
             vault_arc_clone.clone(),
             ecies_arc_clone.clone(),
             db_entries_dict_arc_clone.clone(),
-            &mut entries,
+            entries_arc_clone.clone(),
             is_windows,
         );
     });
@@ -204,6 +213,20 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
             vault_arc_clone.clone(),
             db_entries_dict_arc_clone.clone(),
             ecies_arc_clone.clone(),
+        );
+    });
+
+    let current_selected_entry_arc_clone = current_selected_entry.clone();
+    let db_entries_dict_arc_clone = db_entries_dict.clone();
+    let entries_arc_clone = entries_arc.clone();
+    let vault_db_arc_clone = vault_db.clone();
+    // set delete button callback
+    delete_button.set_callback(move |_| {
+        super::callbacks::delete_button_callback(
+            vault_db_arc_clone.clone(),
+            current_selected_entry_arc_clone.clone(),
+            db_entries_dict_arc_clone.clone(),
+            entries_arc_clone.clone(),
         );
     });
 

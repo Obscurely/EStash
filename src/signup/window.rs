@@ -10,6 +10,8 @@ use fltk::{
     window::Window,
 };
 
+use super::core::SingupError;
+
 pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
     // Create signup window
     let wind = Window::default().with_size(710, 200).with_label("Singup");
@@ -76,18 +78,60 @@ pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
         let mut key_encrypt = KeyEncrypt::new();
 
         if password == password_again {
-            super::core::create_vault(
+            match super::core::create_vault(
                 &vault_name,
                 &password,
                 &mut estashdb,
                 &mut ecies,
                 &mut key_encrypt,
                 is_windows,
-            );
-
-            let mut text_status_buf = fltk::text::TextBuffer::default();
-            text_status_buf.set_text("Status: Successfully created account!");
-            text_status.set_buffer(text_status_buf);
+            ) {
+                Ok(_) => {
+                    let mut text_status_buf = fltk::text::TextBuffer::default();
+                    text_status_buf.set_text("Status: Successfully created account!");
+                    text_status.set_buffer(text_status_buf);
+                }
+                Err(SingupError::FailedToStorePublicKey(_)) => {
+                    let mut text_status_buf = fltk::text::TextBuffer::default();
+                    text_status_buf.set_text("Status: Failed to store public key!");
+                    text_status.set_buffer(text_status_buf);
+                }
+                Err(SingupError::FailedToStoreCredentials(_)) => {
+                    let mut text_status_buf = fltk::text::TextBuffer::default();
+                    text_status_buf.set_text("Status: Failed to store credentials!");
+                    text_status.set_buffer(text_status_buf); 
+                }
+                Err(SingupError::UnknownError(_)) => {
+                    let mut text_status_buf = fltk::text::TextBuffer::default();
+                    text_status_buf.set_text("Status: An unknown error occurred!");
+                    text_status.set_buffer(text_status_buf);
+                }
+                Err(SingupError::FailedToAccessVaultsDb(_)) => {
+                    let mut text_status_buf = fltk::text::TextBuffer::default();
+                    text_status_buf.set_text("Status: Failed to access vaults db!");
+                    text_status.set_buffer(text_status_buf); 
+                }
+                Err(SingupError::CorruptedVaultsDb(_)) => {
+                    let mut text_status_buf = fltk::text::TextBuffer::default();
+                    text_status_buf.set_text("Status: Vaults db is corrupted!");
+                    text_status.set_buffer(text_status_buf);
+                }
+                Err(SingupError::AlreadyExists(_)) => {
+                    let mut text_status_buf = fltk::text::TextBuffer::default();
+                    text_status_buf.set_text("Status: A vault with this credentials already exists!");
+                    text_status.set_buffer(text_status_buf);
+                }
+                Err(SingupError::FailedToCreateVault(_)) => {
+                    let mut text_status_buf = fltk::text::TextBuffer::default();
+                    text_status_buf.set_text("Status: Failed to create the vault (the db its self)!");
+                    text_status.set_buffer(text_status_buf);
+                }
+                Err(SingupError::FailedToStorePrivateKey(_) ) => {
+                    let mut text_status_buf = fltk::text::TextBuffer::default();
+                    text_status_buf.set_text("Status: Failed to store the private key!");
+                    text_status.set_buffer(text_status_buf);
+                }
+            };
         } else {
             let mut text_status_buf = fltk::text::TextBuffer::default();
             text_status_buf.set_text("Status: Passwords don't match");

@@ -11,6 +11,18 @@ pub struct VaultDbValue {
     id: u64,
 }
 
+#[derive(Debug)]
+pub enum SingupError {
+    AlreadyExists(u16),
+    FailedToAccessVaultsDb(u16),
+    CorruptedVaultsDb(u16),
+    FailedToCreateVault(u16),
+    FailedToStoreCredentials(u16),
+    FailedToStorePrivateKey(u16),
+    FailedToStorePublicKey(u16),
+    UnknownError(u16),
+}
+
 pub fn create_vault(
     vault_name: &str,
     password: &str,
@@ -18,21 +30,19 @@ pub fn create_vault(
     ecies: &mut ECIES,
     key_encrypt: &mut KeyEncrypt,
     is_windows: bool,
-) -> bool {
+) -> Result<bool, SingupError> {
     // check if hashed vault_name isn't already present
     let hashed_vault_name = blake3::hash_str(&vault_name);
 
     match estashdb.vault_db.contains_key(hashed_vault_name) {
         Ok(is_already_present) => {
             if is_already_present {
-                // TODO: Handle error
-                return false;
+                return Err(SingupError::AlreadyExists(0));
             }
         }
         Err(error) => {
-            println!("{error}");
-            std::process::exit(100);
-            // TODO handle error
+            eprintln!("ERROR: Failed to access vaults db!\n{error}");
+            return Err(SingupError::FailedToAccessVaultsDb(0));
         }
     }
 
@@ -43,34 +53,32 @@ pub fn create_vault(
                 let value_str = match str::from_utf8(&ent.1) {
                     Ok(key) => key,
                     Err(error) => {
-                        println!("{error}");
-                        std::process::exit(100);
-                        // TODO: handle error
+                        eprintln!("ERROR: The stored value in vaults db is not in utf8 meaning that vaults db is corrupted!\n{error}");
+                        return Err(SingupError::CorruptedVaultsDb(0));
                     }
                 };
 
                 let parsed: serde_json::Value = match serde_json::from_str(value_str) {
                     Ok(value) => value,
                     Err(error) => {
-                        println!("{error}");
-                        std::process::exit(100);
-                        // TODO: handle error
+                        eprintln!("ERROR: Failed to covert the value to a json object, vaults db is probably corrupted!\n{error}");
+                        return Err(SingupError::CorruptedVaultsDb(0));
                     }
                 };
 
                 let previous_id = match parsed.get("id") {
                     Some(id) => id,
                     None => {
-                        std::process::exit(100);
-                        // TODO: handle error
+                        eprintln!("ERROR: Somehow successfully parsed the data under the key into the struct, but there is no id field?");
+                        return Err(SingupError::UnknownError(0));
                     }
                 };
 
                 let previous_id_int = match previous_id.as_u64() {
                     Some(id) => id,
                     None => {
-                        std::process::exit(100);
-                        // TODO: handle error
+                        eprintln!("ERROR: The previous id doesn't fit in an u64, meaning vaults db is probably corrupted!");
+                        return Err(SingupError::CorruptedVaultsDb(0));
                     }
                 };
 
@@ -81,9 +89,8 @@ pub fn create_vault(
             None => 1,
         },
         Err(error) => {
-            println!("{error}");
-            std::process::exit(100);
-            // TODO: handle error
+            eprintln!("ERROR: There was an error accessing vaults db!\n{error}");
+            return Err(SingupError::FailedToAccessVaultsDb(0));
         }
     };
 
@@ -92,9 +99,8 @@ pub fn create_vault(
     let vault_value_string = match serde_json::to_string(&vault_value_obj) {
         Ok(value) => value,
         Err(err) => {
-            println!("{err}");
-            std::process::exit(100);
-            // TODO: handle error
+            eprintln!("ERROR: Well... this somehow failed... unable to covert to json string the struct containing the new vault id!\n{err}");
+            return Err(SingupError::UnknownError(0));
         }
     };
 
@@ -109,9 +115,9 @@ pub fn create_vault(
         match key_encrypt.encrypt_with_password_bytes(password.as_bytes(), &private_key) {
             Ok(cipher) => cipher,
             Err(error) => {
-                println!("{error}");
-                std::process::exit(100);
-                // TODO: handle error
+                // shouldn't fail
+                eprintln!("ERROR: There was an error encrypting the generated key using the password!\n{error}");
+                return Err(SingupError::UnknownError(0));
             }
         };
 
@@ -122,9 +128,8 @@ pub fn create_vault(
         ) {
             Ok(db) => db,
             Err(error) => {
-                println!("{error}");
-                std::process::exit(100);
-                // TODO: handle error
+                eprintln!("ERROR: There was an error creating the vault!\n{error}");
+                return Err(SingupError::FailedToCreateVault(0));
             }
         };
     } else {
@@ -132,9 +137,8 @@ pub fn create_vault(
         {
             Ok(db) => db,
             Err(error) => {
-                println!("{error}");
-                std::process::exit(100);
-                // TODO: handle error
+                eprintln!("ERROR: There was an error creating the vault!\n{error}");
+                return Err(SingupError::FailedToCreateVault(0));
             }
         };
     }
@@ -146,9 +150,8 @@ pub fn create_vault(
     {
         Ok(_) => (),
         Err(error) => {
-            println!("{error}");
-            std::process::exit(100);
-            // TODO: handle error
+            eprintln!("ERROR: Failed to store newly created vault!\n{error}");
+            return Err(SingupError::FailedToStoreCredentials(0));
         }
     };
 
@@ -159,9 +162,8 @@ pub fn create_vault(
     {
         Ok(_) => (),
         Err(error) => {
-            println!("{error}");
-            std::process::exit(100);
-            // TODO: handle error
+            eprintln!("ERROR: Failed to store private key for vault!\n{error}");
+            return Err(SingupError::FailedToStorePrivateKey(0));
         }
     };
 
@@ -172,11 +174,10 @@ pub fn create_vault(
     {
         Ok(_) => (),
         Err(error) => {
-            println!("{error}");
-            std::process::exit(100);
-            // TODO: handle error
+            eprintln!("ERROR: Failed to store public key for vault!\n{error}");
+            return Err(SingupError::FailedToStorePublicKey(0));
         }
     };
 
-    true
+    Ok(true)
 }

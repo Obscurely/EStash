@@ -177,7 +177,6 @@ pub fn entries_callback(
         delete_button.show();
         install_button.show();
         error_label.hide();
-        // TODO: handle error
         entrie_name.set_label(selected_item);
     }
 }
@@ -201,8 +200,10 @@ pub fn entrie_add_button_callback(
 
     let entrie_add_input_value = &entrie_add_input.value();
 
-    // TODO: check if the input isn't already present db_entries_dict so we don't overwrite the
-    // entrie with empty
+    match entries.find_item(&entrie_add_input_value) {
+        Some(_) => return,
+        None => (),
+    };
 
     if entrie_add_input_value != "ROOT" {
         let entrie_add_input_value_encrypted = match super::core::add_new_entry(

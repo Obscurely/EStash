@@ -114,7 +114,6 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     let ecies = Arc::new(Mutex::new(ECIES::new()));
 
     // load vault
-    // TODO: handle errors
     let vaults_root_path;
     if is_windows {
         vaults_root_path = constants::VAULTS_ROOT_PATH_WINDOWS.to_string();
@@ -164,7 +163,6 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     };
 
     for entry in db_entries {
-        // TODO: handle errors
         let current_entry_encrypted = match entry {
             Ok(cipher) => cipher.0.to_vec(),
             Err(err) => {

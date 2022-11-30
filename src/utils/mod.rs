@@ -49,19 +49,19 @@ pub fn is_path_os_valid(path: &str) -> bool {
             return false;
         }
 
-        let path_replaced_vec: Vec<&str> = path.split("\\\\").collect();
-        path_replaced.reverse();
-        path_replaced.pop();
-        path_replaced.reverse();
+        let mut path_replaced_vec: Vec<&str> = path.split("\\\\").collect();
+        path_replaced_vec.reverse();
+        path_replaced_vec.pop();
+        path_replaced_vec.reverse();
         let path_replaced = path_replaced_vec.join("");
 
         for invalid_char in FORBIDDEN_WINDOWS_CHARS {
-            if path.contains(invalid_char) {
+            if path_replaced.contains(invalid_char) {
                 return false;
             }
         }
 
-        for x in path.split("\\") {
+        for x in path_replaced.split("\\") {
             if x == "" {
                 return false;
             }
@@ -92,7 +92,7 @@ pub fn is_path_os_valid(path: &str) -> bool {
             return false;
         }
 
-        let mut path_replaced = path_replaced.as_str();
+        let path_replaced = path_replaced.as_str();
 
         if path_replaced.clone().chars().next().unwrap() == ' ' {
             return false;

@@ -90,10 +90,19 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     delete_button.hide();
     let delete_button_arc = Arc::new(Mutex::new(delete_button.clone()));
 
+    let mut install_button = fltk::button::Button::default()
+        .with_size(75, 25)
+        .below_of(&notes, 5);
+    install_button.set_label("Install");
+    install_button.set_pos(562, install_button.y());
+    install_button.hide();
+    let install_button_arc = Arc::new(Mutex::new(install_button.clone()));
+
     let mut error_label = fltk::frame::Frame::default()
         .with_size(750, 20)
         .below_of(&notes, 5);
     error_label.set_label_size(14);
+    error_label.set_pos(error_label.x(), error_label.y() + 25);
     error_label.hide();
     let error_label_arc = Arc::new(Mutex::new(error_label.clone()));
 
@@ -163,6 +172,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
             notes_arc_clone.clone(),
             save_button_arc.clone(),
             delete_button_arc.clone(),
+            install_button_arc.clone(),
             error_label_arc_clone.clone(),
             current_selected_entry_arc_clone.clone(),
             db_entries_dict_arc_clone.clone(),
@@ -227,6 +237,19 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
             current_selected_entry_arc_clone.clone(),
             db_entries_dict_arc_clone.clone(),
             entries_arc_clone.clone(),
+        );
+    });
+
+    let install_path_arc_clone = install_path_arc.clone();
+    let content_arc_clone = content_arc.clone();
+    let error_label_arc_clone = error_label_arc.clone();
+    // set install button callback
+    install_button.set_callback(move |_| {
+        super::callbacks::install_button_callback(
+            install_path_arc_clone.clone(),
+            content_arc_clone.clone(),
+            error_label_arc_clone.clone(),
+            is_windows,
         );
     });
 

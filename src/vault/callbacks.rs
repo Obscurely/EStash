@@ -28,6 +28,7 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::{Arc, Mutex};
+use std::fs;
 
 pub fn entries_callback(
     entries: &mut tree::Tree,
@@ -40,6 +41,7 @@ pub fn entries_callback(
     notes_arc: Arc<Mutex<input::MultilineInput>>,
     save_button_arc: Arc<Mutex<button::Button>>,
     delete_button_arc: Arc<Mutex<button::Button>>,
+    install_button_arc: Arc<Mutex<button::Button>>,
     error_label_arc: Arc<Mutex<frame::Frame>>,
     current_selected_entry_arc_clone: Arc<Mutex<String>>,
     db_entries_dict_arc_clone: Arc<Mutex<HashMap<String, Vec<u8>>>>,
@@ -65,6 +67,7 @@ pub fn entries_callback(
     let mut notes = notes_arc.lock().unwrap();
     let mut save_button = save_button_arc.lock().unwrap();
     let mut delete_button = delete_button_arc.lock().unwrap();
+    let mut install_button = install_button_arc.lock().unwrap();
     let mut error_label = error_label_arc.lock().unwrap();
 
     // save the currently selected item
@@ -81,6 +84,7 @@ pub fn entries_callback(
         notes.hide();
         save_button.hide();
         delete_button.hide();
+        install_button.hide();
         error_label.hide();
     } else {
         let entry_value_json = super::core::get_entry_value_plain(
@@ -106,6 +110,7 @@ pub fn entries_callback(
         notes.show();
         save_button.show();
         delete_button.show();
+        install_button.show();
         error_label.hide();
         // TODO: handle error
         entrie_name.set_label(selected_item);
@@ -248,4 +253,57 @@ pub fn delete_button_callback(vault_db_arc_clone: Arc<Mutex<Db>>, current_select
     entries.do_callback();
 
     // entries.select(entries_items.get(0).unwrap().label().unwrap().as_str(), true).unwrap();
+}
+
+pub fn install_button_callback(install_path_arc: Arc<Mutex<input::Input>>, content_arc: Arc<Mutex<input::MultilineInput>>, error_label_arc: Arc<Mutex<frame::Frame>>, is_windows: bool) {
+    // get references behind arc
+    let install_path = install_path_arc.lock().unwrap();
+    let content = content_arc.lock().unwrap();
+    let mut error_label = error_label_arc.lock().unwrap();
+
+    let install_path_value = install_path.value().to_owned();
+    let content_value = content.value().to_owned();
+
+    // create the folder or make sure there is one
+    if is_windows {
+        let mut path_folder_vec: Vec<&str> = install_path_value.split("\\").collect();
+        path_folder_vec.pop();
+        let path_folder = path_folder_vec.join("\\");
+
+        match fs::create_dir_all(path_folder) {
+            Ok(_) => (),
+            Err(_) => {
+                error_label.set_label("There was an error creating/finding the dir where to install!");
+                error_label.show();
+                return;
+            }
+        };
+    } else {
+        let mut path_folder_vec: Vec<&str> = install_path_value.split("/").collect();
+        path_folder_vec.pop();
+        let path_folder = path_folder_vec.join("/");
+
+        match fs::create_dir_all(path_folder) {
+            Ok(_) => (),
+            Err(_) => {
+                error_label.set_label("There was an error creating/finding the dir where to install!");
+                error_label.show();
+                return;
+            }
+        };
+    }
+
+    // try and write to that file
+    match fs::write(install_path_value, content_value) {
+        Ok(_) => {
+            error_label.set_label("Successfully written the content to the file!");
+            error_label.show();
+            return;
+        },
+        Err(_) => {
+            error_label.set_label("There was an error writing the content to the file!");
+            error_label.show();
+            return;
+        }
+    }
 }

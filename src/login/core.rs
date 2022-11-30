@@ -1,4 +1,3 @@
-use crate::hasher::argon2id;
 use crate::hasher::blake3;
 use crate::utils::Vault;
 use crate::{

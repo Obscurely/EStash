@@ -1,24 +1,10 @@
-use crate::hasher::argon2id;
-use crate::hasher::blake3;
 use crate::login;
 use crate::utils;
-use crate::{
-    encrypter::{ecies::ECIES, key_encrypt::KeyEncrypt},
-    hasher::argon2id::Argon2id,
-    signup,
-    utils::db,
-};
+use crate::signup;
 use fltk::{
-    app,
-    button::Button,
-    enums::{Align, Font},
-    frame::Frame,
-    group::Flex,
     prelude::*,
     window::Window,
 };
-use fltk_theme::{color_themes, ColorTheme, SchemeType, WidgetScheme};
-use std::sync::{Arc, Mutex};
 
 pub fn create() -> fltk::window::DoubleWindow {
     // Create start window

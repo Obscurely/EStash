@@ -1,8 +1,6 @@
-use crate::hasher::argon2id;
 use crate::hasher::blake3;
 use crate::{
     encrypter::{ecies::ECIES, key_encrypt::KeyEncrypt},
-    hasher::argon2id::Argon2id,
     utils::{self, db},
 };
 use serde::{Deserialize, Serialize};

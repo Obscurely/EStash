@@ -3,7 +3,6 @@ use crate::utils::Vault;
 use serde::{Deserialize, Serialize};
 use sled::Db;
 use std::collections::HashMap;
-use std::path;
 use std::str;
 use std::sync::{Arc, Mutex};
 

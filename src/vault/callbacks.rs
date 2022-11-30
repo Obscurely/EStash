@@ -1,33 +1,16 @@
+use crate::ECIES;
 use super::core::VaultValue;
-use crate::hasher::argon2id;
-use crate::hasher::blake3;
 use crate::utils;
 use crate::utils::constants;
 use crate::utils::Vault;
-use crate::{
-    encrypter::{ecies::ECIES, key_encrypt::KeyEncrypt},
-    hasher::argon2id::Argon2id,
-    utils::db,
-};
 use fltk::{
-    app,
-    button::Button,
-    enums::{Align, Font},
-    frame::Frame,
-    group::Flex,
     prelude::*,
-    window::Window,
     *,
 };
-use fltk_grid::Grid;
-use fltk_theme::{color_themes, ColorTheme, SchemeType, WidgetScheme};
 use sled;
 use sled::Db;
 use std::collections::HashMap;
 use std::fs;
-use std::path::Path;
-use std::path::PathBuf;
-use std::str::FromStr;
 use std::sync::{Arc, Mutex};
 
 pub fn entries_callback(

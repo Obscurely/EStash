@@ -6,20 +6,11 @@ mod start;
 mod utils;
 mod vault;
 use encrypter::ecies::ECIES;
-use encrypter::key_encrypt::KeyEncrypt;
 use fltk::{
     app,
-    button::Button,
-    enums::{Align, Font},
-    frame::Frame,
-    group::Flex,
     prelude::*,
-    window::Window,
 };
 use fltk_theme::{color_themes, ColorTheme, SchemeType, WidgetScheme};
-use hasher::argon2id::Argon2id;
-use std::sync::{Arc, Mutex};
-use utils::Vault;
 
 fn main() {
     // Configure app and theme it

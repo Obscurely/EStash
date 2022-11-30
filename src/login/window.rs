@@ -1,7 +1,6 @@
 use crate::vault;
 use crate::{
-    encrypter::{ecies::ECIES, key_encrypt::KeyEncrypt},
-    hasher::argon2id::Argon2id,
+    encrypter::key_encrypt::KeyEncrypt,
     utils::db,
 };
 use fltk::{
@@ -14,8 +13,8 @@ use fltk::{
 
 pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
     // Create login window
-    let mut wind = Window::default().with_size(710, 200).with_label("Login");
-    let mut flex = Flex::default()
+    let wind = Window::default().with_size(710, 200).with_label("Login");
+    let flex = Flex::default()
         .with_size(500, 160)
         .center_of_parent()
         .column();
@@ -51,7 +50,7 @@ pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
     let mut wind_clone = wind.clone();
 
     // Window callbacks
-    but_login.set_callback(move |btn| {
+    but_login.set_callback(move |_| {
         // parse some stuff
         let vault_name = input_user.value();
         let password = input_pass.value();
@@ -60,8 +59,6 @@ pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
         let mut estashdb = db::EstashDb::new().unwrap();
 
         // create necessary objects
-        let mut argon = Argon2id::new();
-        let mut ecies = ECIES::new();
         let mut key_encrypt = KeyEncrypt::new();
 
         // super::core::create_vault(&vault_name, &password, &mut estashdb, &mut argon, &mut ecies, &mut key_encrypt, is_windows);
@@ -69,10 +66,7 @@ pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
             &vault_name,
             &password,
             &mut estashdb,
-            &mut argon,
-            &mut ecies,
             &mut key_encrypt,
-            is_windows,
         );
 
         // open vault window

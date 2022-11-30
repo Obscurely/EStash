@@ -1,7 +1,6 @@
 use crate::ECIES;
 use super::core::VaultValue;
 use crate::utils;
-use crate::utils::constants;
 use crate::utils::Vault;
 use fltk::{
     prelude::*,
@@ -105,19 +104,11 @@ pub fn entrie_add_button_callback(
     ecies_arc_clone: Arc<Mutex<ECIES>>,
     db_entries_dict_arc_clone: Arc<Mutex<HashMap<String, Vec<u8>>>>,
     entries_arc_clone: Arc<Mutex<tree::Tree>>,
-    is_windows: bool,
 ) {
     // get reference from arc
     let mut entries = entries_arc_clone.lock().unwrap();
 
     let entrie_add_input_value = &entrie_add_input.value();
-
-    let mut vaults_root_path = String::from("");
-    if is_windows {
-        vaults_root_path = constants::VAULTS_ROOT_PATH_WINDOWS.to_string();
-    } else {
-        vaults_root_path = constants::VAULTS_ROOT_PATH_UNIX.to_string();
-    }
 
     if entrie_add_input_value != "ROOT" {
         let entrie_add_input_value_encrypted = super::core::add_new_entry(
@@ -214,7 +205,7 @@ pub fn delete_button_callback(
         db_entries_dict
             .get(current_selected_entry.as_str())
             .unwrap(),
-    );
+    ).unwrap();
 
     let entries_items = entries.get_items().unwrap();
 

@@ -8,7 +8,7 @@ use fltk::{
 
 pub fn create() -> fltk::window::DoubleWindow {
     // Create start window
-    let mut wind = Window::default().with_size(400, 200).with_label("Start");
+    let wind = Window::default().with_size(400, 200).with_label("Start");
 
     // login button
     let mut login_button = fltk::button::Button::default()
@@ -30,7 +30,7 @@ pub fn create() -> fltk::window::DoubleWindow {
     let mut wind_clone_two = wind.clone();
 
     // callbacks
-    login_button.set_callback(move |l| {
+    login_button.set_callback(move |_| {
         // hide the start window, might wanna reshow it later
         wind_clone_one.hide();
 
@@ -39,7 +39,7 @@ pub fn create() -> fltk::window::DoubleWindow {
         login_wind.show();
     });
 
-    signup_button.set_callback(move |s| {
+    signup_button.set_callback(move |_| {
         // hide the start window, might wanna reshow it later
         wind_clone_two.hide();
 

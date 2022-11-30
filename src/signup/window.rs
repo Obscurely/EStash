@@ -12,8 +12,8 @@ use fltk::{
 
 pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
     // Create signup window
-    let mut wind = Window::default().with_size(710, 200).with_label("Singup");
-    let mut flex = Flex::default()
+    let wind = Window::default().with_size(710, 200).with_label("Singup");
+    let flex = Flex::default()
         .with_size(500, 160)
         .center_of_parent()
         .column();
@@ -53,7 +53,7 @@ pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
     wind.end();
 
     // Window callbacks
-    but_signup.set_callback(move |btn| {
+    but_signup.set_callback(move |_| {
         // parse some stuff
         let vault_name = input_user.value();
         let password = input_pass.value();

@@ -197,7 +197,6 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
             ecies_arc_clone.clone(),
             db_entries_dict_arc_clone.clone(),
             entries_arc_clone.clone(),
-            is_windows,
         );
     });
 

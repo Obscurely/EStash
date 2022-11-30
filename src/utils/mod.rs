@@ -16,17 +16,6 @@ pub struct Vault {
     pub pub_key: [u8; 32],
 }
 
-impl Vault {
-    pub fn new_empty() -> Vault {
-        Vault {
-            vault_name: String::new(),
-            id: 0,
-            priv_key: [0; 32],
-            pub_key: [0; 32],
-        }
-    }
-}
-
 pub fn is_windows() -> bool {
     if std::env::consts::FAMILY == "windows" {
         true

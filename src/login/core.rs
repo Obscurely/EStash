@@ -1,9 +1,8 @@
 use crate::hasher::blake3;
 use crate::utils::Vault;
 use crate::{
-    encrypter::{ecies::ECIES, key_encrypt::KeyEncrypt},
-    hasher::argon2id::Argon2id,
-    utils::{self, db},
+    encrypter::key_encrypt::KeyEncrypt,
+    utils::db,
 };
 use serde::{Deserialize, Serialize};
 use std::str;
@@ -31,10 +30,7 @@ pub fn login_vault(
     vault_name: &str,
     password: &str,
     estashdb: &mut db::EstashDb,
-    argon: &mut Argon2id,
-    ecies: &mut ECIES,
     key_encrypt: &mut KeyEncrypt,
-    is_windows: bool,
 ) -> Vault {
     let vault_name_hashed = blake3::hash_str(vault_name);
     // check if the vault is present in the database

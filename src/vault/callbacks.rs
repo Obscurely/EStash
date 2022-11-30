@@ -1,16 +1,13 @@
-use crate::ECIES;
-use super::core::VaultValue;
+use super::core::{VaultValue, VaultValueErr};
 use crate::utils;
 use crate::utils::Vault;
-use fltk::{
-    prelude::*,
-    *,
-};
+use crate::ECIES;
+use fltk::{prelude::*, *};
 use sled;
 use sled::Db;
 use std::collections::HashMap;
-use std::fs;
 use std::sync::{Arc, Mutex};
+use std::{fs, process};
 
 pub fn entries_callback(
     entries: &mut tree::Tree,
@@ -67,13 +64,39 @@ pub fn entries_callback(
         install_button.hide();
         error_label.hide();
     } else {
-        let entry_value_json = super::core::get_entry_value_plain(
+        let entry_value_json = match super::core::get_entry_value_plain(
             vault_db_arc_clone.clone(),
             ecies_arc_clone.clone(),
             vault_arc_clone.clone(),
             selected_item,
             db_entries_dict_arc_clone.clone(),
-        );
+        ) {
+            Ok(json) => json,
+            Err(VaultValueErr::DbCorrupted(_)) => {
+                process::exit(100);
+            }
+            Err(VaultValueErr::PoisonErr(_)) => {
+                error_label.set_label(
+                    "There was a Poison Error, try to restart, or report issue on github!",
+                );
+                error_label.show();
+                return;
+            }
+            Err(VaultValueErr::DisplayNotInSync(_)) => {
+                error_label.set_label(
+                    "What's on screen is not in sync with what's in memory, try again or restart!",
+                );
+                error_label.show();
+                return;
+            }
+            Err(VaultValueErr::MemoryNotInSync(_)) => {
+                error_label.set_label(
+                    "What's in memory is not in sync with what's in storage, please restart!",
+                );
+                error_label.show();
+                return;
+            }
+        };
 
         // set value
         install_path.set_value(&entry_value_json.install_path);
@@ -201,11 +224,15 @@ pub fn delete_button_callback(
     let current_selected_entry = current_selected_entry_arc_clone.lock().unwrap();
     let mut db_entries_dict = db_entries_dict_arc_clone.lock().unwrap();
 
-    vault_db_arc_clone.lock().unwrap().remove(
-        db_entries_dict
-            .get(current_selected_entry.as_str())
-            .unwrap(),
-    ).unwrap();
+    vault_db_arc_clone
+        .lock()
+        .unwrap()
+        .remove(
+            db_entries_dict
+                .get(current_selected_entry.as_str())
+                .unwrap(),
+        )
+        .unwrap();
 
     let entries_items = entries.get_items().unwrap();
 

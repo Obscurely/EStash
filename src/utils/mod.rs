@@ -30,12 +30,22 @@ pub fn is_path_os_valid(path: &str) -> bool {
     }
 
     if is_windows() {
-        if path.chars().next().unwrap() == ' ' {
-            return false;
-        }
+        match path.chars().next() {
+            Some(c) => {
+                if c == ' ' {
+                    return false;
+                }
+            }
+            None => return false,
+        };
 
-        if path.chars().last().unwrap() == ' ' {
-            return false;
+        match path.chars().last() {
+            Some(c) => {
+                if c == ' ' {
+                    return false;
+                }
+            }
+            None => return false,
         }
 
         let mut path_replaced_vec: Vec<&str> = path.split("\\").collect();
@@ -57,11 +67,19 @@ pub fn is_path_os_valid(path: &str) -> bool {
 
             let mut x_temp_iter = x.chars();
 
-            if x_temp_iter.next().unwrap() == ' ' {
-                return false;
-            }
+            match x_temp_iter.next() {
+                Some(c) => {
+                    if c == ' ' {
+                        return false;
+                    }
+                }
+                None => return false,
+            };
 
-            let last = x.chars().last().unwrap();
+            let last = match x.chars().last() {
+                Some(c) => c,
+                None => return false,
+            };
 
             if last == ' ' {
                 return false;
@@ -73,9 +91,14 @@ pub fn is_path_os_valid(path: &str) -> bool {
         }
     } else {
         let mut path_replaced: String = String::from("");
-        if path.chars().next().unwrap() == '/' {
-            path_replaced = path.replacen("/", "", 1);
-        }
+        match path.chars().next() {
+            Some(c) => {
+                if c == '/' {
+                    path_replaced = path.replacen("/", "", 1);
+                }
+            }
+            None => return false,
+        };
 
         if path_replaced.len() == 0 {
             return false;
@@ -83,13 +106,23 @@ pub fn is_path_os_valid(path: &str) -> bool {
 
         let path_replaced = path_replaced.as_str();
 
-        if path_replaced.clone().chars().next().unwrap() == ' ' {
-            return false;
-        }
+        match path_replaced.clone().chars().next() {
+            Some(c) => {
+                if c == ' ' {
+                    return false;
+                }
+            }
+            None => return false,
+        };
 
-        if path_replaced.clone().chars().last().unwrap() == ' ' {
-            return false;
-        }
+        match path_replaced.clone().chars().last() {
+            Some(c) => {
+                if c == ' ' {
+                    return false;
+                }
+            }
+            None => return false,
+        };
 
         for x in path_replaced.split("/") {
             if x == "" {
@@ -98,21 +131,40 @@ pub fn is_path_os_valid(path: &str) -> bool {
 
             let mut x_temp_iter1 = x.chars();
             let mut x_temp_iter2 = x_temp_iter1.clone();
-            if x_temp_iter1.next().unwrap() == '.' {
-                if x_temp_iter1.clone().count() > 0 {
-                    if x_temp_iter1.next().unwrap() == '.' {
-                        return false;
+
+            match x_temp_iter1.next() {
+                Some(c) => {
+                    if c == '.' {
+                        if x_temp_iter1.clone().count() > 0 {
+                            match x_temp_iter1.next() {
+                                Some(c) => {
+                                    if c == '.' {
+                                        return false;
+                                    }
+                                }
+                                None => return false,
+                            }
+                        } else {
+                            return false;
+                        }
                     }
-                } else {
-                    return false;
                 }
-            }
+                None => return false,
+            };
 
-            if x_temp_iter2.next().unwrap() == ' ' {
-                return false;
-            }
+            match x_temp_iter2.next() {
+                Some(c) => {
+                    if c == ' ' {
+                        return false
+                    }
+                }
+                None => return false,
+            };
 
-            let last = x.chars().last().unwrap();
+            let last = match x.chars().last() {
+                Some(c) => c,
+                None => return false,
+            };
 
             if last == ' ' {
                 return false;

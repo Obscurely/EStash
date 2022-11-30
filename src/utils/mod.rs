@@ -1,8 +1,12 @@
-pub mod db;
 pub mod constants;
-use serde::{Serialize, Deserialize};
+pub mod db;
+use serde::{Deserialize, Serialize};
 
-const FORBIDDEN_WINDOWS_CHARS: [&str; 29] = [">", "<", ":", "/", "|", "?", "*", "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"];
+const FORBIDDEN_WINDOWS_CHARS: [&str; 29] = [
+    ">", "<", ":", "/", "|", "?", "*", "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4",
+    "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7",
+    "LPT8", "LPT9",
+];
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Vault {
@@ -72,7 +76,6 @@ pub fn is_path_os_valid(path: &str) -> bool {
                 return false;
             }
         }
-
     } else {
         let mut path_replaced: String = String::from("");
         if path.chars().next().unwrap() == '/' {
@@ -84,7 +87,7 @@ pub fn is_path_os_valid(path: &str) -> bool {
         }
 
         let mut path_replaced = path_replaced.as_str();
-        
+
         if path_replaced.clone().chars().next().unwrap() == ' ' {
             return false;
         }
@@ -103,7 +106,7 @@ pub fn is_path_os_valid(path: &str) -> bool {
             if x_temp_iter1.next().unwrap() == '.' {
                 if x_temp_iter1.clone().count() > 0 {
                     if x_temp_iter1.next().unwrap() == '.' {
-                        return false
+                        return false;
                     }
                 } else {
                     return false;

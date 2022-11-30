@@ -1,9 +1,9 @@
 use super::core::VaultValue;
 use crate::hasher::argon2id;
 use crate::hasher::blake3;
+use crate::utils;
 use crate::utils::constants;
 use crate::utils::Vault;
-use crate::utils;
 use crate::{
     encrypter::{ecies::ECIES, key_encrypt::KeyEncrypt},
     hasher::argon2id::Argon2id,
@@ -24,11 +24,11 @@ use fltk_theme::{color_themes, ColorTheme, SchemeType, WidgetScheme};
 use sled;
 use sled::Db;
 use std::collections::HashMap;
+use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
 use std::str::FromStr;
 use std::sync::{Arc, Mutex};
-use std::fs;
 
 pub fn entries_callback(
     entries: &mut tree::Tree,
@@ -50,11 +50,9 @@ pub fn entries_callback(
     vault_arc_clone: Arc<Mutex<Vault>>,
 ) {
     let selected_item = match entries.first_selected_item() {
-        Some(first_selected_item) => {
-            match first_selected_item.label() {
-                Some(label) => label,
-                None => "".to_string(),
-            }
+        Some(first_selected_item) => match first_selected_item.label() {
+            Some(label) => label,
+            None => "".to_string(),
         },
         None => "".to_string(),
     };
@@ -175,7 +173,7 @@ pub fn save_button_callback(
     let install_path_value = install_path_arc.lock().unwrap().value();
     let content_value = content_arc.lock().unwrap().value();
     let notes_value = notes_arc.lock().unwrap().value();
-    let mut error_label = error_label_arc.lock().unwrap(); 
+    let mut error_label = error_label_arc.lock().unwrap();
 
     // empty error label
     error_label.set_label("");
@@ -219,12 +217,21 @@ pub fn save_button_callback(
         .unwrap();
 }
 
-pub fn delete_button_callback(vault_db_arc_clone: Arc<Mutex<Db>>, current_selected_entry_arc_clone: Arc<Mutex<String>>, db_entries_dict_arc_clone: Arc<Mutex<HashMap<String, Vec<u8>>>>, entries_arc_clone: Arc<Mutex<tree::Tree>>) {
+pub fn delete_button_callback(
+    vault_db_arc_clone: Arc<Mutex<Db>>,
+    current_selected_entry_arc_clone: Arc<Mutex<String>>,
+    db_entries_dict_arc_clone: Arc<Mutex<HashMap<String, Vec<u8>>>>,
+    entries_arc_clone: Arc<Mutex<tree::Tree>>,
+) {
     let mut entries = entries_arc_clone.lock().unwrap();
     let current_selected_entry = current_selected_entry_arc_clone.lock().unwrap();
     let mut db_entries_dict = db_entries_dict_arc_clone.lock().unwrap();
 
-    vault_db_arc_clone.lock().unwrap().remove(db_entries_dict.get(current_selected_entry.as_str()).unwrap());
+    vault_db_arc_clone.lock().unwrap().remove(
+        db_entries_dict
+            .get(current_selected_entry.as_str())
+            .unwrap(),
+    );
 
     let entries_items = entries.get_items().unwrap();
 
@@ -238,7 +245,7 @@ pub fn delete_button_callback(vault_db_arc_clone: Arc<Mutex<Db>>, current_select
         }
     }
 
-    // drop the arc so it can be used by the callback functiont 
+    // drop the arc so it can be used by the callback functiont
     drop(current_selected_entry);
     drop(current_selected_entry_arc_clone);
 
@@ -255,7 +262,12 @@ pub fn delete_button_callback(vault_db_arc_clone: Arc<Mutex<Db>>, current_select
     // entries.select(entries_items.get(0).unwrap().label().unwrap().as_str(), true).unwrap();
 }
 
-pub fn install_button_callback(install_path_arc: Arc<Mutex<input::Input>>, content_arc: Arc<Mutex<input::MultilineInput>>, error_label_arc: Arc<Mutex<frame::Frame>>, is_windows: bool) {
+pub fn install_button_callback(
+    install_path_arc: Arc<Mutex<input::Input>>,
+    content_arc: Arc<Mutex<input::MultilineInput>>,
+    error_label_arc: Arc<Mutex<frame::Frame>>,
+    is_windows: bool,
+) {
     // get references behind arc
     let install_path = install_path_arc.lock().unwrap();
     let content = content_arc.lock().unwrap();
@@ -273,7 +285,8 @@ pub fn install_button_callback(install_path_arc: Arc<Mutex<input::Input>>, conte
         match fs::create_dir_all(path_folder) {
             Ok(_) => (),
             Err(_) => {
-                error_label.set_label("There was an error creating/finding the dir where to install!");
+                error_label
+                    .set_label("There was an error creating/finding the dir where to install!");
                 error_label.show();
                 return;
             }
@@ -286,7 +299,8 @@ pub fn install_button_callback(install_path_arc: Arc<Mutex<input::Input>>, conte
         match fs::create_dir_all(path_folder) {
             Ok(_) => (),
             Err(_) => {
-                error_label.set_label("There was an error creating/finding the dir where to install!");
+                error_label
+                    .set_label("There was an error creating/finding the dir where to install!");
                 error_label.show();
                 return;
             }
@@ -299,7 +313,7 @@ pub fn install_button_callback(install_path_arc: Arc<Mutex<input::Input>>, conte
             error_label.set_label("Successfully written the content to the file!");
             error_label.show();
             return;
-        },
+        }
         Err(_) => {
             error_label.set_label("There was an error writing the content to the file!");
             error_label.show();

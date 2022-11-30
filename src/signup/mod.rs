@@ -1,2 +1,2 @@
-pub mod window;
 mod core;
+pub mod window;

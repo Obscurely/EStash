@@ -1,3 +1,13 @@
+use crate::hasher::argon2id;
+use crate::hasher::blake3;
+use crate::login;
+use crate::utils;
+use crate::{
+    encrypter::{ecies::ECIES, key_encrypt::KeyEncrypt},
+    hasher::argon2id::Argon2id,
+    signup,
+    utils::db,
+};
 use fltk::{
     app,
     button::Button,
@@ -8,23 +18,22 @@ use fltk::{
     window::Window,
 };
 use fltk_theme::{color_themes, ColorTheme, SchemeType, WidgetScheme};
-use crate::{utils::db, encrypter::{ecies::ECIES, key_encrypt::KeyEncrypt}, hasher::argon2id::Argon2id, signup};
-use crate::hasher::blake3;
-use crate::hasher::argon2id;
 use std::sync::{Arc, Mutex};
-use crate::login;
-use crate::utils;
 
 pub fn create() -> fltk::window::DoubleWindow {
     // Create start window
     let mut wind = Window::default().with_size(400, 200).with_label("Start");
 
     // login button
-    let mut login_button = fltk::button::Button::default().with_size(170, 160).with_label("Login");
+    let mut login_button = fltk::button::Button::default()
+        .with_size(170, 160)
+        .with_label("Login");
     login_button.set_pos(20, 20);
 
     // signup button
-    let mut signup_button = fltk::button::Button::default().with_size(170, 160).with_label("Signup");
+    let mut signup_button = fltk::button::Button::default()
+        .with_size(170, 160)
+        .with_label("Signup");
     signup_button.set_pos(210, 20);
     // signup_button.right_of(&login_button, 20);
 

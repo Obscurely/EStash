@@ -1,3 +1,10 @@
+use crate::hasher::argon2id;
+use crate::hasher::blake3;
+use crate::{
+    encrypter::{ecies::ECIES, key_encrypt::KeyEncrypt},
+    hasher::argon2id::Argon2id,
+    utils::db,
+};
 use fltk::{
     app,
     button::Button,
@@ -8,9 +15,6 @@ use fltk::{
     window::Window,
 };
 use fltk_theme::{color_themes, ColorTheme, SchemeType, WidgetScheme};
-use crate::{utils::db, encrypter::{ecies::ECIES, key_encrypt::KeyEncrypt}, hasher::argon2id::Argon2id};
-use crate::hasher::blake3;
-use crate::hasher::argon2id;
 use std::sync::{Arc, Mutex};
 
 pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
@@ -70,8 +74,15 @@ pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
         let mut key_encrypt = KeyEncrypt::new();
 
         if password == password_again {
-            super::core::create_vault(&vault_name, &password, &mut estashdb, &mut ecies, &mut key_encrypt, is_windows);
-            
+            super::core::create_vault(
+                &vault_name,
+                &password,
+                &mut estashdb,
+                &mut ecies,
+                &mut key_encrypt,
+                is_windows,
+            );
+
             // will handle db later, for now just print
             let mut text_status_buf = fltk::text::TextBuffer::default();
             text_status_buf.set_text("Status: Successfully created account!");
@@ -82,6 +93,6 @@ pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
             text_status.set_buffer(text_status_buf);
         }
     });
-    
+
     wind
 }

@@ -1,9 +1,13 @@
-use crate::{utils::{db, self}, encrypter::{ecies::ECIES, key_encrypt::KeyEncrypt}, hasher::argon2id::Argon2id};
-use crate::hasher::blake3;
 use crate::hasher::argon2id;
-use std::str;
-use serde::{Serialize, Deserialize};
+use crate::hasher::blake3;
 use crate::utils::Vault;
+use crate::{
+    encrypter::{ecies::ECIES, key_encrypt::KeyEncrypt},
+    hasher::argon2id::Argon2id,
+    utils::{self, db},
+};
+use serde::{Deserialize, Serialize};
+use std::str;
 
 #[derive(Serialize, Deserialize)]
 pub struct VaultDbValue {
@@ -24,7 +28,15 @@ impl ToOwnedArray for Vec<u8> {
     }
 }
 
-pub fn login_vault(vault_name: &str, password: &str, estashdb: &mut db::EstashDb, argon: &mut Argon2id, ecies: &mut ECIES, key_encrypt: &mut KeyEncrypt, is_windows: bool ) -> Vault {
+pub fn login_vault(
+    vault_name: &str,
+    password: &str,
+    estashdb: &mut db::EstashDb,
+    argon: &mut Argon2id,
+    ecies: &mut ECIES,
+    key_encrypt: &mut KeyEncrypt,
+    is_windows: bool,
+) -> Vault {
     let vault_name_hashed = blake3::hash_str(vault_name);
     // check if the vault is present in the database
     match estashdb.vault_db.contains_key(vault_name_hashed) {
@@ -39,10 +51,10 @@ pub fn login_vault(vault_name: &str, password: &str, estashdb: &mut db::EstashDb
             println!("{error}");
             std::process::exit(100);
             // TODO: handle error
-        },
+        }
     }
 
-    // get back the data at the given vault name 
+    // get back the data at the given vault name
     let data = match estashdb.vault_db.get(vault_name_hashed) {
         Ok(data_unchecked) => match data_unchecked {
             Some(data_raw) => match str::from_utf8(&data_raw) {
@@ -51,17 +63,17 @@ pub fn login_vault(vault_name: &str, password: &str, estashdb: &mut db::EstashDb
                     println!("{error}");
                     std::process::exit(100);
                     // TODO: handle error
-                },
+                }
             },
             None => {
                 panic!("No data at specified key!");
                 // TODO: handle error
-            },
+            }
         },
         Err(error) => {
             panic!("{error}");
             // TODO: handle error
-        },
+        }
     };
 
     // parse data into object
@@ -70,7 +82,7 @@ pub fn login_vault(vault_name: &str, password: &str, estashdb: &mut db::EstashDb
         Err(error) => {
             panic!("{error}");
             // TODO: handle error
-        },
+        }
     };
 
     // extract data into separate values
@@ -83,14 +95,16 @@ pub fn login_vault(vault_name: &str, password: &str, estashdb: &mut db::EstashDb
             None => {
                 panic!("No data at specified key!");
                 // TODO: handle error
-            },
+            }
         },
         Err(error) => {
             panic!("{error}");
             // TODO: handle error
-        },
-    }; 
-    let vault_priv_key = match key_encrypt.decrypt_with_password_bytes(password.as_bytes(), &vault_priv_key_encrypted) {
+        }
+    };
+    let vault_priv_key = match key_encrypt
+        .decrypt_with_password_bytes(password.as_bytes(), &vault_priv_key_encrypted)
+    {
         Ok(key) => key,
         Err(error) => {
             panic!("{error}: Password is not right!");

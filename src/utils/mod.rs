@@ -49,6 +49,12 @@ pub fn is_path_os_valid(path: &str) -> bool {
             return false;
         }
 
+        let path_replaced_vec: Vec<&str> = path.split("\\\\").collect();
+        path_replaced.reverse();
+        path_replaced.pop();
+        path_replaced.reverse();
+        let path_replaced = path_replaced_vec.join("");
+
         for invalid_char in FORBIDDEN_WINDOWS_CHARS {
             if path.contains(invalid_char) {
                 return false;

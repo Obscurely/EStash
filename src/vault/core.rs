@@ -31,6 +31,14 @@ pub enum VaultValueErr {
     DbCorrupted(u16),
 }
 
+#[derive(Debug)]
+pub enum NewEntryErr {
+    PoisonErr(u16),
+    DbCorrupted(u16),
+    DbInaccesible(u16),
+    UnknownError(u16),
+}
+
 pub fn get_entry_value_plain(
     vault_db_arc_clone: Arc<Mutex<Db>>,
     ecies_arc_clone: Arc<Mutex<ECIES>>,
@@ -133,36 +141,81 @@ pub fn add_new_entry(
     vault_arc_clone: Arc<Mutex<Vault>>,
     entrie_name: &str,
     ecies_arc_clone: Arc<Mutex<ECIES>>,
-) -> Vec<u8> {
-    let vault = vault_arc_clone.lock().unwrap();
-    // TODO: handle errors
-    let entrie_add_input_value_encrypted = ecies_arc_clone
-        .lock()
-        .unwrap()
-        .encrypt_bytes_array(entrie_name.as_bytes(), &vault.priv_key, &vault.pub_key)
-        .unwrap();
+) -> Result<Vec<u8>, NewEntryErr> {
+    // get value for vault under arc
+    let vault = match vault_arc_clone.lock() {
+        Ok(v) => v,
+        Err(err) => {
+            eprintln!("ERROR: Failed to get value under vault ARC!\n{err}");
+            return Err(NewEntryErr::PoisonErr(0));
+        }
+    };
+
+    // get value for ecies under arc
+    let mut ecies = match ecies_arc_clone.lock() {
+        Ok(ecies) => ecies,
+        Err(err) => {
+            eprintln!("ERROR: Failed to get value under ecies ARC!\n{err}");
+            return Err(NewEntryErr::PoisonErr(0));
+        }
+    };
+
+    let entrie_add_input_value_encrypted = match ecies.encrypt_bytes_array(
+        entrie_name.as_bytes(),
+        &vault.priv_key,
+        &vault.pub_key,
+    ) {
+        Ok(cipher) => cipher,
+        Err(err) => {
+            eprintln!("ERROR: Even though the vault was successfully loaded there is a problem encrypting data with its keys, it's possible that the db may be corrupted");
+            return Err(NewEntryErr::DbCorrupted(0));
+        }
+    };
+
     let empty_value = VaultValue::new_empty();
-    let emtpy_value_string = serde_json::to_string(&empty_value).unwrap();
-    let emtpy_value_encrypted = ecies_arc_clone
-        .lock()
-        .unwrap()
-        .encrypt_bytes_array(
-            emtpy_value_string.as_bytes(),
-            &vault.priv_key,
-            &vault.pub_key,
-        )
-        .unwrap();
 
-    // FIXME: add a check for wether the entry is already present or not so we don't
-    // overwrite it with empty
-    vault_db_arc_clone
-        .lock()
-        .unwrap()
-        .insert(
-            (&entrie_add_input_value_encrypted).to_owned(),
-            emtpy_value_encrypted,
-        )
-        .unwrap();
+    // there ain't no way in hell this fails, but... let's error handle it I guess
+    let emtpy_value_string = match serde_json::to_string(&empty_value) {
+        Ok(s) => s,
+        Err(err) => {
+            eprintln!("ERROR: Somehow converting the static empty entry value typed in code failed to convert to a string... here is the error,\n{err}");
+            return Err(NewEntryErr::UnknownError(0));
+        }
+    };
 
-    entrie_add_input_value_encrypted
+    // how would this even fail if we are encrypting something static with keys that have
+    // worked before, regardless here is error handling it yayy
+    let emtpy_value_encrypted = match ecies.encrypt_bytes_array(
+        emtpy_value_string.as_bytes(),
+        &vault.priv_key,
+        &vault.pub_key,
+    ) {
+        Ok(cipher) => cipher,
+        Err(err) => {
+            eprintln!("ERROR: Even though we are encrypting static values with keys that have already been used for encrypting and have worked we encountered an error... here is the error,\n{err}");
+            return Err(NewEntryErr::UnknownError(0));
+        }
+    };
+
+    // get value for vault db under arc
+    let vault_db = match vault_db_arc_clone.lock() {
+        Ok(db) => db,
+        Err(err) => {
+            eprintln!("ERROR: Failed to get value under vault_db ARC!\n{err}");
+            return Err(NewEntryErr::PoisonErr(0));
+        }
+    };
+
+    match vault_db.insert(
+        (&entrie_add_input_value_encrypted).to_owned(),
+        emtpy_value_encrypted,
+    ) {
+        Ok(_) => (),
+        Err(err) => {
+            eprintln!("ERROR: There was an error storing the given value in the db, for some reason the db in not accesible, please report this error on github if you are able to replicate it!\n{err}");
+            return Err(NewEntryErr::DbInaccesible(0));
+        }
+    };
+
+    Ok(entrie_add_input_value_encrypted)
 }

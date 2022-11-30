@@ -4,6 +4,7 @@ use crate::ECIES;
 use fltk::{prelude::*, window::Window, *};
 use sled;
 use std::collections::HashMap;
+use std::process;
 use std::str;
 use std::sync::{Arc, Mutex};
 
@@ -121,29 +122,82 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
         vaults_root_path = constants::VAULTS_ROOT_PATH_UNIX.to_string();
     }
     let vault_db = Arc::new(Mutex::new(
-        sled::open(vaults_root_path + &vault.id.to_string()).unwrap(),
+        match sled::open(vaults_root_path + &vault.id.to_string()) {
+            Ok(db) => db,
+            Err(err) => {
+                eprintln!("ERROR: Even though the db appears in the list with db's there isn't one that's actually available in storage, or maybe there has been some one-time error, please try again!\n{err}");
+                process::exit(100);
+            }
+        },
     ));
 
     // load current entries in db and display them
     // + save them in a dict where the key is the unecrypted value and the value is the one
     // encrypted
-    let db_entries = vault_db.lock().unwrap().iter();
+
+    // get value under vault_db arc
+    let vault_db_locked = match vault_db.lock() {
+        Ok(db) => db,
+        Err(err) => {
+            eprintln!("ERROR: For some reason we can't get the value for vault_db under ARC, even though we just created and it hasn't been used anywhere else, please try again!\n{err}");
+            process::exit(100);
+        }
+    };
+
+    let mut ecies_locked = match ecies.lock() {
+        Ok(object) => object,
+        Err(err) => {
+            eprintln!("ERROR: Failed to get value under ecies ARC!\n{err}");
+            process::exit(100);
+        }
+    };
+
+    let db_entries = vault_db_locked.iter();
     let db_entries_dict = Arc::new(Mutex::new(HashMap::new()));
+
+    let mut db_entries_dict_locked = match db_entries_dict.lock() {
+        Ok(object) => object,
+        Err(err) => {
+            eprintln!("ERROR: Failed to get the value under db_entries_dict ARC!\n{err}");
+            process::exit(100);
+        }
+    };
+
     for entry in db_entries {
         // TODO: handle errors
-        let current_entry_encrypted = entry.unwrap().0.to_vec();
-        let current_entry_plain = ecies
-            .lock()
-            .unwrap()
-            .decrypt_bytes(&current_entry_encrypted, &vault.priv_key, &vault.pub_key)
-            .unwrap();
-        let current_entry_string = str::from_utf8(&current_entry_plain).unwrap();
+        let current_entry_encrypted = match entry {
+            Ok(cipher) => cipher.0.to_vec(),
+            Err(err) => {
+                eprintln!("ERROR: Failed to get an entry that we just read, this error message should not be displayed, but if for some reason is, just try again, or post an issue on github!\n{err}");
+                process::exit(100);
+            }
+        };
+        let current_entry_plain = match ecies_locked.decrypt_bytes(
+            &current_entry_encrypted,
+            &vault.priv_key,
+            &vault.pub_key,
+        ) {
+            Ok(plain) => plain,
+            Err(err) => {
+                eprintln!("ERROR: Failed to decrypt the entry even though the vault keys were validated, try again, if it doesn't work then the db might be corrupted!\n{err}");
+                process::exit(100);
+            }
+        };
+        let current_entry_string = match str::from_utf8(&current_entry_plain) {
+            Ok(s) => s,
+            Err(err) => {
+                eprintln!("ERROR: Failed to convert the decrypted bytes into a string, your current db is most likely corrupted, try again maybe!\n{err}");
+                process::exit(100);
+            }
+        };
         entries.add(current_entry_string);
-        db_entries_dict
-            .lock()
-            .unwrap()
-            .insert(current_entry_string.to_owned(), current_entry_encrypted);
+
+        db_entries_dict_locked.insert(current_entry_string.to_owned(), current_entry_encrypted);
     }
+
+    drop(vault_db_locked);
+    drop(ecies_locked);
+    drop(db_entries_dict_locked);
 
     // global value for callbacks (for storing the currently selected entry)
     let current_selected_entry = Arc::new(Mutex::new(String::new()));

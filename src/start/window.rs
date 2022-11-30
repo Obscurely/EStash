@@ -1,10 +1,7 @@
 use crate::login;
-use crate::utils;
 use crate::signup;
-use fltk::{
-    prelude::*,
-    window::Window,
-};
+use crate::utils;
+use fltk::{prelude::*, window::Window};
 
 pub fn create() -> fltk::window::DoubleWindow {
     // Create start window

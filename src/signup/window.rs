@@ -2,13 +2,7 @@ use crate::{
     encrypter::{ecies::ECIES, key_encrypt::KeyEncrypt},
     utils::db,
 };
-use fltk::{
-    button::Button,
-    enums::Font,
-    group::Flex,
-    prelude::*,
-    window::Window,
-};
+use fltk::{button::Button, enums::Font, group::Flex, prelude::*, window::Window};
 
 use super::core::SingupError;
 
@@ -99,7 +93,7 @@ pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
                 Err(SingupError::FailedToStoreCredentials(_)) => {
                     let mut text_status_buf = fltk::text::TextBuffer::default();
                     text_status_buf.set_text("Status: Failed to store credentials!");
-                    text_status.set_buffer(text_status_buf); 
+                    text_status.set_buffer(text_status_buf);
                 }
                 Err(SingupError::UnknownError(_)) => {
                     let mut text_status_buf = fltk::text::TextBuffer::default();
@@ -109,7 +103,7 @@ pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
                 Err(SingupError::FailedToAccessVaultsDb(_)) => {
                     let mut text_status_buf = fltk::text::TextBuffer::default();
                     text_status_buf.set_text("Status: Failed to access vaults db!");
-                    text_status.set_buffer(text_status_buf); 
+                    text_status.set_buffer(text_status_buf);
                 }
                 Err(SingupError::CorruptedVaultsDb(_)) => {
                     let mut text_status_buf = fltk::text::TextBuffer::default();

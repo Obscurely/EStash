@@ -1,15 +1,6 @@
 use crate::vault;
-use crate::{
-    encrypter::key_encrypt::KeyEncrypt,
-    utils::db,
-};
-use fltk::{
-    button::Button,
-    enums::Font,
-    group::Flex,
-    prelude::*,
-    window::Window,
-};
+use crate::{encrypter::key_encrypt::KeyEncrypt, utils::db};
+use fltk::{button::Button, enums::Font, group::Flex, prelude::*, window::Window};
 
 use super::core::LoginError;
 
@@ -95,7 +86,7 @@ pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
                 let mut text_status_buf = fltk::text::TextBuffer::default();
                 text_status_buf.set_text("Status: The input credentials are wrong!");
                 text_status.set_buffer(text_status_buf);
-                return; 
+                return;
             }
             Err(LoginError::CorruptedVaultsDb(_)) => {
                 let mut text_status_buf = fltk::text::TextBuffer::default();

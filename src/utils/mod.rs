@@ -155,7 +155,7 @@ pub fn is_path_os_valid(path: &str) -> bool {
             match x_temp_iter2.next() {
                 Some(c) => {
                     if c == ' ' {
-                        return false
+                        return false;
                     }
                 }
                 None => return false,

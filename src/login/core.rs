@@ -1,9 +1,6 @@
 use crate::hasher::blake3;
 use crate::utils::Vault;
-use crate::{
-    encrypter::key_encrypt::KeyEncrypt,
-    utils::db,
-};
+use crate::{encrypter::key_encrypt::KeyEncrypt, utils::db};
 use serde::{Deserialize, Serialize};
 use std::str;
 

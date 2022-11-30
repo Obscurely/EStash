@@ -111,15 +111,16 @@ pub fn create_vault(
     let private_key = key_pair.1;
 
     // encrypt private key
-    let encrypted_private_key =
-        match key_encrypt.encrypt_with_password_bytes(password.as_bytes(), &private_key) {
-            Ok(cipher) => cipher,
-            Err(error) => {
-                // shouldn't fail
-                eprintln!("ERROR: There was an error encrypting the generated key using the password!\n{error}");
-                return Err(SingupError::UnknownError(0));
-            }
-        };
+    let encrypted_private_key = match key_encrypt
+        .encrypt_with_password_bytes(password.as_bytes(), &private_key)
+    {
+        Ok(cipher) => cipher,
+        Err(error) => {
+            // shouldn't fail
+            eprintln!("ERROR: There was an error encrypting the generated key using the password!\n{error}");
+            return Err(SingupError::UnknownError(0));
+        }
+    };
 
     // create vault
     if is_windows {

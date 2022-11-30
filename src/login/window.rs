@@ -11,6 +11,8 @@ use fltk::{
     window::Window,
 };
 
+use super::core::LoginError;
+
 pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
     // Create login window
     let wind = Window::default().with_size(710, 200).with_label("Login");
@@ -56,18 +58,76 @@ pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
         let password = input_pass.value();
 
         // load necessary databases
-        let mut estashdb = db::EstashDb::new().unwrap();
+        let mut estashdb = match db::EstashDb::new() {
+            Ok(db) => db,
+            Err(err) => {
+                eprintln!("ERROR: There was an error reading the db containing the list with vaults!\n{err}");
+                let mut text_status_buf = fltk::text::TextBuffer::default();
+                text_status_buf.set_text("Status: Failed to load db with vaults!");
+                text_status.set_buffer(text_status_buf);
+                return;
+            }
+        };
 
         // create necessary objects
         let mut key_encrypt = KeyEncrypt::new();
 
         // super::core::create_vault(&vault_name, &password, &mut estashdb, &mut argon, &mut ecies, &mut key_encrypt, is_windows);
-        let vault = super::core::login_vault(
+        let vault = match super::core::login_vault(
             &vault_name,
             &password,
             &mut estashdb,
             &mut key_encrypt,
-        );
+        ) {
+            Ok(v) => {
+                let mut text_status_buf = fltk::text::TextBuffer::default();
+                text_status_buf.set_text("Status: Successfully logging in!");
+                text_status.set_buffer(text_status_buf);
+                v
+            },
+            Err(LoginError::CorruptedVault(_)) => {
+                let mut text_status_buf = fltk::text::TextBuffer::default();
+                text_status_buf.set_text("Status: This vault is corrupted!");
+                text_status.set_buffer(text_status_buf);
+                return;
+            }
+            Err(LoginError::WrongCredentials(_)) => {
+                let mut text_status_buf = fltk::text::TextBuffer::default();
+                text_status_buf.set_text("Status: The input credentials are wrong!");
+                text_status.set_buffer(text_status_buf);
+                return; 
+            }
+            Err(LoginError::CorruptedVaultsDb(_)) => {
+                let mut text_status_buf = fltk::text::TextBuffer::default();
+                text_status_buf.set_text("Status: The vaults db is corrupted!");
+                text_status.set_buffer(text_status_buf);
+                return;
+            }
+            Err(LoginError::CorruptedPubKeyDb(_)) => {
+                let mut text_status_buf = fltk::text::TextBuffer::default();
+                text_status_buf.set_text("Status: The pub key db is corrupted!");
+                text_status.set_buffer(text_status_buf);
+                return;
+            }
+            Err(LoginError::FailedToAccessVaultsDb(_)) => {
+                let mut text_status_buf = fltk::text::TextBuffer::default();
+                text_status_buf.set_text("Status: Failed to access the vaults db!");
+                text_status.set_buffer(text_status_buf);
+                return;
+            }
+            Err(LoginError::FailedToAccessPubKeyDb(_)) => {
+                let mut text_status_buf = fltk::text::TextBuffer::default();
+                text_status_buf.set_text("Status: Failed to access the pub key db!");
+                text_status.set_buffer(text_status_buf);
+                return;
+            }
+            Err(LoginError::FailedToAccessPrivKeyDb(_)) => {
+                let mut text_status_buf = fltk::text::TextBuffer::default();
+                text_status_buf.set_text("Status: Failed to access the priv key db!");
+                text_status.set_buffer(text_status_buf);
+                return;
+            }
+        };
 
         // open vault window
         wind_clone.hide();

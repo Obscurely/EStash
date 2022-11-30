@@ -20,22 +20,25 @@ fn main() {
     let widget_scheme = WidgetScheme::new(SchemeType::Clean);
     widget_scheme.apply();
 
-    // Create signup window
-    // let mut signup_wind = signup::window::create(utils::is_windows());
-    // signup_wind.show();
-
-    // Create login window
-    // let mut login_wind = login::window::create(utils::is_windows());
-    // login_wind.show();
-
-    // Create vault window
-    // let mut vault_wind = vault::window::create(utils::is_windows(), Vault::new_empty());
-    // vault_wind.show();
-
     // Create start window
     let mut start_wind = start::window::create();
     start_wind.show();
 
     // Start the app
-    app.run().unwrap();
+    match app.run() {
+        Ok(_) => (),
+        Err(err) => {
+            // print error
+            eprintln!("ERROR: Failed to start EStash, given error:\n{err}");
+            
+            // drop the objects manually, cause why not
+            drop(start_wind);
+            drop(widget_scheme);
+            drop(theme);
+            drop(app);
+
+            // exit the program
+            std::process::exit(100);
+        }
+    };
 }

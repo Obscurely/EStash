@@ -60,7 +60,16 @@ pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
         let password_again = input_pass_again.value();
 
         // load necessary databases
-        let mut estashdb = db::EstashDb::new().unwrap();
+        let mut estashdb = match db::EstashDb::new() {
+            Ok(db) => db,
+            Err(err) => {
+                eprintln!("ERROR: There was an error reading the db containing the list with vaults!\n{err}");
+                let mut text_status_buf = fltk::text::TextBuffer::default();
+                text_status_buf.set_text("Status: Failed to load db with vaults!");
+                text_status.set_buffer(text_status_buf);
+                return;
+            }
+        };
 
         // create necessary objects
         let mut ecies = ECIES::new();
@@ -76,7 +85,6 @@ pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
                 is_windows,
             );
 
-            // will handle db later, for now just print
             let mut text_status_buf = fltk::text::TextBuffer::default();
             text_status_buf.set_text("Status: Successfully created account!");
             text_status.set_buffer(text_status_buf);

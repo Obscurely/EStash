@@ -49,7 +49,7 @@ pub fn is_path_os_valid(path: &str) -> bool {
             return false;
         }
 
-        let mut path_replaced_vec: Vec<&str> = path.split("\\\\").collect();
+        let mut path_replaced_vec: Vec<&str> = path.split("\\").collect();
         path_replaced_vec.reverse();
         path_replaced_vec.pop();
         path_replaced_vec.reverse();

@@ -233,7 +233,7 @@ pub fn delete_button_callback(vault_db_arc_clone: Arc<Mutex<Db>>, current_select
         }
     }
 
-    // drop the arc so it can be used by the callback function
+    // drop the arc so it can be used by the callback functiont 
     drop(current_selected_entry);
     drop(current_selected_entry_arc_clone);
 

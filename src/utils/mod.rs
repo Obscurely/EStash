@@ -56,15 +56,19 @@ pub fn is_path_os_valid(path: &str) -> bool {
                 return false;
             }
 
-            if x.chars().next().unwrap() == ' ' {
+            let mut x_temp_iter = x.chars();
+
+            if x_temp_iter.next().unwrap() == ' ' {
                 return false;
             }
 
-            if x.chars().last().unwrap() == ' ' {
+            let last = x.chars().last().unwrap();
+
+            if last == ' ' {
                 return false;
             }
 
-            if x.chars().last().unwrap() == '.' {
+            if last == '.' {
                 return false;
             }
         }
@@ -75,13 +79,17 @@ pub fn is_path_os_valid(path: &str) -> bool {
             path_replaced = path.replacen("/", "", 1);
         }
 
-        let mut path_replaced = path_replaced.as_str();
-        
-        if path_replaced.chars().next().unwrap() == ' ' {
+        if path_replaced.len() == 0 {
             return false;
         }
 
-        if path_replaced.chars().last().unwrap() == ' ' {
+        let mut path_replaced = path_replaced.as_str();
+        
+        if path_replaced.clone().chars().next().unwrap() == ' ' {
+            return false;
+        }
+
+        if path_replaced.clone().chars().last().unwrap() == ' ' {
             return false;
         }
 
@@ -90,22 +98,29 @@ pub fn is_path_os_valid(path: &str) -> bool {
                 return false;
             }
 
-            let mut x_temp_iter = x.chars();
-            if x_temp_iter.next().unwrap() == '.' {
-                if x_temp_iter.next().unwrap() == '.' {
-                    return false
+            let mut x_temp_iter1 = x.chars();
+            let mut x_temp_iter2 = x_temp_iter1.clone();
+            if x_temp_iter1.next().unwrap() == '.' {
+                if x_temp_iter1.clone().count() > 0 {
+                    if x_temp_iter1.next().unwrap() == '.' {
+                        return false
+                    }
+                } else {
+                    return false;
                 }
             }
 
-            if x.chars().next().unwrap() == ' ' {
+            if x_temp_iter2.next().unwrap() == ' ' {
                 return false;
             }
 
-            if x.chars().last().unwrap() == ' ' {
+            let last = x.chars().last().unwrap();
+
+            if last == ' ' {
                 return false;
             }
 
-            if x.chars().last().unwrap() == '.' {
+            if last == '.' {
                 return false;
             }
         }

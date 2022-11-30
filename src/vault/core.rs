@@ -167,7 +167,7 @@ pub fn add_new_entry(
     ) {
         Ok(cipher) => cipher,
         Err(err) => {
-            eprintln!("ERROR: Even though the vault was successfully loaded there is a problem encrypting data with its keys, it's possible that the db may be corrupted");
+            eprintln!("ERROR: Even though the vault was successfully loaded there is a problem encrypting data with its keys, it's possible that the db may be corrupted\n{err}");
             return Err(NewEntryErr::DbCorrupted(0));
         }
     };

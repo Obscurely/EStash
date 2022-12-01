@@ -5,6 +5,7 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 use std::str;
+use std::fs;
 
 #[derive(Serialize, Deserialize)]
 pub struct VaultDbValue {
@@ -139,6 +140,13 @@ pub fn create_vault(
             Ok(db) => db,
             Err(error) => {
                 eprintln!("ERROR: There was an error creating the vault!\n{error}");
+    
+                // cleanup potential created folder
+                match fs::remove_dir_all(utils::constants::VAULTS_ROOT_PATH_UNIX.to_string() + &new_id.to_string()) {
+                    Ok(_) => (),
+                    Err(_) => (),
+                };
+
                 return Err(SingupError::FailedToCreateVault(0));
             }
         };
@@ -164,6 +172,15 @@ pub fn create_vault(
         Ok(_) => (),
         Err(error) => {
             eprintln!("ERROR: Failed to store private key for vault!\n{error}");
+
+            // remove previously stored vault entry in db
+            match estashdb.vault_db.remove(hashed_vault_name.as_ref()) {
+                Ok(_) => (),
+                Err(err) => {
+                    eprintln!("ERROR: After failing to store the private key we tried removing the previously added entry, but that didn't succed either, vaults db may be corrupted!\n{err}");
+                }
+            };
+
             return Err(SingupError::FailedToStorePrivateKey(0));
         }
     };
@@ -176,6 +193,21 @@ pub fn create_vault(
         Ok(_) => (),
         Err(error) => {
             eprintln!("ERROR: Failed to store public key for vault!\n{error}");
+
+            // remove previously stored vault entry in db and private key
+            match estashdb.vault_db.remove(hashed_vault_name.as_ref()) {
+                Ok(_) => (),
+                Err(err) => {
+                    eprintln!("ERROR: After failing to store the public key we tried removing the previously added entry, but that didn't succed either, vaults db may be corrupted!\n{err}");
+                }
+            };
+            match estashdb.vault_priv_key_db.remove(hashed_vault_name.as_ref()) {
+                Ok(_) => (),
+                Err(err) => {
+                    eprintln!("ERROR: After failing to store the public key we tried removing the previously stored private key, but that didn't succed either, private key db may be corrupted!\n{err}");
+                }
+            }
+
             return Err(SingupError::FailedToStorePublicKey(0));
         }
     };

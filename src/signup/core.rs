@@ -4,8 +4,8 @@ use crate::{
     utils::{self, db},
 };
 use serde::{Deserialize, Serialize};
-use std::str;
 use std::fs;
+use std::str;
 
 #[derive(Serialize, Deserialize)]
 pub struct VaultDbValue {
@@ -140,9 +140,11 @@ pub fn create_vault(
             Ok(db) => db,
             Err(error) => {
                 eprintln!("ERROR: There was an error creating the vault!\n{error}");
-    
+
                 // cleanup potential created folder
-                match fs::remove_dir_all(utils::constants::VAULTS_ROOT_PATH_UNIX.to_string() + &new_id.to_string()) {
+                match fs::remove_dir_all(
+                    utils::constants::VAULTS_ROOT_PATH_UNIX.to_string() + &new_id.to_string(),
+                ) {
                     Ok(_) => (),
                     Err(_) => (),
                 };
@@ -201,7 +203,10 @@ pub fn create_vault(
                     eprintln!("ERROR: After failing to store the public key we tried removing the previously added entry, but that didn't succed either, vaults db may be corrupted!\n{err}");
                 }
             };
-            match estashdb.vault_priv_key_db.remove(hashed_vault_name.as_ref()) {
+            match estashdb
+                .vault_priv_key_db
+                .remove(hashed_vault_name.as_ref())
+            {
                 Ok(_) => (),
                 Err(err) => {
                     eprintln!("ERROR: After failing to store the public key we tried removing the previously stored private key, but that didn't succed either, private key db may be corrupted!\n{err}");

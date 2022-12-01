@@ -46,14 +46,6 @@ pub fn get_entry_value_plain(
     selected_item: &str,
     db_entries_dict_arc_clone: Arc<Mutex<HashMap<String, Vec<u8>>>>,
 ) -> Result<VaultValue, VaultValueErr> {
-    let vault = match vault_arc_clone.lock() {
-        Ok(v) => v,
-        Err(err) => {
-            eprintln!("ERROR: Failed to get Vault value behind ARC!\n{err}");
-            return Err(VaultValueErr::PoisonErr(0));
-        }
-    };
-
     // get value behind ARC
     let db_entries_dict = match db_entries_dict_arc_clone.lock() {
         Ok(dict) => dict,
@@ -65,12 +57,16 @@ pub fn get_entry_value_plain(
 
     // get encrypted selected_item version in db
     let selected_item_encrypted = match db_entries_dict.get(selected_item) {
-        Some(cipher) => cipher,
+        Some(cipher) => cipher.to_owned(),
         None => {
             eprintln!("ERROR: The Values In Memory are not in sync with the ones on screen!");
             return Err(VaultValueErr::DisplayNotInSync(0));
         }
     };
+
+    // drop arc ref
+    drop(db_entries_dict);
+    drop(db_entries_dict_arc_clone);
 
     // get value behind arc
     let vault_db = match vault_db_arc_clone.lock() {
@@ -95,11 +91,22 @@ pub fn get_entry_value_plain(
         }
     };
 
+    // drop arc ref
+    drop(vault_db);
+    drop(vault_db_arc_clone);
+
     // get value behind arc
     let mut ecies = match ecies_arc_clone.lock() {
         Ok(ecies) => ecies,
         Err(err) => {
             eprintln!("Failed to get ecies value behind ARC!\n{err}");
+            return Err(VaultValueErr::PoisonErr(0));
+        }
+    };
+    let vault = match vault_arc_clone.lock() {
+        Ok(v) => v,
+        Err(err) => {
+            eprintln!("ERROR: Failed to get Vault value behind ARC!\n{err}");
             return Err(VaultValueErr::PoisonErr(0));
         }
     };
@@ -115,6 +122,12 @@ pub fn get_entry_value_plain(
             return Err(VaultValueErr::DbCorrupted(0));
         }
     };
+
+    // drop arc ref
+    drop(vault);
+    drop(vault_arc_clone);
+    drop(ecies);
+    drop(ecies_arc_clone);
 
     let entry_value_string = match str::from_utf8(&entry_value_decrypted) {
         Ok(s) => s,
@@ -196,6 +209,12 @@ pub fn add_new_entry(
             return Err(NewEntryErr::UnknownError(0));
         }
     };
+
+    // drop arc ref
+    drop(vault);
+    drop(vault_arc_clone);
+    drop(ecies);
+    drop(ecies_arc_clone);
 
     // get value for vault db under arc
     let vault_db = match vault_db_arc_clone.lock() {

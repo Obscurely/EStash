@@ -50,6 +50,14 @@ pub fn singup_button_callback(
     let password = input_pass.value();
     let password_again = input_pass_again.value();
 
+    // drop arc references
+    drop(input_user);
+    drop(input_user_arc);
+    drop(input_pass);
+    drop(input_pass_arc);
+    drop(input_pass_again);
+    drop(input_pass_again_arc);
+
     // load necessary databases
     let mut estashdb = match db::EstashDb::new() {
         Ok(db) => db,

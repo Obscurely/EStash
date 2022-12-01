@@ -114,6 +114,10 @@ pub fn entries_callback(
     // save the currently selected item
     *current_selected_entry = selected_item.to_owned();
 
+    // drop arc ref to current selected entry
+    drop(current_selected_entry);
+    drop(current_selected_entry_arc_clone);
+
     // if the user clicks on ROOT hide all the vault widgets and exit what of the callback
     if selected_item == "ROOT" || selected_item == "" {
         entrie_name.hide();
@@ -159,6 +163,12 @@ pub fn entries_callback(
                 return;
             }
         };
+
+        // drop arc ref
+        drop(vault_db_arc_clone);
+        drop(ecies_arc_clone);
+        drop(vault_arc_clone);
+        drop(db_entries_dict_arc_clone);
 
         // set value
         install_path.set_value(&entry_value_json.install_path);
@@ -227,6 +237,11 @@ pub fn entrie_add_button_callback(
             }
         };
 
+        // drop arc ref
+        drop(vault_db_arc_clone);
+        drop(vault_arc_clone);
+        drop(ecies_arc_clone);
+
         match db_entries_dict_arc_clone.lock() {
             Ok(mut object) => {
                 object.insert(
@@ -239,6 +254,9 @@ pub fn entrie_add_button_callback(
                 return;
             }
         }
+
+        // drop arc ref
+        drop(db_entries_dict_arc_clone);
 
         entries.add(entrie_add_input_value);
         entries.redraw();
@@ -263,25 +281,6 @@ pub fn save_button_callback(
         Ok(object) => object,
         Err(err) => {
             eprintln!("ERROR: Failed to get value under error_label_arc ARC!\n{err}");
-            return;
-        }
-    };
-
-    let vault = match vault_arc_clone.lock() {
-        Ok(object) => object,
-        Err(err) => {
-            eprintln!("ERROR: Failed to get value under vault_arc_clone ARC!\n{err}");
-            error_label.set_label("There was a Poison Error, try again, or try to restart!");
-            error_label.show();
-            return;
-        }
-    };
-    let selected_item = match current_selected_entry_arc_clone.lock() {
-        Ok(object) => object.to_owned(),
-        Err(err) => {
-            eprintln!("ERROR: Failed to get value under current_selected_entry_arc ARC!\n{err}");
-            error_label.set_label("There was a Poison Error, try again, or try to restart!");
-            error_label.show();
             return;
         }
     };
@@ -329,6 +328,11 @@ pub fn save_button_callback(
         notes: notes_value,
     };
 
+    // drop arc ref
+    drop(install_path_arc);
+    drop(content_arc);
+    drop(notes_arc);
+
     // shouldn't error, hopefully
     let entry_value_string = match serde_json::to_string(&entry_value) {
         Ok(s) => s,
@@ -353,6 +357,17 @@ pub fn save_button_callback(
         }
     };
 
+    // get value under arc
+    let vault = match vault_arc_clone.lock() {
+        Ok(object) => object,
+        Err(err) => {
+            eprintln!("ERROR: Failed to get value under vault_arc_clone ARC!\n{err}");
+            error_label.set_label("There was a Poison Error, try again, or try to restart!");
+            error_label.show();
+            return;
+        }
+    };
+
     // there should be no way for this to error out since once the vault is loaded it means the
     // keys work
     let entry_value_encrypted = match ecies.encrypt_bytes_array(
@@ -371,6 +386,12 @@ pub fn save_button_callback(
         }
     };
 
+    // drop arc ref
+    drop(vault);
+    drop(vault_arc_clone);
+    drop(ecies);
+    drop(ecies_arc_clone);
+
     // get value under arc
     let db_entries_dict = match db_entries_dict_arc_clone.lock() {
         Ok(object) => object,
@@ -382,8 +403,19 @@ pub fn save_button_callback(
         }
     };
 
+    // get value under arc
+    let selected_item = match current_selected_entry_arc_clone.lock() {
+        Ok(object) => object.to_owned(),
+        Err(err) => {
+            eprintln!("ERROR: Failed to get value under current_selected_entry_arc ARC!\n{err}");
+            error_label.set_label("There was a Poison Error, try again, or try to restart!");
+            error_label.show();
+            return;
+        }
+    };
+
     let selected_item_encrypted = match db_entries_dict.get(&selected_item) {
-        Some(cipher) => cipher,
+        Some(cipher) => cipher.to_owned(),
         None => {
             eprintln!("ERROR: The Values In Memory are not in sync with the ones on screen!");
             error_label.set_label(
@@ -393,6 +425,12 @@ pub fn save_button_callback(
             return;
         }
     };
+
+    // drop arc
+    drop(selected_item);
+    drop(current_selected_entry_arc_clone);
+    drop(db_entries_dict);
+    drop(db_entries_dict_arc_clone);
 
     // get value under arc
     let vault_db = match vault_db_arc_clone.lock() {
@@ -404,6 +442,10 @@ pub fn save_button_callback(
             return;
         }
     };
+
+    // drop arc ref
+    drop(error_label);
+    drop(error_label_arc);
 
     match vault_db.insert(selected_item_encrypted, entry_value_encrypted) {
         Ok(_) => (),
@@ -467,6 +509,10 @@ pub fn delete_button_callback(
         }
     };
 
+    // drop arc ref
+    drop(vault_db);
+    drop(vault_db_arc_clone);
+
     let entries_items = match entries.get_items() {
         Some(items) => items,
         None => {
@@ -506,6 +552,9 @@ pub fn delete_button_callback(
     for entrie in db_entries_dict.keys() {
         entries.add(entrie);
     }
+
+    // drop arc ref
+    drop(db_entries_dict);
 
     entries.redraw();
 
@@ -547,6 +596,12 @@ pub fn install_button_callback(
 
     let install_path_value = install_path.value().to_owned();
     let content_value = content.value().to_owned();
+
+    // drop arc ref
+    drop(install_path);
+    drop(install_path_arc);
+    drop(content);
+    drop(content_arc);
 
     // create the folder or make sure there is one
     if is_windows {

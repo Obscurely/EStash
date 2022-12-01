@@ -40,6 +40,12 @@ pub fn login_button_callback(
     let vault_name = input_user.value();
     let password = input_pass.value();
 
+    // drop the arc references since they are not needed anymore
+    drop(input_user);
+    drop(input_user_arc);
+    drop(input_pass);
+    drop(input_pass_arc);
+
     // load necessary databases
     let mut estashdb = match db::EstashDb::new() {
         Ok(db) => db,

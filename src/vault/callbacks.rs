@@ -21,7 +21,7 @@ pub fn entries_callback(
     save_button_arc: Arc<Mutex<button::Button>>,
     delete_button_arc: Arc<Mutex<button::Button>>,
     install_button_arc: Arc<Mutex<button::Button>>,
-    error_label_arc: Arc<Mutex<frame::Frame>>,
+    status_label_arc: Arc<Mutex<frame::Frame>>,
     current_selected_entry_arc_clone: Arc<Mutex<String>>,
     db_entries_dict_arc_clone: Arc<Mutex<HashMap<String, Vec<u8>>>>,
     vault_db_arc_clone: Arc<Mutex<Db>>,
@@ -39,7 +39,7 @@ pub fn entries_callback(
     let selected_item = selected_item.as_str();
 
     // get the actual object from arcs
-    let mut error_label = match error_label_arc.lock() {
+    let mut status_label = match status_label_arc.lock() {
         Ok(object) => object,
         Err(err) => {
             eprintln!("ERROR: Failed to get value under error_label_arc ARC!\n{err}");
@@ -51,8 +51,8 @@ pub fn entries_callback(
         Ok(object) => object,
         Err(err) => {
             eprintln!("ERROR: Failed to get value under install_path_arc ARC!\n{err}");
-            error_label.set_label("There was a Poison Error, try again, or try to restart!");
-            error_label.show();
+            status_label.set_label("There was a Poison Error, try again, or try to restart!");
+            status_label.show();
             return;
         }
     };
@@ -60,8 +60,8 @@ pub fn entries_callback(
         Ok(object) => object,
         Err(err) => {
             eprintln!("ERROR: Failed to get value under content_arc ARC!\n{err}");
-            error_label.set_label("There was a Poison Error, try again, or try to restart!");
-            error_label.show();
+            status_label.set_label("There was a Poison Error, try again, or try to restart!");
+            status_label.show();
             return;
         }
     };
@@ -69,8 +69,8 @@ pub fn entries_callback(
         Ok(object) => object,
         Err(err) => {
             eprintln!("ERROR: Failed to get value under notes_arc ARC!\n{err}");
-            error_label.set_label("There was a Poison Error, try again, or try to restart!");
-            error_label.show();
+            status_label.set_label("There was a Poison Error, try again, or try to restart!");
+            status_label.show();
             return;
         }
     };
@@ -78,8 +78,8 @@ pub fn entries_callback(
         Ok(object) => object,
         Err(err) => {
             eprintln!("ERROR: Failed to get value under save_button_arc ARC!\n{err}");
-            error_label.set_label("There was a Poison Error, try again, or try to restart!");
-            error_label.show();
+            status_label.set_label("There was a Poison Error, try again, or try to restart!");
+            status_label.show();
             return;
         }
     };
@@ -87,8 +87,8 @@ pub fn entries_callback(
         Ok(object) => object,
         Err(err) => {
             eprintln!("ERROR: Failed to get value under delete_button_arc ARC!\n{err}");
-            error_label.set_label("There was a Poison Error, try again, or try to restart!");
-            error_label.show();
+            status_label.set_label("There was a Poison Error, try again, or try to restart!");
+            status_label.show();
             return;
         }
     };
@@ -96,8 +96,8 @@ pub fn entries_callback(
         Ok(object) => object,
         Err(err) => {
             eprintln!("ERROR: Failed to get value under install_button_arc ARC!\n{err}");
-            error_label.set_label("There was a Poison Error, try again, or try to restart!");
-            error_label.show();
+            status_label.set_label("There was a Poison Error, try again, or try to restart!");
+            status_label.show();
             return;
         }
     };
@@ -105,8 +105,8 @@ pub fn entries_callback(
         Ok(object) => object,
         Err(err) => {
             eprintln!("ERROR: Failed to get value under current_selected_entry_arc ARC!\n{err}");
-            error_label.set_label("There was a Poison Error, try again, or try to restart!");
-            error_label.show();
+            status_label.set_label("There was a Poison Error, try again, or try to restart!");
+            status_label.show();
             return;
         }
     };
@@ -130,7 +130,7 @@ pub fn entries_callback(
         save_button.hide();
         delete_button.hide();
         install_button.hide();
-        error_label.hide();
+        status_label.hide();
     } else {
         let entry_value_json = match super::core::get_entry_value_plain(
             vault_db_arc_clone.clone(),
@@ -144,22 +144,22 @@ pub fn entries_callback(
                 process::exit(100);
             }
             Err(VaultValueErr::PoisonErr(_)) => {
-                error_label.set_label("There was a Poison Error, try again, or try to restart!");
-                error_label.show();
+                status_label.set_label("There was a Poison Error, try again, or try to restart!");
+                status_label.show();
                 return;
             }
             Err(VaultValueErr::DisplayNotInSync(_)) => {
-                error_label.set_label(
+                status_label.set_label(
                     "What's on screen is not in sync with what's in memory, try again or restart!",
                 );
-                error_label.show();
+                status_label.show();
                 return;
             }
             Err(VaultValueErr::MemoryNotInSync(_)) => {
-                error_label.set_label(
+                status_label.set_label(
                     "What's in memory is not in sync with what's in storage, please restart!",
                 );
-                error_label.show();
+                status_label.show();
                 return;
             }
         };
@@ -186,7 +186,7 @@ pub fn entries_callback(
         save_button.show();
         delete_button.show();
         install_button.show();
-        error_label.hide();
+        status_label.hide();
         entrie_name.set_label(selected_item);
     }
 }
@@ -269,7 +269,7 @@ pub fn save_button_callback(
     install_path_arc: Arc<Mutex<input::Input>>,
     content_arc: Arc<Mutex<input::MultilineInput>>,
     notes_arc: Arc<Mutex<input::MultilineInput>>,
-    error_label_arc: Arc<Mutex<frame::Frame>>,
+    status_label_arc: Arc<Mutex<frame::Frame>>,
     current_selected_entry_arc_clone: Arc<Mutex<String>>,
     vault_db_arc_clone: Arc<Mutex<Db>>,
     vault_arc_clone: Arc<Mutex<Vault>>,
@@ -277,7 +277,7 @@ pub fn save_button_callback(
     ecies_arc_clone: Arc<Mutex<ECIES>>,
 ) {
     // get references from arcs
-    let mut error_label = match error_label_arc.lock() {
+    let mut status_label = match status_label_arc.lock() {
         Ok(object) => object,
         Err(err) => {
             eprintln!("ERROR: Failed to get value under error_label_arc ARC!\n{err}");
@@ -288,8 +288,8 @@ pub fn save_button_callback(
         Ok(object) => object.value(),
         Err(err) => {
             eprintln!("ERROR: Failed to get value under install_path_arc ARC!\n{err}");
-            error_label.set_label("There was a Poison Error, try again, or try to restart!");
-            error_label.show();
+            status_label.set_label("There was a Poison Error, try again, or try to restart!");
+            status_label.show();
             return;
         }
     };
@@ -297,8 +297,8 @@ pub fn save_button_callback(
         Ok(object) => object.value(),
         Err(err) => {
             eprintln!("ERROR: Failed to get value under content_arc ARC!\n{err}");
-            error_label.set_label("There was a Poison Error, try again, or try to restart!");
-            error_label.show();
+            status_label.set_label("There was a Poison Error, try again, or try to restart!");
+            status_label.show();
             return;
         }
     };
@@ -306,19 +306,19 @@ pub fn save_button_callback(
         Ok(object) => object.value(),
         Err(err) => {
             eprintln!("ERROR: Failed to get value under notes_arc ARC!\n{err}");
-            error_label.set_label("There was a Poison Error, try again, or try to restart!");
-            error_label.show();
+            status_label.set_label("There was a Poison Error, try again, or try to restart!");
+            status_label.show();
             return;
         }
     };
 
     // empty error label
-    error_label.set_label("");
+    status_label.set_label("");
 
     // check if the given path is valid
     if !utils::is_path_os_valid(&install_path_value) {
-        error_label.set_label("The given path is invalid on the current operating system!");
-        error_label.show();
+        status_label.set_label("The given path is invalid on the current operating system!");
+        status_label.show();
         return;
     }
 
@@ -338,10 +338,10 @@ pub fn save_button_callback(
         Ok(s) => s,
         Err(err) => {
             eprintln!("ERROR: Somehow converting the struct to json error'd out, shouldn't have, here is the error,\n{err}");
-            error_label.set_label(
+            status_label.set_label(
                 "There was an error converting your input to json, restart or try again!",
             );
-            error_label.show();
+            status_label.show();
             return;
         }
     };
@@ -351,8 +351,8 @@ pub fn save_button_callback(
         Ok(object) => object,
         Err(err) => {
             eprintln!("ERROR: Failed to get value under ecies_arc ARC!\n{err}");
-            error_label.set_label("There was a Poison Error, try again, or try to restart!");
-            error_label.show();
+            status_label.set_label("There was a Poison Error, try again, or try to restart!");
+            status_label.show();
             return;
         }
     };
@@ -362,8 +362,8 @@ pub fn save_button_callback(
         Ok(object) => object,
         Err(err) => {
             eprintln!("ERROR: Failed to get value under vault_arc_clone ARC!\n{err}");
-            error_label.set_label("There was a Poison Error, try again, or try to restart!");
-            error_label.show();
+            status_label.set_label("There was a Poison Error, try again, or try to restart!");
+            status_label.show();
             return;
         }
     };
@@ -378,10 +378,10 @@ pub fn save_button_callback(
         Ok(cipher) => cipher,
         Err(err) => {
             eprintln!("ERROR: Failed to encrypt the data input by user, there should be no way for this to error out since once the vault is loaded it means the keys work, anyways here is the error,\n{err}");
-            error_label.set_label(
+            status_label.set_label(
                 "There was an error encrypting the data you input, try again or restart!",
             );
-            error_label.show();
+            status_label.show();
             return;
         }
     };
@@ -397,8 +397,8 @@ pub fn save_button_callback(
         Ok(object) => object,
         Err(err) => {
             eprintln!("ERROR: Failed to get value under db_entries_dict_arc ARC!\n{err}");
-            error_label.set_label("There was a Poison Error, try again, or try to restart!");
-            error_label.show();
+            status_label.set_label("There was a Poison Error, try again, or try to restart!");
+            status_label.show();
             return;
         }
     };
@@ -408,8 +408,8 @@ pub fn save_button_callback(
         Ok(object) => object.to_owned(),
         Err(err) => {
             eprintln!("ERROR: Failed to get value under current_selected_entry_arc ARC!\n{err}");
-            error_label.set_label("There was a Poison Error, try again, or try to restart!");
-            error_label.show();
+            status_label.set_label("There was a Poison Error, try again, or try to restart!");
+            status_label.show();
             return;
         }
     };
@@ -418,10 +418,10 @@ pub fn save_button_callback(
         Some(cipher) => cipher.to_owned(),
         None => {
             eprintln!("ERROR: The Values In Memory are not in sync with the ones on screen!");
-            error_label.set_label(
+            status_label.set_label(
                 "What's in memory is not in sync with what's in storage, please restart!",
             );
-            error_label.show();
+            status_label.show();
             return;
         }
     };
@@ -437,15 +437,15 @@ pub fn save_button_callback(
         Ok(object) => object,
         Err(err) => {
             eprintln!("ERROR: Failedt to get value under vault_db_arc ARC!\n{err}");
-            error_label.set_label("There was a Poison Error, try again, or try to restart!");
-            error_label.show();
+            status_label.set_label("There was a Poison Error, try again, or try to restart!");
+            status_label.show();
             return;
         }
     };
 
     // drop arc ref
-    drop(error_label);
-    drop(error_label_arc);
+    drop(status_label);
+    drop(status_label_arc);
 
     match vault_db.insert(selected_item_encrypted, entry_value_encrypted) {
         Ok(_) => (),
@@ -564,11 +564,11 @@ pub fn delete_button_callback(
 pub fn install_button_callback(
     install_path_arc: Arc<Mutex<input::Input>>,
     content_arc: Arc<Mutex<input::MultilineInput>>,
-    error_label_arc: Arc<Mutex<frame::Frame>>,
+    status_label_arc: Arc<Mutex<frame::Frame>>,
     is_windows: bool,
 ) {
     // get references behind arc
-    let mut error_label = match error_label_arc.lock() {
+    let mut status_label = match status_label_arc.lock() {
         Ok(object) => object,
         Err(err) => {
             eprintln!("ERROR: Failed to get value under error_label_arc ARC!\n{err}");
@@ -579,8 +579,8 @@ pub fn install_button_callback(
         Ok(object) => object,
         Err(err) => {
             eprintln!("ERROR: Failed to get value under install_path_arc ARC!\n{err}");
-            error_label.set_label("There was a Poison Error, try again, or try to restart!");
-            error_label.show();
+            status_label.set_label("There was a Poison Error, try again, or try to restart!");
+            status_label.show();
             return;
         }
     };
@@ -588,8 +588,8 @@ pub fn install_button_callback(
         Ok(object) => object,
         Err(err) => {
             eprintln!("ERROR: Failed to get value under content_arc ARC!\n{err}");
-            error_label.set_label("There was a Poison Error, try again, or try to restart!");
-            error_label.show();
+            status_label.set_label("There was a Poison Error, try again, or try to restart!");
+            status_label.show();
             return;
         }
     };
@@ -612,9 +612,9 @@ pub fn install_button_callback(
         match fs::create_dir_all(path_folder) {
             Ok(_) => (),
             Err(_) => {
-                error_label
+                status_label
                     .set_label("There was an error creating/finding the dir where to install!");
-                error_label.show();
+                status_label.show();
                 return;
             }
         };
@@ -626,9 +626,9 @@ pub fn install_button_callback(
         match fs::create_dir_all(path_folder) {
             Ok(_) => (),
             Err(_) => {
-                error_label
+                status_label
                     .set_label("There was an error creating/finding the dir where to install!");
-                error_label.show();
+                status_label.show();
                 return;
             }
         };
@@ -637,13 +637,13 @@ pub fn install_button_callback(
     // try and write to that file
     match fs::write(install_path_value, content_value) {
         Ok(_) => {
-            error_label.set_label("Successfully written the content to the file!");
-            error_label.show();
+            status_label.set_label("Successfully written the content to the file!");
+            status_label.show();
             return;
         }
         Err(_) => {
-            error_label.set_label("There was an error writing the content to the file!");
-            error_label.show();
+            status_label.set_label("There was an error writing the content to the file!");
+            status_label.show();
             return;
         }
     }

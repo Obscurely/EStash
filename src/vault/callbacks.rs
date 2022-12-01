@@ -603,6 +603,13 @@ pub fn install_button_callback(
     drop(content);
     drop(content_arc);
 
+    // check if install path is valid
+    if !utils::is_path_os_valid(&install_path_value) {
+        status_label.set_label("The given path is invalid on the current operating system!");
+        status_label.show();
+        return;
+    }
+
     // create the folder or make sure there is one
     if is_windows {
         let mut path_folder_vec: Vec<&str> = install_path_value.split("\\").collect();

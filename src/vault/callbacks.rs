@@ -14,6 +14,7 @@ pub fn entries_callback(
     entrie_name: &mut frame::Frame,
     install_path_label: &mut frame::Frame,
     install_path_arc: Arc<Mutex<input::Input>>,
+    install_path_check_button_arc: Arc<Mutex<button::Button>>,
     content_label: &mut frame::Frame,
     content_arc: Arc<Mutex<input::MultilineInput>>,
     notes_label: &mut frame::Frame,
@@ -51,6 +52,15 @@ pub fn entries_callback(
         Ok(object) => object,
         Err(err) => {
             eprintln!("ERROR: Failed to get value under install_path_arc ARC!\n{err}");
+            status_label.set_label("There was a Poison Error, try again, or try to restart!");
+            status_label.show();
+            return;
+        }
+    };
+    let mut install_path_check_button = match install_path_check_button_arc.lock() {
+        Ok(object) => object,
+        Err(err) => {
+            eprintln!("ERROR: Failed to get value under install_path_check_button_arc ARC!\n{err}");
             status_label.set_label("There was a Poison Error, try again, or try to restart!");
             status_label.show();
             return;
@@ -123,6 +133,7 @@ pub fn entries_callback(
         entrie_name.hide();
         install_path_label.hide();
         install_path.hide();
+        install_path_check_button.hide();
         content_label.hide();
         content.hide();
         notes_label.hide();
@@ -179,6 +190,7 @@ pub fn entries_callback(
         entrie_name.show();
         install_path_label.show();
         install_path.show();
+        install_path_check_button.show();
         content_label.show();
         content.show();
         notes_label.show();
@@ -653,5 +665,38 @@ pub fn install_button_callback(
             status_label.show();
             return;
         }
+    }
+}
+
+pub fn install_path_check_button_callback(
+    status_label_arc: Arc<Mutex<frame::Frame>>,
+    install_path_arc_clone: Arc<Mutex<input::Input>>,
+) {
+    // get the actual object from arcs
+    let mut status_label = match status_label_arc.lock() {
+        Ok(object) => object,
+        Err(err) => {
+            eprintln!("ERROR: Failed to get value under error_label_arc ARC!\n{err}");
+            return;
+        }
+    };
+    let install_path = match install_path_arc_clone.lock() {
+        Ok(object) => object,
+        Err(err) => {
+            eprintln!("ERROR: Failed to get value under install_path_arc ARC!\n{err}");
+            status_label.set_label("There was a Poison Error, try again, or try to restart!");
+            status_label.show();
+            return;
+        }
+    };
+
+    if !utils::is_path_os_valid(&install_path.value()) {
+        status_label.set_label("The given path is invalid on the current operating system!");
+        status_label.show();
+        return;
+    } else {
+        status_label.set_label("The given path is valid on the current operating system!");
+        status_label.show();
+        return;
     }
 }

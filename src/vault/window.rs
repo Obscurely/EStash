@@ -1,3 +1,4 @@
+use crate::utils;
 use crate::utils::constants;
 use crate::utils::Vault;
 use crate::ECIES;
@@ -41,12 +42,19 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     install_path_label.set_label("Install Path");
     install_path_label.hide();
     let mut install_path = fltk::input::Input::default()
-        .with_size(750, 20)
+        .with_size(690, 20)
         .below_of(&install_path_label, 1);
     install_path.set_color(install_path.color().lighter());
     install_path.set_text_size(15);
     install_path.hide();
     let install_path_arc = Arc::new(Mutex::new(install_path.clone()));
+
+    let mut install_path_check_button = fltk::button::Button::default()
+        .with_size(55, 20)
+        .right_of(&install_path, 5);
+    install_path_check_button.set_label("Check");
+    install_path_check_button.hide();
+    let install_path_check_button_arc = Arc::new(Mutex::new(install_path_check_button.clone()));
 
     let mut content_label = fltk::frame::Frame::default()
         .with_size(750, 20)
@@ -207,6 +215,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     let ecies_arc_clone = ecies.clone();
     let notes_arc_clone = notes_arc.clone();
     let install_path_arc_clone = install_path_arc.clone();
+    let install_path_check_button_arc_clone = install_path_check_button_arc.clone();
     let content_arc_clone = content_arc.clone();
     let vault_db_arc_clone = vault_db.clone();
     let status_label_arc_clone = status_label_arc.clone();
@@ -218,6 +227,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
             &mut entrie_name,
             &mut install_path_label,
             install_path_arc_clone.clone(),
+            install_path_check_button_arc_clone.clone(),
             &mut content_label,
             content_arc_clone.clone(),
             &mut notes_label,
@@ -301,6 +311,16 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
             content_arc_clone.clone(),
             status_label_arc_clone.clone(),
             is_windows,
+        );
+    });
+
+    let install_path_arc_clone = install_path_arc.clone();
+    let status_label_arc_clone = status_label_arc.clone();
+    // set install path check button callback
+    install_path_check_button.set_callback(move |_| {
+        super::callbacks::install_path_check_button_callback(
+            status_label_arc_clone.clone(),
+            install_path_arc_clone.clone(),
         );
     });
 

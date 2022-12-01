@@ -1,30 +1,69 @@
 use crate::login;
 use crate::signup;
 use crate::utils;
+use fltk::frame;
+use fltk::group;
+use fltk::group::Flex;
 use fltk::{prelude::*, window::Window};
+use std::sync::{Arc, Mutex};
 
 pub fn create() -> fltk::window::DoubleWindow {
     // Create start window
-    let wind = Window::default().with_size(400, 200).with_label("Start");
+    let mut wind = Window::default().with_size(400, 200).with_label("Start");
+    // app title
+    let mut title = frame::Frame::default();
+    title.set_label("EStash");
+
+    // flex
+    let mut flex = Flex::default();
+    flex.set_type(group::FlexType::Row);
+    flex.make_resizable(true);
 
     // login button
-    let mut login_button = fltk::button::Button::default()
-        .with_size(170, 160)
-        .with_label("Login");
-    login_button.set_pos(20, 20);
+    let mut login_button = fltk::button::Button::default().with_label("Login");
+    let login_button_arc = Arc::new(Mutex::new(login_button.clone()));
 
     // signup button
-    let mut signup_button = fltk::button::Button::default()
-        .with_size(170, 160)
-        .with_label("Signup");
-    signup_button.set_pos(210, 20);
-    // signup_button.right_of(&login_button, 20);
+    let mut signup_button = fltk::button::Button::default().with_label("Signup");
+    let signup_button_arc = Arc::new(Mutex::new(signup_button.clone()));
 
     // End customizing window
     wind.end();
+    wind.make_resizable(true);
 
     let mut wind_clone_one = wind.clone();
     let mut wind_clone_two = wind.clone();
+
+    // resize callback
+    wind.resize_callback(move |_, _, _, w, h| {
+        let w_center = w / 2 ;
+        let h_center = h / 2 ;
+        let font_size = (f32::sqrt(w as f32 * h as f32) / 20.0).floor() as i32;
+
+        // configure title
+        title.set_label_size(font_size * 2);
+        title.set_pos((w / 2) - (font_size / 24), font_size);
+
+        match login_button_arc.lock() {
+            Ok(mut o) => {
+                o.set_label_size(font_size);
+            }
+            Err(err) => {
+                eprintln!("ERROR: There was an error changing login_button text size, arc poison error!\n{err}");
+            }
+        };
+
+        match signup_button_arc.lock() {
+            Ok(mut o) => {
+                o.set_label_size(font_size);
+            }
+            Err(err) => {
+                eprintln!("ERROR: There was an error changing signup_button text size, arc poison error!\n{err}");
+            }
+        }
+
+        flex.resize(w_center / 2, h_center / 2, w_center, h_center);
+    });
 
     // callbacks
     login_button.set_callback(move |_| {

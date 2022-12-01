@@ -1,3 +1,3 @@
-mod core;
 mod callbacks;
+mod core;
 pub mod window;

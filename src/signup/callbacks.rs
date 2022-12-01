@@ -10,10 +10,17 @@ pub fn singup_button_callback(
     input_user_arc: Arc<Mutex<input::Input>>,
     input_pass_arc: Arc<Mutex<input::Input>>,
     input_pass_again_arc: Arc<Mutex<input::Input>>,
-    text_status: &mut TextDisplay,
+    text_status_arc: Arc<Mutex<TextDisplay>>,
     is_windows: bool,
 ) {
     // get values behind arc
+    let mut text_status = match text_status_arc.lock() {
+        Ok(object) => object,
+        Err(err) => {
+            eprintln!("ERROR: Failed to get value under text_status ARC!\n{err}");
+            return;
+        }
+    };
     let input_user = match input_user_arc.lock() {
         Ok(object) => object,
         Err(err) => {

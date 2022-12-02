@@ -1,10 +1,7 @@
-use crate::utils;
 use crate::utils::constants;
 use crate::utils::Vault;
 use crate::ECIES;
-use fltk::group::Flex;
 use fltk::{prelude::*, window::Window, *};
-use fltk_grid::Grid;
 use sled;
 use std::collections::HashMap;
 use std::process;
@@ -12,6 +9,10 @@ use std::str;
 use std::sync::{Arc, Mutex};
 
 pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
+    //
+    //  Make window | UI Part
+    //
+
     // Create vault window
     let mut wind = Window::default().with_size(1000, 500).with_label("Vault");
 
@@ -19,7 +20,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     let mut entries = tree::Tree::default().with_size(200, 475);
     let entries_arc = Arc::new(Mutex::new(entries.clone()));
 
-    // add entrie portion
+    // add entrie
     let mut entrie_add_input = fltk::input::Input::default()
         .with_size(175, 25)
         .below_of(&entries, 0);
@@ -31,6 +32,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
         .with_label("+");
     let entrie_add_button_arc = Arc::new(Mutex::new(entrie_add_button.clone()));
 
+    // entry name
     let mut entrie_name = fltk::frame::Frame::default()
         .with_size(750, 35)
         .right_of(&entries, 25);
@@ -39,7 +41,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     entrie_name.hide();
     let entrie_name_arc = Arc::new(Mutex::new(entrie_name.clone()));
 
-    // vault entry value portion
+    // install path
     let mut install_path_label = fltk::frame::Frame::default()
         .with_size(750, 20)
         .below_of(&entrie_name, 5);
@@ -55,6 +57,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     install_path.hide();
     let install_path_arc = Arc::new(Mutex::new(install_path.clone()));
 
+    // check install path button
     let mut install_path_check_button = fltk::button::Button::default()
         .with_size(55, 20)
         .right_of(&install_path, 5);
@@ -62,6 +65,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     install_path_check_button.hide();
     let install_path_check_button_arc = Arc::new(Mutex::new(install_path_check_button.clone()));
 
+    // entry content
     let mut content_label = fltk::frame::Frame::default()
         .with_size(750, 20)
         .below_of(&install_path, 5);
@@ -77,6 +81,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     content.hide();
     let content_arc = Arc::new(Mutex::new(content.clone()));
 
+    // entry notes
     let mut notes_label = fltk::frame::Frame::default()
         .with_size(750, 20)
         .below_of(&content, 5);
@@ -92,6 +97,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     notes.hide();
     let notes_arc = Arc::new(Mutex::new(notes.clone()));
 
+    // entry save button
     let mut save_button = fltk::button::Button::default()
         .with_size(75, 25)
         .below_of(&notes, 5);
@@ -100,6 +106,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     save_button.hide();
     let save_button_arc = Arc::new(Mutex::new(save_button.clone()));
 
+    // delete entry button
     let mut delete_button = fltk::button::Button::default()
         .with_size(75, 25)
         .below_of(&notes, 5);
@@ -107,6 +114,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     delete_button.hide();
     let delete_button_arc = Arc::new(Mutex::new(delete_button.clone()));
 
+    // install entry button
     let mut install_button = fltk::button::Button::default()
         .with_size(75, 25)
         .below_of(&notes, 5);
@@ -115,6 +123,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     install_button.hide();
     let install_button_arc = Arc::new(Mutex::new(install_button.clone()));
 
+    // status
     let mut status_label = fltk::frame::Frame::default()
         .with_size(750, 20)
         .below_of(&notes, 5);
@@ -127,93 +136,30 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     wind.end();
     wind.make_resizable(true);
 
-    // create some needed objects
+    //
+    // Window mechanics part
+    //
+
+    // create the object for encrypting
     let ecies = Arc::new(Mutex::new(ECIES::new()));
 
+    // create a value to store the current selected entry in memory
+    let current_selected_entry = Arc::new(Mutex::new(String::new()));
+
     // load vault
-    let vaults_root_path;
-    if is_windows {
-        vaults_root_path = constants::VAULTS_ROOT_PATH_WINDOWS.to_string();
-    } else {
-        vaults_root_path = constants::VAULTS_ROOT_PATH_UNIX.to_string();
-    }
-    let vault_db = Arc::new(Mutex::new(
-        match sled::open(vaults_root_path + &vault.id.to_string()) {
-            Ok(db) => db,
-            Err(err) => {
-                eprintln!("ERROR: Even though the db appears in the list with db's there isn't one that's actually available in storage, or maybe there has been some one-time error, please try again!\n{err}");
-                process::exit(100);
-            }
-        },
-    ));
+    let vault_db = super::core::load_vault(is_windows, &vault);
 
     // load current entries in db and display them
     // + save them in a dict where the key is the unecrypted value and the value is the one
     // encrypted
 
-    // get value under vault_db arc
-    let vault_db_locked = match vault_db.lock() {
-        Ok(db) => db,
-        Err(err) => {
-            eprintln!("ERROR: For some reason we can't get the value for vault_db under ARC, even though we just created and it hasn't been used anywhere else, please try again!\n{err}");
-            process::exit(100);
-        }
-    };
+    let db_entries_dict =
+        super::core::load_entries(&vault, vault_db.clone(), ecies.clone(), &mut entries);
 
-    let mut ecies_locked = match ecies.lock() {
-        Ok(object) => object,
-        Err(err) => {
-            eprintln!("ERROR: Failed to get value under ecies ARC!\n{err}");
-            process::exit(100);
-        }
-    };
-
-    let db_entries = vault_db_locked.iter();
-    let db_entries_dict = Arc::new(Mutex::new(HashMap::new()));
-
-    let mut db_entries_dict_locked = match db_entries_dict.lock() {
-        Ok(object) => object,
-        Err(err) => {
-            eprintln!("ERROR: Failed to get the value under db_entries_dict ARC!\n{err}");
-            process::exit(100);
-        }
-    };
-
-    for entry in db_entries {
-        let current_entry_encrypted = match entry {
-            Ok(cipher) => cipher.0.to_vec(),
-            Err(err) => {
-                eprintln!("ERROR: Failed to get an entry that we just read, this error message should not be displayed, but if for some reason is, just try again, or post an issue on github!\n{err}");
-                process::exit(100);
-            }
-        };
-        let current_entry_plain = match ecies_locked.decrypt_bytes(
-            &current_entry_encrypted,
-            &vault.priv_key,
-            &vault.pub_key,
-        ) {
-            Ok(plain) => plain,
-            Err(err) => {
-                eprintln!("ERROR: Failed to decrypt the entry even though the vault keys were validated, try again, if it doesn't work then the db might be corrupted!\n{err}");
-                process::exit(100);
-            }
-        };
-        let current_entry_string = match str::from_utf8(&current_entry_plain) {
-            Ok(s) => s,
-            Err(err) => {
-                eprintln!("ERROR: Failed to convert the decrypted bytes into a string, your current db is most likely corrupted, try again maybe!\n{err}");
-                process::exit(100);
-            }
-        };
-        entries.add(current_entry_string);
-
-        db_entries_dict_locked.insert(current_entry_string.to_owned(), current_entry_encrypted);
-    }
-
-    drop(vault_db_locked);
-    drop(ecies_locked);
-    drop(db_entries_dict_locked);
-
+    //
+    //  Window callbacks
+    //
+    // clone the needed arc references
     let entrie_add_input_arc_clone = entrie_add_input_arc.clone();
     let entrie_name_arc_clone = entrie_name_arc.clone();
     let install_path_label_arc_clone = install_path_label_arc.clone();
@@ -229,139 +175,27 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     let install_button_arc_clone = install_button_arc.clone();
     // wind resize callback
     wind.resize_callback(move |_, _, _, w, h| {
-        let font_size = (f32::sqrt(w as f32 * h as f32) / 20.0).floor() as i32;
-
-        match entrie_add_input_arc_clone.lock() {
-            Ok(mut o) => {
-                o.set_text_size(font_size / 3);
-            }
-            Err(err) => {
-                eprintln!("ERROR: There was an error getting value behind entrie_add_input ARC!\n {err}");
-            }
-        };
-
-        match entrie_add_button_arc.lock() {
-            Ok(mut o) => {
-                o.set_label_size(font_size / 3);
-            }
-            Err(err) => {
-                eprintln!("ERROR: There was an error getting value behind entrie_add_button ARC!\n {err}");
-            }
-        };
-
-        match entrie_name_arc_clone.lock() {
-            Ok(mut o) => {
-                o.set_label_size(font_size);
-            }
-            Err(err) => {
-                eprintln!("ERROR: There was an error getting value behind entrie_name_arc ARC!\n {err}");
-            }
-        };
-
-        match install_path_label_arc_clone.lock() {
-            Ok(mut o) => {
-                o.set_label_size(font_size / 2);
-            }
-            Err(err) => {
-                eprintln!("ERROR: There was an error getting value behind install_path_label ARC!\n {err}");
-            }
-        };
-
-        match install_path_arc_clone.lock() {
-            Ok(mut o) => {
-                o.set_text_size(font_size / 3);
-            }
-            Err(err) => {
-                eprintln!("ERROR: There was an error getting value behind install_path_arc ARC!\n {err}");
-            }
-        };
-
-        match install_path_check_button_arc_clone.lock() {
-            Ok(mut o) => {
-                o.set_label_size(font_size / 3);
-            }
-            Err(err) => {
-                eprintln!("ERROR: There was an error getting value behind install_path_checK_button_arc ARC!\n {err}");
-            }
-        };
-
-        match content_label_arc_clone.lock() {
-            Ok(mut o) => {
-                o.set_label_size(font_size / 2);
-            }
-            Err(err) => {
-                eprintln!("ERROR: There was an error getting value behind content_label_arc ARC!\n {err}");
-            }
-        };
-
-        match content_arc_clone.lock() {
-            Ok(mut o) => {
-                o.set_text_size(font_size / 3);
-            }
-            Err(err) => {
-                eprintln!("ERROR: There was an error getting value behind content_arc ARC!\n {err}");
-            }
-        };
-
-        match notes_label_arc_clone.lock() {
-            Ok(mut o) => {
-                o.set_label_size(font_size / 2);
-            }
-            Err(err) => {
-                eprintln!("ERROR: There was an error getting value behind notes_label_arc ARC!\n {err}");
-            }
-        };
-
-        match notes_arc_clone.lock() {
-            Ok(mut o) => {
-                o.set_text_size(font_size / 3);
-            }
-            Err(err) => {
-                eprintln!("ERROR: There was an error getting value behind notes_arc ARC!\n {err}");
-            }
-        };
-
-        match delete_button_arc_clone.lock() {
-            Ok(mut o) => {
-                o.set_label_size(font_size / 3);
-            }
-            Err(err) => {
-                eprintln!("ERROR: There was an error getting value behind delete_button_arc ARC!\n {err}");
-            }
-        };
-
-        match install_button_arc_clone.lock() {
-            Ok(mut o) => {
-                o.set_label_size(font_size / 3)
-            }
-            Err(err) => {
-                eprintln!("ERROR: There was an error getting value behind install_button_arc ARC!\n {err}");
-            }
-        };
-
-        match save_button_arc_clone.lock() {
-            Ok(mut o) => {
-                o.set_label_size(font_size / 3);
-            }
-            Err(err) => {
-                eprintln!("ERROR: There was an error getting value behind save_button_arc ARC!\n {err}");
-            }
-        };
-
-        match status_label_arc_clone.lock() {
-            Ok(mut o) => {
-                o.set_label_size(font_size / 3);
-            }
-            Err(err) => {
-                eprintln!("ERROR: There was an error getting value behind status_label_arc ARC!\n {err}");
-            }
-        };
+        super::callbacks::wind_resize_callback(
+            w,
+            h,
+            entrie_add_input_arc_clone.clone(),
+            entrie_add_button_arc.clone(),
+            entrie_name_arc_clone.clone(),
+            install_path_label_arc_clone.clone(),
+            install_path_arc_clone.clone(),
+            install_path_check_button_arc_clone.clone(),
+            content_label_arc_clone.clone(),
+            content_arc_clone.clone(),
+            notes_label_arc_clone.clone(),
+            notes_arc_clone.clone(),
+            delete_button_arc_clone.clone(),
+            install_button_arc_clone.clone(),
+            save_button_arc_clone.clone(),
+            status_label_arc_clone.clone(),
+        );
     });
 
-    // global value for callbacks (for storing the currently selected entry)
-    let current_selected_entry = Arc::new(Mutex::new(String::new()));
-
-    // clone the arc references
+    // clone the needed arc references
     let entrie_name_arc_clone = entrie_name_arc.clone();
     let vault_arc_clone = Arc::new(Mutex::new(vault.clone()));
     let db_entries_dict_arc_clone = db_entries_dict.clone();
@@ -379,7 +213,6 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     let save_button_arc_clone = save_button_arc.clone();
     let delete_button_arc_clone = delete_button_arc.clone();
     let install_button_arc_clone = install_button_arc.clone();
-    // Window callbacks
     // set entries callback
     entries.set_callback(move |e| {
         super::callbacks::entries_callback(
@@ -404,7 +237,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
         );
     });
 
-    // clone the arc references
+    // clone the needed arc references
     let entrie_add_input_arc_clone = entrie_add_input_arc.clone();
     let vault_arc_clone = Arc::new(Mutex::new(vault.clone()));
     let ecies_arc_clone = ecies.clone();
@@ -423,7 +256,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
         );
     });
 
-    // clone the arc references
+    // clone the needed arc references
     let vault_arc_clone = Arc::new(Mutex::new(vault.clone()));
     let current_selected_entry_arc_clone = current_selected_entry.clone();
     let db_entries_dict_arc_clone = db_entries_dict.clone();
@@ -448,6 +281,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
         );
     });
 
+    // clone the needed arc references
     let current_selected_entry_arc_clone = current_selected_entry.clone();
     let db_entries_dict_arc_clone = db_entries_dict.clone();
     let entries_arc_clone = entries_arc.clone();
@@ -462,6 +296,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
         );
     });
 
+    // clone the needed arc references
     let install_path_arc_clone = install_path_arc.clone();
     let content_arc_clone = content_arc.clone();
     let status_label_arc_clone = status_label_arc.clone();
@@ -475,6 +310,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
         );
     });
 
+    // clone the needed arc references
     let install_path_arc_clone = install_path_arc.clone();
     let status_label_arc_clone = status_label_arc.clone();
     // set install path check button callback

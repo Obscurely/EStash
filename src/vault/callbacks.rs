@@ -9,6 +9,9 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::{fs, process};
 
+///
+/// Callback for when you click on a different entry in the vault
+///
 pub fn entries_callback(
     entries: &mut tree::Tree,
     entrie_name_arc: Arc<Mutex<frame::Frame>>,
@@ -238,6 +241,10 @@ pub fn entries_callback(
     }
 }
 
+///
+/// Callback function for when you press the + button under the entries tree.
+/// It takes the input from the box besides it and creates a new empty entry in the vault.
+///
 pub fn entrie_add_button_callback(
     entrie_add_input_arc: Arc<Mutex<input::Input>>,
     vault_db_arc_clone: Arc<Mutex<Db>>,
@@ -319,6 +326,10 @@ pub fn entrie_add_button_callback(
     }
 }
 
+///
+/// Callback function for when you hit the save button on an entry
+/// Basically takes all the input from the text boxes and updates the database.
+///
 pub fn save_button_callback(
     install_path_arc: Arc<Mutex<input::Input>>,
     content_arc: Arc<Mutex<input::MultilineInput>>,
@@ -510,6 +521,10 @@ pub fn save_button_callback(
     };
 }
 
+///
+/// Callback function for when you hit the delete button on an entry
+/// Deletes that entry from the database.
+///
 pub fn delete_button_callback(
     vault_db_arc_clone: Arc<Mutex<Db>>,
     current_selected_entry_arc_clone: Arc<Mutex<String>>,
@@ -615,6 +630,11 @@ pub fn delete_button_callback(
     entries.do_callback();
 }
 
+///
+/// Callback function for when you hit the install button on an entry.
+/// Takes the install path from the current input (not what's saved)
+/// and the content and writes it to that file, creating any needed folders.
+///
 pub fn install_button_callback(
     install_path_arc: Arc<Mutex<input::Input>>,
     content_arc: Arc<Mutex<input::MultilineInput>>,
@@ -710,6 +730,10 @@ pub fn install_button_callback(
     }
 }
 
+///
+/// Callback function for when you hit the check entry button.
+/// Checks if the path is a valid one for the current OS you are using.
+///
 pub fn install_path_check_button_callback(
     status_label_arc: Arc<Mutex<frame::Frame>>,
     install_path_arc_clone: Arc<Mutex<input::Input>>,
@@ -741,4 +765,175 @@ pub fn install_path_check_button_callback(
         status_label.show();
         return;
     }
+}
+
+///
+/// Callback used when resizing the window.
+/// Change buttons, texts size etc.
+///
+pub fn wind_resize_callback(
+    w: i32,
+    h: i32,
+    entrie_add_input_arc: Arc<Mutex<input::Input>>,
+    entrie_add_button_arc: Arc<Mutex<button::Button>>,
+    entrie_name_arc: Arc<Mutex<frame::Frame>>,
+    install_path_label_arc: Arc<Mutex<frame::Frame>>,
+    install_path_arc: Arc<Mutex<input::Input>>,
+    install_path_check_button_arc: Arc<Mutex<button::Button>>,
+    content_label_arc: Arc<Mutex<frame::Frame>>,
+    content_arc: Arc<Mutex<input::MultilineInput>>,
+    notes_label_arc: Arc<Mutex<frame::Frame>>,
+    notes_arc: Arc<Mutex<input::MultilineInput>>,
+    delete_button_arc: Arc<Mutex<button::Button>>,
+    install_button_arc: Arc<Mutex<button::Button>>,
+    save_button_arc: Arc<Mutex<button::Button>>,
+    status_label_arc: Arc<Mutex<frame::Frame>>,
+) {
+    let font_size = (f32::sqrt(w as f32 * h as f32) / 20.0).floor() as i32;
+
+    match entrie_add_input_arc.lock() {
+        Ok(mut o) => {
+            o.set_text_size(font_size / 3);
+        }
+        Err(err) => {
+            eprintln!(
+                "ERROR: There was an error getting value behind entrie_add_input ARC!\n {err}"
+            );
+        }
+    };
+
+    match entrie_add_button_arc.lock() {
+        Ok(mut o) => {
+            o.set_label_size(font_size / 3);
+        }
+        Err(err) => {
+            eprintln!(
+                "ERROR: There was an error getting value behind entrie_add_button ARC!\n {err}"
+            );
+        }
+    };
+
+    match entrie_name_arc.lock() {
+        Ok(mut o) => {
+            o.set_label_size(font_size);
+        }
+        Err(err) => {
+            eprintln!(
+                "ERROR: There was an error getting value behind entrie_name_arc ARC!\n {err}"
+            );
+        }
+    };
+
+    match install_path_label_arc.lock() {
+        Ok(mut o) => {
+            o.set_label_size(font_size / 2);
+        }
+        Err(err) => {
+            eprintln!(
+                "ERROR: There was an error getting value behind install_path_label ARC!\n {err}"
+            );
+        }
+    };
+
+    match install_path_arc.lock() {
+        Ok(mut o) => {
+            o.set_text_size(font_size / 3);
+        }
+        Err(err) => {
+            eprintln!(
+                "ERROR: There was an error getting value behind install_path_arc ARC!\n {err}"
+            );
+        }
+    };
+
+    match install_path_check_button_arc.lock() {
+        Ok(mut o) => {
+            o.set_label_size(font_size / 3);
+        }
+        Err(err) => {
+            eprintln!("ERROR: There was an error getting value behind install_path_checK_button_arc ARC!\n {err}");
+        }
+    };
+
+    match content_label_arc.lock() {
+        Ok(mut o) => {
+            o.set_label_size(font_size / 2);
+        }
+        Err(err) => {
+            eprintln!(
+                "ERROR: There was an error getting value behind content_label_arc ARC!\n {err}"
+            );
+        }
+    };
+
+    match content_arc.lock() {
+        Ok(mut o) => {
+            o.set_text_size(font_size / 3);
+        }
+        Err(err) => {
+            eprintln!("ERROR: There was an error getting value behind content_arc ARC!\n {err}");
+        }
+    };
+
+    match notes_label_arc.lock() {
+        Ok(mut o) => {
+            o.set_label_size(font_size / 2);
+        }
+        Err(err) => {
+            eprintln!(
+                "ERROR: There was an error getting value behind notes_label_arc ARC!\n {err}"
+            );
+        }
+    };
+
+    match notes_arc.lock() {
+        Ok(mut o) => {
+            o.set_text_size(font_size / 3);
+        }
+        Err(err) => {
+            eprintln!("ERROR: There was an error getting value behind notes_arc ARC!\n {err}");
+        }
+    };
+
+    match delete_button_arc.lock() {
+        Ok(mut o) => {
+            o.set_label_size(font_size / 3);
+        }
+        Err(err) => {
+            eprintln!(
+                "ERROR: There was an error getting value behind delete_button_arc ARC!\n {err}"
+            );
+        }
+    };
+
+    match install_button_arc.lock() {
+        Ok(mut o) => o.set_label_size(font_size / 3),
+        Err(err) => {
+            eprintln!(
+                "ERROR: There was an error getting value behind install_button_arc ARC!\n {err}"
+            );
+        }
+    };
+
+    match save_button_arc.lock() {
+        Ok(mut o) => {
+            o.set_label_size(font_size / 3);
+        }
+        Err(err) => {
+            eprintln!(
+                "ERROR: There was an error getting value behind save_button_arc ARC!\n {err}"
+            );
+        }
+    };
+
+    match status_label_arc.lock() {
+        Ok(mut o) => {
+            o.set_label_size(font_size / 3);
+        }
+        Err(err) => {
+            eprintln!(
+                "ERROR: There was an error getting value behind status_label_arc ARC!\n {err}"
+            );
+        }
+    };
 }

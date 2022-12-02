@@ -6,7 +6,6 @@ use fltk::{
     prelude::*,
     window::Window,
 };
-use fltk_grid::Grid;
 use std::f32;
 use std::sync::{Arc, Mutex};
 

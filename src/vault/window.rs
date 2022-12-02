@@ -2,7 +2,9 @@ use crate::utils;
 use crate::utils::constants;
 use crate::utils::Vault;
 use crate::ECIES;
+use fltk::group::Flex;
 use fltk::{prelude::*, window::Window, *};
+use fltk_grid::Grid;
 use sled;
 use std::collections::HashMap;
 use std::process;
@@ -11,7 +13,7 @@ use std::sync::{Arc, Mutex};
 
 pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     // Create vault window
-    let wind = Window::default().with_size(1000, 500).with_label("Vault");
+    let mut wind = Window::default().with_size(1000, 500).with_label("Vault");
 
     // entries coloumn
     let mut entries = tree::Tree::default().with_size(200, 475);
@@ -22,17 +24,20 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
         .with_size(175, 25)
         .below_of(&entries, 0);
     entrie_add_input.set_color(entrie_add_input.color().lighter());
+    let entrie_add_input_arc = Arc::new(Mutex::new(entrie_add_input.clone()));
     let mut entrie_add_button = fltk::button::Button::default()
         .with_size(25, 25)
         .right_of(&entrie_add_input, 0)
         .with_label("+");
+    let entrie_add_button_arc = Arc::new(Mutex::new(entrie_add_button.clone()));
 
     let mut entrie_name = fltk::frame::Frame::default()
-        .with_size(750, 25)
+        .with_size(750, 35)
         .right_of(&entries, 25);
     entrie_name.set_label_size(30);
-    entrie_name.set_pos(entrie_name.x(), 20);
+    entrie_name.set_pos(entrie_name.x(), 10);
     entrie_name.hide();
+    let entrie_name_arc = Arc::new(Mutex::new(entrie_name.clone()));
 
     // vault entry value portion
     let mut install_path_label = fltk::frame::Frame::default()
@@ -41,6 +46,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     install_path_label.set_label_size(20);
     install_path_label.set_label("Install Path");
     install_path_label.hide();
+    let install_path_label_arc = Arc::new(Mutex::new(install_path_label.clone()));
     let mut install_path = fltk::input::Input::default()
         .with_size(690, 20)
         .below_of(&install_path_label, 1);
@@ -62,6 +68,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     content_label.set_label_size(20);
     content_label.set_label("Content");
     content_label.hide();
+    let content_label_arc = Arc::new(Mutex::new(content_label.clone()));
     let mut content = fltk::input::MultilineInput::default()
         .with_size(750, 150)
         .below_of(&content_label, 1);
@@ -76,6 +83,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     notes_label.set_label_size(20);
     notes_label.set_label("Notes");
     notes_label.hide();
+    let notes_label_arc = Arc::new(Mutex::new(notes_label.clone()));
     let mut notes = fltk::input::MultilineInput::default()
         .with_size(750, 150)
         .below_of(&notes_label, 1);
@@ -117,6 +125,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
 
     // End customizing window
     wind.end();
+    wind.make_resizable(true); 
 
     // create some needed objects
     let ecies = Arc::new(Mutex::new(ECIES::new()));
@@ -205,6 +214,147 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     drop(ecies_locked);
     drop(db_entries_dict_locked);
 
+    let entries_arc_clone = entries_arc.clone();
+    let install_path_arc_clone = install_path_arc.clone();
+    let content_arc_clone = content_arc.clone();
+    let notes_arc_clone = notes_arc.clone();
+    let install_path_check_button_arc_clone = install_path_check_button_arc.clone();
+    let status_label_arc_clone = status_label_arc.clone();
+    let save_button_arc_clone = save_button_arc.clone();
+    let delete_button_arc_clone = delete_button_arc.clone();
+    let install_button_arc_clone = install_button_arc.clone();
+    let db_entries_dict_arc_clone = db_entries_dict.clone();
+    // wind resize callback
+    wind.resize_callback(move |_, _, _, w, h| {
+        let font_size = (f32::sqrt(w as f32 * h as f32) / 20.0).floor() as i32;
+
+        match entrie_add_input_arc.lock() {
+            Ok(mut o) => {
+                o.set_text_size(font_size / 3);
+            }
+            Err(err) => {
+                eprintln!("ERROR: There was an error getting value behind entrie_add_input ARC!\n {err}");
+            }
+        };
+
+        match entrie_add_button_arc.lock() {
+            Ok(mut o) => {
+                o.set_label_size(font_size / 3);
+            }
+            Err(err) => {
+                eprintln!("ERROR: There was an error getting value behind entrie_add_button ARC!\n {err}");
+            }
+        };
+
+        match entrie_name_arc.lock() {
+            Ok(mut o) => {
+                o.set_label_size(font_size);
+            }
+            Err(err) => {
+                eprintln!("ERROR: There was an error getting value behind entrie_name_arc ARC!\n {err}");
+            }
+        };
+
+        match install_path_label_arc.lock() {
+            Ok(mut o) => {
+                o.set_label_size(font_size / 2);
+            }
+            Err(err) => {
+                eprintln!("ERROR: There was an error getting value behind install_path_label ARC!\n {err}");
+            }
+        };
+
+        match install_path_arc_clone.lock() {
+            Ok(mut o) => {
+                o.set_text_size(font_size / 3);
+            }
+            Err(err) => {
+                eprintln!("ERROR: There was an error getting value behind install_path_arc ARC!\n {err}");
+            }
+        };
+
+        match install_path_check_button_arc_clone.lock() {
+            Ok(mut o) => {
+                o.set_label_size(font_size / 3);
+            }
+            Err(err) => {
+                eprintln!("ERROR: There was an error getting value behind install_path_checK_button_arc ARC!\n {err}");
+            }
+        };
+
+        match content_label_arc.lock() {
+            Ok(mut o) => {
+                o.set_label_size(font_size / 2);
+            }
+            Err(err) => {
+                eprintln!("ERROR: There was an error getting value behind content_label_arc ARC!\n {err}");
+            }
+        };
+
+        match content_arc_clone.lock() {
+            Ok(mut o) => {
+                o.set_text_size(font_size / 3);
+            }
+            Err(err) => {
+                eprintln!("ERROR: There was an error getting value behind content_arc ARC!\n {err}");
+            }
+        };
+
+        match notes_label_arc.lock() {
+            Ok(mut o) => {
+                o.set_label_size(font_size / 2);
+            }
+            Err(err) => {
+                eprintln!("ERROR: There was an error getting value behind notes_label_arc ARC!\n {err}");
+            }
+        };
+
+        match notes_arc_clone.lock() {
+            Ok(mut o) => {
+                o.set_text_size(font_size / 3);
+            }
+            Err(err) => {
+                eprintln!("ERROR: There was an error getting value behind notes_arc ARC!\n {err}");
+            }
+        };
+
+        match delete_button_arc_clone.lock() {
+            Ok(mut o) => {
+                o.set_label_size(font_size / 3);
+            }
+            Err(err) => {
+                eprintln!("ERROR: There was an error getting value behind delete_button_arc ARC!\n {err}");
+            }
+        };
+
+        match install_button_arc_clone.lock() {
+            Ok(mut o) => {
+                o.set_label_size(font_size / 3)
+            }
+            Err(err) => {
+                eprintln!("ERROR: There was an error getting value behind install_button_arc ARC!\n {err}");
+            }
+        };
+
+        match save_button_arc_clone.lock() {
+            Ok(mut o) => {
+                o.set_label_size(font_size / 3);
+            }
+            Err(err) => {
+                eprintln!("ERROR: There was an error getting value behind save_button_arc ARC!\n {err}");
+            }
+        };
+
+        match status_label_arc_clone.lock() {
+            Ok(mut o) => {
+                o.set_label_size(font_size / 3);
+            }
+            Err(err) => {
+                eprintln!("ERROR: There was an error getting value behind status_label_arc ARC!\n {err}");
+            }
+        };
+    });
+
     // global value for callbacks (for storing the currently selected entry)
     let current_selected_entry = Arc::new(Mutex::new(String::new()));
 
@@ -219,6 +369,9 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     let content_arc_clone = content_arc.clone();
     let vault_db_arc_clone = vault_db.clone();
     let status_label_arc_clone = status_label_arc.clone();
+    let save_button_arc_clone = save_button_arc.clone();
+    let delete_button_arc_clone = delete_button_arc.clone();
+    let install_button_arc_clone = install_button_arc.clone();
     // Window callbacks
     // set entries callback
     entries.set_callback(move |e| {
@@ -232,9 +385,9 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
             content_arc_clone.clone(),
             &mut notes_label,
             notes_arc_clone.clone(),
-            save_button_arc.clone(),
-            delete_button_arc.clone(),
-            install_button_arc.clone(),
+            save_button_arc_clone.clone(),
+            delete_button_arc_clone.clone(),
+            install_button_arc_clone.clone(),
             status_label_arc_clone.clone(),
             current_selected_entry_arc_clone.clone(),
             db_entries_dict_arc_clone.clone(),

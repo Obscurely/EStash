@@ -34,6 +34,11 @@ pub enum LoginError {
     FailedToAccessPubKeyDb(u16),
 }
 
+///
+/// Takes the parsed input from the window and tries logging you in.
+/// Checks if a vault with that name is present
+/// if it is then it checks the password.
+///
 pub fn login_vault(
     vault_name: &str,
     password: &str,

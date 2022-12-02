@@ -1,11 +1,6 @@
-use crate::utils::constants;
 use crate::utils::Vault;
 use crate::ECIES;
 use fltk::{prelude::*, window::Window, *};
-use sled;
-use std::collections::HashMap;
-use std::process;
-use std::str;
 use std::sync::{Arc, Mutex};
 
 pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
@@ -15,6 +10,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
 
     // Create vault window
     let mut wind = Window::default().with_size(1000, 500).with_label("Vault");
+    wind.set_xclass("estash");
 
     // entries coloumn
     let mut entries = tree::Tree::default().with_size(200, 475);

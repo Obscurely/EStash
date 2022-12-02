@@ -15,6 +15,7 @@ pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
 
     // Create signup window
     let mut wind = Window::default().with_size(710, 200).with_label("Singup");
+    wind.set_xclass("estash");
 
     // title
     let mut title = frame::Frame::default();

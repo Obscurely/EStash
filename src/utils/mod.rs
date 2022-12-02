@@ -16,6 +16,11 @@ pub struct Vault {
     pub pub_key: [u8; 32],
 }
 
+///
+/// Return whether the current is OS or not
+/// windows in order to know which path
+/// separator to use
+///
 pub fn is_windows() -> bool {
     if std::env::consts::FAMILY == "windows" {
         true
@@ -24,6 +29,10 @@ pub fn is_windows() -> bool {
     }
 }
 
+
+///
+/// Checks if the given path is valid on the current OS
+///
 pub fn is_path_os_valid(path: &str) -> bool {
     if path.len() == 0 {
         return false;

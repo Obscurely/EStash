@@ -9,6 +9,9 @@ pub struct EstashDb {
 }
 
 impl EstashDb {
+    ///
+    /// Loads the database needed by the program.
+    ///
     pub fn new() -> Result<EstashDb, sled::Error> {
         if std::env::consts::FAMILY == "windows" {
             let vault_db = match sled::open(constants::VAULT_DB_PATH_WINDOWS) {

@@ -14,6 +14,7 @@ pub fn create() -> fltk::window::DoubleWindow {
 
     // Create start window
     let mut wind = Window::default().with_size(400, 200).with_label("Start");
+    wind.set_xclass("estash");
     // app title
     let mut title = frame::Frame::default();
     title.set_label("EStash");

@@ -11,13 +11,13 @@ use std::{fs, process};
 
 pub fn entries_callback(
     entries: &mut tree::Tree,
-    entrie_name: &mut frame::Frame,
-    install_path_label: &mut frame::Frame,
+    entrie_name_arc: Arc<Mutex<frame::Frame>>,
+    install_path_label_arc: Arc<Mutex<frame::Frame>>,
     install_path_arc: Arc<Mutex<input::Input>>,
     install_path_check_button_arc: Arc<Mutex<button::Button>>,
-    content_label: &mut frame::Frame,
+    content_label_arc: Arc<Mutex<frame::Frame>>,
     content_arc: Arc<Mutex<input::MultilineInput>>,
-    notes_label: &mut frame::Frame,
+    notes_label_arc: Arc<Mutex<frame::Frame>>,
     notes_arc: Arc<Mutex<input::MultilineInput>>,
     save_button_arc: Arc<Mutex<button::Button>>,
     delete_button_arc: Arc<Mutex<button::Button>>,
@@ -47,7 +47,24 @@ pub fn entries_callback(
             return;
         }
     };
-
+    let mut entrie_name = match entrie_name_arc.lock() {
+        Ok(object) => object,
+        Err(err) => {
+            eprintln!("ERROR: Failed to get value under entrie_name_arc ARC!\n{err}");
+            status_label.set_label("There was a Poison Error, try again, or try to restart!");
+            status_label.show();
+            return;
+        }
+    };
+    let mut install_path_label = match install_path_label_arc.lock() {
+        Ok(object) => object,
+        Err(err) => {
+            eprintln!("ERROR: Failed to get value under install_path_label_arc ARC!\n{err}");
+            status_label.set_label("There was a Poison Error, try again, or try to restart!");
+            status_label.show();
+            return;
+        }
+    };
     let mut install_path = match install_path_arc.lock() {
         Ok(object) => object,
         Err(err) => {
@@ -66,10 +83,28 @@ pub fn entries_callback(
             return;
         }
     };
+    let mut content_label = match content_label_arc.lock() {
+        Ok(object) => object,
+        Err(err) => {
+            eprintln!("ERROR: Failed to get value under content_label_arc ARC!\n{err}");
+            status_label.set_label("There was a Poison Error, try again, or try to restart!");
+            status_label.show();
+            return;
+        }
+    };
     let mut content = match content_arc.lock() {
         Ok(object) => object,
         Err(err) => {
             eprintln!("ERROR: Failed to get value under content_arc ARC!\n{err}");
+            status_label.set_label("There was a Poison Error, try again, or try to restart!");
+            status_label.show();
+            return;
+        }
+    };
+    let mut notes_label = match notes_label_arc.lock() {
+        Ok(object) => object,
+        Err(err) => {
+            eprintln!("ERROR: Failed to get value under notes_label_arc ARC!\n{err}");
             status_label.set_label("There was a Poison Error, try again, or try to restart!");
             status_label.show();
             return;
@@ -204,7 +239,7 @@ pub fn entries_callback(
 }
 
 pub fn entrie_add_button_callback(
-    entrie_add_input: &mut input::Input,
+    entrie_add_input_arc: Arc<Mutex<input::Input>>,
     vault_db_arc_clone: Arc<Mutex<Db>>,
     vault_arc_clone: Arc<Mutex<Vault>>,
     ecies_arc_clone: Arc<Mutex<ECIES>>,
@@ -216,6 +251,13 @@ pub fn entrie_add_button_callback(
         Ok(object) => object,
         Err(err) => {
             eprintln!("ERROR: Failed to get value under entries_arc ARC!\n{err}");
+            return;
+        }
+    };
+    let mut entrie_add_input = match entrie_add_input_arc.lock() {
+        Ok(object) => object,
+        Err(err) => {
+            eprintln!("ERROR: Failed to get value under entrie_add_input_arc ARC!\n{err}");
             return;
         }
     };

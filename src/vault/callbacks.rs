@@ -411,7 +411,7 @@ pub fn save_button_callback(
         }
     };
 
-    // get value unde ecies_arc arc
+    // get value under ecies_arc arc
     let mut ecies = match ecies_arc_clone.lock() {
         Ok(object) => object,
         Err(err) => {

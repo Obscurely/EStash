@@ -5,12 +5,25 @@ use rand::prelude::*;
 use rand_hc::Hc128Rng;
 use zeroize::Zeroize;
 
+///
+/// And object that uses a cryptographically generated rng (Hc128Rng)
+/// and argon2id in order to generate a 32 bytes long key (256bits)
+/// for encrypting using an algorithm like chacha20poly1305
+/// that takes 32 bytes keys
+///
+/// Its use in this app is for generating a key from the password
+/// in order to encrypt the private key of the vault.
+///
 pub struct KeyEncrypt<'a> {
     rng: Hc128Rng,
     config_argon: Config<'a>,
 }
 
 impl KeyEncrypt<'_> {
+    ///
+    /// Creates a new KeyEncrypt object with necessary configuration needed
+    /// to achive the goal
+    ///
     pub fn new() -> KeyEncrypt<'static> {
         let rng = Hc128Rng::from_entropy();
         let config_argon = Config {
@@ -28,6 +41,10 @@ impl KeyEncrypt<'_> {
         KeyEncrypt { rng, config_argon }
     }
 
+    ///
+    /// Takes the given passwords, generates a 32 bytes key
+    /// and encrypts the given key with XChaCha20Poly1305.
+    ///
     pub fn encrypt_with_password_bytes(
         &mut self,
         password: &[u8],
@@ -70,6 +87,10 @@ impl KeyEncrypt<'_> {
         Ok(cipher)
     }
 
+    ///
+    /// Decrypt the given key using the given password,
+    /// key has to have been encrypted with XChaCha20Poly1305.
+    ///
     pub fn decrypt_with_password_bytes(
         &mut self,
         password: &[u8],

@@ -11,12 +11,31 @@ pub struct ECIES {
 }
 
 impl ECIES {
+    ///
+    /// Generates a new instance of ECIES
+    /// (eliptic curve integrated encryption scheme)
+    /// Combines the X25519 Diffie-Hellman function and
+    /// the xchacha20poly1305 authenticated encryption cipher
+    /// into an ECIES.
+    /// Which is what I personally consider
+    /// the penicle of end to end encryption.
+    ///
+    /// Now why use end to end encryption in this project?
+    /// Well, future proof, and why not as there is no
+    /// downside to it, same security and like no performance impact.
+    ///
+    /// This generetes a new instanse using a cryptographically
+    /// generated rng (Hc128Rng)
+    ///
     pub fn new() -> ECIES {
         let rng = Hc128Rng::from_entropy();
 
         ECIES { rng }
     }
 
+    ///
+    /// Generates a new key pair for the ECIES.
+    ///
     pub fn gen_key_pair(&mut self) -> ([u8; 32], [u8; 32]) {
         let secret_key = SecretKey::generate(&mut self.rng);
         let public_key = secret_key.public_key();
@@ -27,6 +46,9 @@ impl ECIES {
         )
     }
 
+    ///
+    /// Encrypts a vec<u8> with the given secret and public key.
+    ///
     pub fn encrypt_bytes(
         &mut self,
         bytes: &Vec<u8>,
@@ -50,6 +72,9 @@ impl ECIES {
         Ok(cipher)
     }
 
+    ///
+    /// Decrypts the given vec<u8> with the given secret and public key.
+    ///
     pub fn decrypt_bytes(
         &mut self,
         bytes: &Vec<u8>,
@@ -77,6 +102,9 @@ impl ECIES {
         Ok(decrypted)
     }
 
+    ///
+    /// Encrypts an [u8] array using the given secret and public keys.
+    ///
     pub fn encrypt_bytes_array(
         &mut self,
         bytes: &[u8],
@@ -100,6 +128,9 @@ impl ECIES {
         Ok(cipher)
     }
 
+    ///
+    /// Decrypts the given [u8] array using the given secret and public keys
+    ///
     pub fn decrypt_bytes_array(
         &mut self,
         bytes: &[u8],

@@ -8,6 +8,10 @@ use fltk::{prelude::*, window::Window};
 use std::sync::{Arc, Mutex};
 
 pub fn create() -> fltk::window::DoubleWindow {
+    //
+    //  Make window | UI Part
+    //
+
     // Create start window
     let mut wind = Window::default().with_size(400, 200).with_label("Start");
     // app title
@@ -31,8 +35,13 @@ pub fn create() -> fltk::window::DoubleWindow {
     wind.end();
     wind.make_resizable(true);
 
+    // clone the wind so we can move it inside the callbacks
     let mut wind_clone_one = wind.clone();
     let mut wind_clone_two = wind.clone();
+
+    //
+    //  Window callbacks
+    //
 
     // resize callback
     wind.resize_callback(move |_, _, _, w, h| {

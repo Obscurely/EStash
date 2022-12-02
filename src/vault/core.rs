@@ -42,6 +42,9 @@ pub enum NewEntryErr {
     UnknownError(u16),
 }
 
+///
+/// Load the Vault object as a database we can use
+///
 pub fn load_vault(is_windows: bool, vault: &Vault) -> Arc<Mutex<Db>> {
     let vaults_root_path;
     if is_windows {
@@ -62,6 +65,11 @@ pub fn load_vault(is_windows: bool, vault: &Vault) -> Arc<Mutex<Db>> {
     return vault_db;
 }
 
+///
+/// Load the entries from the database.
+/// Display them in the tree object.
+/// And store them in memory for faster access.
+///
 pub fn load_entries(
     vault: &Vault,
     vault_db: Arc<Mutex<Db>>,
@@ -134,6 +142,9 @@ pub fn load_entries(
     return db_entries_dict;
 }
 
+///
+/// Decrypt the value under an entry in the vault and return it
+///
 pub fn get_entry_value_plain(
     vault_db_arc_clone: Arc<Mutex<Db>>,
     ecies_arc_clone: Arc<Mutex<ECIES>>,
@@ -244,6 +255,9 @@ pub fn get_entry_value_plain(
     Ok(entry_value_json)
 }
 
+///
+/// Add a new entry to the vault database
+///
 pub fn add_new_entry(
     vault_db_arc_clone: Arc<Mutex<Db>>,
     vault_arc_clone: Arc<Mutex<Vault>>,

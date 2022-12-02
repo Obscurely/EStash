@@ -159,6 +159,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     //
     //  Window callbacks
     //
+    
     // clone the needed arc references
     let entrie_add_input_arc_clone = entrie_add_input_arc.clone();
     let entrie_name_arc_clone = entrie_name_arc.clone();

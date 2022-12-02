@@ -24,6 +24,11 @@ pub enum SingupError {
     UnknownError(u16),
 }
 
+///
+/// Takes the info parsed from the window and creates a vault with it.
+/// Encrypted with keys encrypted with a key derived from the password.
+/// Very secure.
+///
 pub fn create_vault(
     vault_name: &str,
     password: &str,

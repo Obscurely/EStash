@@ -3,9 +3,14 @@ use crate::{
     encrypter::{ecies::ECIES, key_encrypt::KeyEncrypt},
     utils::db,
 };
-use fltk::{input, prelude::*, text::TextDisplay};
+use fltk::{button, frame::Frame, group::Flex, input, prelude::*, text::TextDisplay};
 use std::sync::{Arc, Mutex};
 
+///
+/// Callback function called when you hit the signup function
+/// Takes the username and make a vault with that name
+/// and a set of encryption keys encrypted with a key derived from the password.
+///
 pub fn singup_button_callback(
     input_user_arc: Arc<Mutex<input::Input>>,
     input_pass_arc: Arc<Mutex<input::Input>>,
@@ -143,4 +148,80 @@ pub fn singup_button_callback(
         text_status_buf.set_text("Status: Passwords don't match");
         text_status.set_buffer(text_status_buf);
     }
+}
+
+///
+/// The callback function called when you resize the window
+/// Basically makes sure the window is resized properly and looks right.
+///
+pub fn window_callback(
+    w: i32,
+    h: i32,
+    title: &mut Frame,
+    input_user_arc: Arc<Mutex<input::Input>>,
+    input_pass_arc: Arc<Mutex<input::Input>>,
+    input_pass_again_arc: Arc<Mutex<input::Input>>,
+    but_signup_arc: Arc<Mutex<button::Button>>,
+    text_status_arc: Arc<Mutex<TextDisplay>>,
+    flex: &mut Flex,
+) {
+    let w_center = w / 2;
+    let h_center = h / 2;
+    let font_size = (f32::sqrt(w as f32 * h as f32) / 20.0).floor() as i32;
+
+    title.set_label_size(font_size * 2);
+    title.set_pos((w / 2) - (font_size / 24), font_size);
+
+    match input_user_arc.lock() {
+        Ok(mut o) => {
+            o.set_text_size(font_size);
+        }
+        Err(err) => {
+            eprintln!(
+                "ERROR: There was an error changing input_user text size, arc poison error!\n{err}"
+            );
+        }
+    };
+
+    match input_pass_arc.lock() {
+        Ok(mut o) => {
+            o.set_text_size(font_size);
+        }
+        Err(err) => {
+            eprintln!(
+                "ERROR: There was an error changing input_pass text size, arc poison error!\n{err}"
+            );
+        }
+    };
+
+    match input_pass_again_arc.lock() {
+        Ok(mut o) => {
+            o.set_text_size(font_size);
+        }
+        Err(err) => {
+            eprintln!("ERROR: There was an error changing input_pass_again text size, arc poison error!\n{err}");
+        }
+    };
+
+    match but_signup_arc.lock() {
+        Ok(mut o) => {
+            o.set_label_size(font_size);
+        }
+        Err(err) => {
+            eprintln!(
+                "ERROR: There was an error changing but_signup size, arc poison error!\n{err}"
+            );
+        }
+    }
+
+    match text_status_arc.lock() {
+        Ok(mut o) => {
+            o.set_text_size(font_size / 3);
+        }
+        Err(err) => {
+            eprintln!("ERROR: There was an error changing text_status text size, arc poison error!\n{err}");
+        }
+    };
+
+    flex.resize(w_center / 2, h_center / 2, w_center, h_center);
 }

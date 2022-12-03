@@ -77,12 +77,12 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     content.hide();
     let content_arc = Arc::new(Mutex::new(content.clone()));
 
-    // delete content from the content box button (doesn't also save the entry)
-    let mut delete_content_button = button::Button::default().with_size(100, 20).below_of(&content, 2);
-    delete_content_button.set_label("Delete Content");
-    delete_content_button.set_pos(225, delete_content_button.y());
-    delete_content_button.hide();
-    let delete_content_button_arc = Arc::new(Mutex::new(delete_content_button.clone()));
+    // clear content from the content box button (doesn't also save the entry)
+    let mut clear_content_button = button::Button::default().with_size(100, 20).below_of(&content, 2);
+    clear_content_button.set_label("Delete Content");
+    clear_content_button.set_pos(225, clear_content_button.y());
+    clear_content_button.hide();
+    let clear_content_button_arc = Arc::new(Mutex::new(clear_content_button.clone()));
 
     // select file to add as entry button
     let mut select_file_button = button::Button::default()
@@ -179,7 +179,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     let install_path_arc_clone = install_path_arc.clone();
     let content_label_arc_clone = content_label_arc.clone();
     let content_arc_clone = content_arc.clone();
-    let delete_content_button_arc_clone = delete_content_button_arc.clone();
+    let clear_content_button_arc_clone = clear_content_button_arc.clone();
     let select_file_button_arc_clone = select_file_button_arc.clone();
     let notes_label_arc_clone = notes_label_arc.clone();
     let notes_arc_clone = notes_arc.clone();
@@ -201,7 +201,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
             install_path_check_button_arc_clone.clone(),
             content_label_arc_clone.clone(),
             content_arc_clone.clone(),
-            delete_content_button_arc_clone.clone(),
+            clear_content_button_arc_clone.clone(),
             select_file_button_arc_clone.clone(),
             notes_label_arc_clone.clone(),
             notes_arc_clone.clone(),
@@ -225,7 +225,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     let install_path_check_button_arc_clone = install_path_check_button_arc.clone();
     let content_label_arc_clone = content_label_arc.clone();
     let content_arc_clone = content_arc.clone();
-    let delete_content_button_arc_clone = delete_content_button_arc.clone();
+    let clear_content_button_arc_clone = clear_content_button_arc.clone();
     let select_file_button_arc_clone = select_file_button_arc.clone();
     let vault_db_arc_clone = vault_db.clone();
     let status_label_arc_clone = status_label_arc.clone();
@@ -242,7 +242,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
             install_path_check_button_arc_clone.clone(),
             content_label_arc_clone.clone(),
             content_arc_clone.clone(),
-            delete_content_button_arc_clone.clone(),
+            clear_content_button_arc_clone.clone(),
             select_file_button_arc_clone.clone(),
             notes_label_arc_clone.clone(),
             notes_arc_clone.clone(),
@@ -377,8 +377,8 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     let status_label_arc_clone = status_label_arc.clone();
     let content_arc_clone = content_arc.clone();
     // set delete content button callback
-    delete_content_button.set_callback(move |_| {
-        super::dry_callbacks::delete_button_callback(content_arc_clone.clone(), status_label_arc_clone.clone());
+    clear_content_button.set_callback(move |_| {
+        super::dry_callbacks::clear_content_button_callback(content_arc_clone.clone(), status_label_arc_clone.clone());
     });
 
     wind

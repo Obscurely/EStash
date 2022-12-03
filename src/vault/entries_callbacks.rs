@@ -20,7 +20,7 @@ pub fn entries_callback(
     install_path_check_button_arc: Arc<Mutex<button::Button>>,
     content_label_arc: Arc<Mutex<frame::Frame>>,
     content_arc: Arc<Mutex<input::MultilineInput>>,
-    delete_content_button_arc: Arc<Mutex<button::Button>>,
+    clear_content_button_arc: Arc<Mutex<button::Button>>,
     select_file_button_arc: Arc<Mutex<button::Button>>,
     notes_label_arc: Arc<Mutex<frame::Frame>>,
     notes_arc: Arc<Mutex<input::MultilineInput>>,
@@ -106,10 +106,10 @@ pub fn entries_callback(
             return;
         }
     };
-    let mut delete_content_button = match delete_content_button_arc.lock() {
+    let mut clear_content_button = match clear_content_button_arc.lock() {
         Ok(object) => object,
         Err(err) => {
-            eprintln!("ERROR: Failed to get value under delete_content_button ARC!\n{err}");
+            eprintln!("ERROR: Failed to get value under clear_content_button ARC!\n{err}");
             status_label.set_label("There was a Poison Error, try again, or try to restart!");
             status_label.show();
             return;
@@ -194,7 +194,7 @@ pub fn entries_callback(
         install_path_check_button.hide();
         content_label.hide();
         content.hide();
-        delete_content_button.hide();
+        clear_content_button.hide();
         select_file_button.hide();
         select_file_button.activate();
         notes_label.hide();
@@ -270,7 +270,7 @@ pub fn entries_callback(
         install_path_check_button.show();
         content_label.show();
         content.show();
-        delete_content_button.show();
+        clear_content_button.show();
         select_file_button.show();
         notes_label.show();
         notes.show();

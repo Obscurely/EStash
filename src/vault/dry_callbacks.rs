@@ -54,7 +54,7 @@ pub fn wind_resize_callback(
     install_path_check_button_arc: Arc<Mutex<button::Button>>,
     content_label_arc: Arc<Mutex<frame::Frame>>,
     content_arc: Arc<Mutex<input::MultilineInput>>,
-    delete_content_button_arc: Arc<Mutex<button::Button>>,
+    clear_content_button_arc: Arc<Mutex<button::Button>>,
     select_file_button_arc: Arc<Mutex<button::Button>>,
     notes_label_arc: Arc<Mutex<frame::Frame>>,
     notes_arc: Arc<Mutex<input::MultilineInput>>,
@@ -149,7 +149,7 @@ pub fn wind_resize_callback(
         }
     };
 
-    match delete_content_button_arc.lock() {
+    match clear_content_button_arc.lock() {
         Ok(mut o) => {
             o.set_label_size(font_size / 3);
         }
@@ -230,7 +230,7 @@ pub fn wind_resize_callback(
     };
 }
 
-pub fn delete_button_callback(content_arc: Arc<Mutex<input::MultilineInput>>, status_label_arc: Arc<Mutex<frame::Frame>>) {
+pub fn clear_content_button_callback(content_arc: Arc<Mutex<input::MultilineInput>>, status_label_arc: Arc<Mutex<frame::Frame>>) {
     // get the actual object from arcs
     let mut status_label = match status_label_arc.lock() {
         Ok(object) => object,

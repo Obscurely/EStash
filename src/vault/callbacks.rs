@@ -1,3 +1,4 @@
+use super::core::UpdateContentErr;
 use super::core::{NewEntryErr, VaultValue, VaultValueErr};
 use crate::utils;
 use crate::utils::Vault;
@@ -6,6 +7,7 @@ use fltk::{prelude::*, *};
 use sled;
 use sled::Db;
 use std::collections::HashMap;
+use std::str;
 use std::sync::{Arc, Mutex};
 use std::{fs, process};
 
@@ -20,6 +22,7 @@ pub fn entries_callback(
     install_path_check_button_arc: Arc<Mutex<button::Button>>,
     content_label_arc: Arc<Mutex<frame::Frame>>,
     content_arc: Arc<Mutex<input::MultilineInput>>,
+    select_file_button_arc: Arc<Mutex<button::Button>>,
     notes_label_arc: Arc<Mutex<frame::Frame>>,
     notes_arc: Arc<Mutex<input::MultilineInput>>,
     save_button_arc: Arc<Mutex<button::Button>>,
@@ -104,6 +107,15 @@ pub fn entries_callback(
             return;
         }
     };
+    let mut select_file_button = match select_file_button_arc.lock() {
+        Ok(object) => object,
+        Err(err) => {
+            eprintln!("ERROR: Failed to get value under select_file_button_arc ARC!\n{err}");
+            status_label.set_label("There was a Poison Error, try again, or try to restart!");
+            status_label.show();
+            return;
+        }
+    };
     let mut notes_label = match notes_label_arc.lock() {
         Ok(object) => object,
         Err(err) => {
@@ -174,6 +186,8 @@ pub fn entries_callback(
         install_path_check_button.hide();
         content_label.hide();
         content.hide();
+        select_file_button.hide();
+        select_file_button.activate();
         notes_label.hide();
         notes.hide();
         save_button.hide();
@@ -221,7 +235,23 @@ pub fn entries_callback(
 
         // set value
         install_path.set_value(&entry_value_json.install_path);
-        content.set_value(&entry_value_json.content);
+
+        if &entry_value_json.content.len() >= &32767 {
+            content.set_value("File content is too big to be displayed!\nThe actual value is kept in the database.");
+            content.deactivate();
+        } else {
+            match str::from_utf8(&entry_value_json.content) {
+                Ok(string) => {
+                    content.set_value(string);
+                    content.activate();
+                }
+                Err(_) => {
+                    content.set_value("Content is not in utf8 so it can't be displayed!\nThe actual value is kept in the database.");
+                    content.deactivate();
+                }
+            }
+        }
+
         notes.set_value(&entry_value_json.notes);
 
         // Unhide widgets
@@ -231,6 +261,7 @@ pub fn entries_callback(
         install_path_check_button.show();
         content_label.show();
         content.show();
+        select_file_button.show();
         notes_label.show();
         notes.show();
         save_button.show();
@@ -358,8 +389,8 @@ pub fn save_button_callback(
             return;
         }
     };
-    let content_value = match content_arc.lock() {
-        Ok(object) => object.value(),
+    let content = match content_arc.lock() {
+        Ok(object) => object,
         Err(err) => {
             eprintln!("ERROR: Failed to get value under content_arc ARC!\n{err}");
             status_label.set_label("There was a Poison Error, try again, or try to restart!");
@@ -387,14 +418,72 @@ pub fn save_button_callback(
         return;
     }
 
-    let entry_value = VaultValue {
-        install_path: install_path_value,
-        content: content_value,
-        notes: notes_value,
-    };
+    // if the content widget isn't active it mean that it has either a file that is too big or a
+    // file that isn't parsable to utf8 meaning we don't display it in the content box and keep it
+    // in memory instead, so if that's the case we take the value from memory, if not we just take
+    // them from the widgets
+    let entry_value: VaultValue;
+    if content.active() {
+        entry_value = VaultValue {
+            install_path: install_path_value,
+            content: content.value().as_bytes().to_vec(),
+            notes: notes_value,
+        };
+    } else {
+        let selected_item = match current_selected_entry_arc_clone.lock() {
+            Ok(object) => object,
+            Err(err) => {
+                eprintln!("ERROR: Failed to get value under notes_arc ARC!\n{err}");
+                status_label.set_label("There was a Poison Error, try again, or try to restart!");
+                status_label.show();
+                return;
+            }
+        };
+
+        let current_entry_value = match super::core::get_entry_value_plain(
+            vault_db_arc_clone.clone(),
+            ecies_arc_clone.clone(),
+            vault_arc_clone.clone(),
+            &selected_item,
+            db_entries_dict_arc_clone.clone(),
+        ) {
+            Ok(val) => val,
+            Err(VaultValueErr::DbCorrupted(_)) => {
+                process::exit(100);
+            }
+            Err(VaultValueErr::PoisonErr(_)) => {
+                status_label.set_label("There was a Poison Error, try again, or try to restart!");
+                status_label.show();
+                return;
+            }
+            Err(VaultValueErr::DisplayNotInSync(_)) => {
+                status_label.set_label(
+                    "What's on screen is not in sync with what's in memory, try again or restart!",
+                );
+                status_label.show();
+                return;
+            }
+            Err(VaultValueErr::MemoryNotInSync(_)) => {
+                status_label.set_label(
+                    "What's in memory is not in sync with what's in storage, please restart!",
+                );
+                status_label.show();
+                return;
+            }
+        };
+
+        drop(selected_item);
+
+        entry_value = VaultValue {
+            install_path: install_path_value,
+            content: current_entry_value.content,
+            notes: notes_value,
+        };
+    }
 
     // drop arc ref
     drop(install_path_arc);
+    drop(content);
     drop(content_arc);
     drop(notes_arc);
 
@@ -638,6 +727,11 @@ pub fn delete_button_callback(
 pub fn install_button_callback(
     install_path_arc: Arc<Mutex<input::Input>>,
     content_arc: Arc<Mutex<input::MultilineInput>>,
+    vault_arc_clone: Arc<Mutex<Vault>>,
+    vault_db_arc_clone: Arc<Mutex<Db>>,
+    ecies_arc_clone: Arc<Mutex<ECIES>>,
+    current_selected_entry_arc_clone: Arc<Mutex<String>>,
+    db_entries_dict_arc_clone: Arc<Mutex<HashMap<String, Vec<u8>>>>,
     status_label_arc: Arc<Mutex<frame::Frame>>,
     is_windows: bool,
 ) {
@@ -669,7 +763,61 @@ pub fn install_button_callback(
     };
 
     let install_path_value = install_path.value().to_owned();
-    let content_value = content.value().to_owned();
+    let content_value: Vec<u8>;
+
+    // if the content widget isn't active it mean that it has either a file that is too big or a
+    // file that isn't parsable to utf8 meaning we don't display it in the content box and keep it
+    // in memory instead, so if that's the case we take the value from memory, if not we just take
+    // them from the widgets
+    if content.active() {
+        content_value = content.value().to_owned().as_bytes().to_vec();
+    } else {
+        let selected_item = match current_selected_entry_arc_clone.lock() {
+            Ok(object) => object,
+            Err(err) => {
+                eprintln!("ERROR: Failed to get value under notes_arc ARC!\n{err}");
+                status_label.set_label("There was a Poison Error, try again, or try to restart!");
+                status_label.show();
+                return;
+            }
+        };
+
+        let current_entry_value = match super::core::get_entry_value_plain(
+            vault_db_arc_clone.clone(),
+            ecies_arc_clone.clone(),
+            vault_arc_clone.clone(),
+            &selected_item,
+            db_entries_dict_arc_clone.clone(),
+        ) {
+            Ok(val) => val,
+            Err(VaultValueErr::DbCorrupted(_)) => {
+                process::exit(100);
+            }
+            Err(VaultValueErr::PoisonErr(_)) => {
+                status_label.set_label("There was a Poison Error, try again, or try to restart!");
+                status_label.show();
+                return;
+            }
+            Err(VaultValueErr::DisplayNotInSync(_)) => {
+                status_label.set_label(
+                    "What's on screen is not in sync with what's in memory, try again or restart!",
+                );
+                status_label.show();
+                return;
+            }
+            Err(VaultValueErr::MemoryNotInSync(_)) => {
+                status_label.set_label(
+                    "What's in memory is not in sync with what's in storage, please restart!",
+                );
+                status_label.show();
+                return;
+            }
+        };
+
+        drop(selected_item);
+
+        content_value = current_entry_value.content;
+    }
 
     // drop arc ref
     drop(install_path);
@@ -782,6 +930,7 @@ pub fn wind_resize_callback(
     install_path_check_button_arc: Arc<Mutex<button::Button>>,
     content_label_arc: Arc<Mutex<frame::Frame>>,
     content_arc: Arc<Mutex<input::MultilineInput>>,
+    select_file_button_arc: Arc<Mutex<button::Button>>,
     notes_label_arc: Arc<Mutex<frame::Frame>>,
     notes_arc: Arc<Mutex<input::MultilineInput>>,
     delete_button_arc: Arc<Mutex<button::Button>>,
@@ -875,6 +1024,15 @@ pub fn wind_resize_callback(
         }
     };
 
+    match select_file_button_arc.lock() {
+        Ok(mut o) => {
+            o.set_label_size(font_size / 3);
+        }
+        Err(err) => {
+            eprintln!("ERROR: There was an error getting value behind select_file_button_arc ARC!\n {err}");
+        }
+    };
+
     match notes_label_arc.lock() {
         Ok(mut o) => {
             o.set_label_size(font_size / 2);
@@ -936,4 +1094,136 @@ pub fn wind_resize_callback(
             );
         }
     };
+}
+
+pub fn select_file_button(
+    status_label_arc: Arc<Mutex<frame::Frame>>,
+    content_arc: Arc<Mutex<input::MultilineInput>>,
+    current_selected_entry_arc: Arc<Mutex<String>>,
+    vault_db_arc: Arc<Mutex<Db>>,
+    ecies_arc: Arc<Mutex<ECIES>>,
+    vault_arc: Arc<Mutex<Vault>>,
+    db_entries_dict_arc: Arc<Mutex<HashMap<String, Vec<u8>>>>,
+) {
+    let mut file_dialog = dialog::NativeFileChooser::new(dialog::NativeFileChooserType::BrowseFile);
+    file_dialog.show();
+
+    // get references from arcs
+    let mut status_label = match status_label_arc.lock() {
+        Ok(object) => object,
+        Err(err) => {
+            eprintln!("ERROR: Failed to get value under error_label_arc ARC!\n{err}");
+            return;
+        }
+    };
+
+    // get the content inside the file
+    let file_content = match fs::read(file_dialog.filename()) {
+        Ok(string) => string,
+        Err(err) => {
+            eprintln!(
+                "ERROR: There was an error reading the contents of the selected file!\n{err}"
+            );
+            status_label.set_label("There was an error reading the contents of the file!");
+            status_label.show();
+            return;
+        }
+    };
+
+    // get references from arcs
+    let mut content = match content_arc.lock() {
+        Ok(object) => object,
+        Err(err) => {
+            eprintln!("ERROR: Failed to get value under content_arc ARC!\n{err}");
+            status_label.set_label("There was a Poison Error, try again, or try to restart!");
+            status_label.show();
+            return;
+        }
+    };
+
+    // if the content is bigger then 32767 bytes then we save it to the database directly if
+    // and deactivate the content box leaving a message if not we just set the content to the
+    // box.
+    if file_content.len() >= 32767 {
+        content.set_value("File content is too big to be displayed!\nContent has been saved to the database automatically!");
+        content.deactivate();
+
+        match super::core::update_content_in_entry(
+            current_selected_entry_arc.clone(),
+            vault_db_arc.clone(),
+            ecies_arc.clone(),
+            vault_arc.clone(),
+            db_entries_dict_arc.clone(),
+            file_content,
+        ) {
+            Ok(_) => return,
+            Err(UpdateContentErr::PoisonErr(_)) => {
+                status_label.set_label("There was a Poison Error, try again, or try to restart!");
+                status_label.show();
+                return;
+            }
+            Err(UpdateContentErr::DisplayNotInSync(_)) => {
+                status_label.set_label(
+                    "What's on screen is not in sync with what's in memory, try again or restart!",
+                );
+                status_label.show();
+                return;
+            }
+            Err(UpdateContentErr::MemoryNotInSync(_)) => {
+                status_label.set_label(
+                    "What's in memory is not in sync with what's in storage, please restart!",
+                );
+                status_label.show();
+                return;
+            }
+            Err(UpdateContentErr::UnknownError(_)) => {
+                process::exit(100);
+            }
+        };
+    } else {
+        match str::from_utf8(&file_content) {
+            Ok(string) => {
+                content.set_value(string);
+                content.activate();
+            }
+            Err(_) => {
+                content.set_value("Content is not in utf8 so it can't be displayed!\nThe content has been saved to database automatically!");
+                content.deactivate();
+
+                match super::core::update_content_in_entry(
+                    current_selected_entry_arc.clone(),
+                    vault_db_arc.clone(),
+                    ecies_arc.clone(),
+                    vault_arc.clone(),
+                    db_entries_dict_arc.clone(),
+                    file_content,
+                ) {
+                    Ok(_) => return,
+                    Err(UpdateContentErr::PoisonErr(_)) => {
+                        status_label
+                            .set_label("There was a Poison Error, try again, or try to restart!");
+                        status_label.show();
+                        return;
+                    }
+                    Err(UpdateContentErr::DisplayNotInSync(_)) => {
+                        status_label.set_label(
+                            "What's on screen is not in sync with what's in memory, try again or restart!",
+                        );
+                        status_label.show();
+                        return;
+                    }
+                    Err(UpdateContentErr::MemoryNotInSync(_)) => {
+                        status_label.set_label(
+                            "What's in memory is not in sync with what's in storage, please restart!",
+                        );
+                        status_label.show();
+                        return;
+                    }
+                    Err(UpdateContentErr::UnknownError(_)) => {
+                        process::exit(100);
+                    }
+                };
+            }
+        }
+    }
 }

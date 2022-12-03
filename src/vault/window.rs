@@ -1,7 +1,14 @@
+use super::core::UpdateContentErr;
+use super::core::{NewEntryErr, VaultValue, VaultValueErr};
 use crate::utils::Vault;
 use crate::ECIES;
 use fltk::{prelude::*, window::Window, *};
-use std::sync::{Arc, Mutex};
+use std::process;
+use std::str;
+use std::{
+    fs,
+    sync::{Arc, Mutex},
+};
 
 pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     //
@@ -76,6 +83,15 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     content.set_text_size(15);
     content.hide();
     let content_arc = Arc::new(Mutex::new(content.clone()));
+
+    // select file to add as entry button
+    let mut select_file_button = button::Button::default()
+        .with_size(100, 20)
+        .below_of(&content, 2);
+    select_file_button.set_label("Select File");
+    select_file_button.set_pos(875, select_file_button.y());
+    select_file_button.hide();
+    let select_file_button_arc = Arc::new(Mutex::new(select_file_button.clone()));
 
     // entry notes
     let mut notes_label = fltk::frame::Frame::default()
@@ -155,7 +171,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     //
     //  Window callbacks
     //
-    
+
     // clone the needed arc references
     let entrie_add_input_arc_clone = entrie_add_input_arc.clone();
     let entrie_name_arc_clone = entrie_name_arc.clone();
@@ -163,6 +179,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     let install_path_arc_clone = install_path_arc.clone();
     let content_label_arc_clone = content_label_arc.clone();
     let content_arc_clone = content_arc.clone();
+    let select_file_button_arc_clone = select_file_button_arc.clone();
     let notes_label_arc_clone = notes_label_arc.clone();
     let notes_arc_clone = notes_arc.clone();
     let install_path_check_button_arc_clone = install_path_check_button_arc.clone();
@@ -183,6 +200,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
             install_path_check_button_arc_clone.clone(),
             content_label_arc_clone.clone(),
             content_arc_clone.clone(),
+            select_file_button_arc_clone.clone(),
             notes_label_arc_clone.clone(),
             notes_arc_clone.clone(),
             delete_button_arc_clone.clone(),
@@ -205,6 +223,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     let install_path_check_button_arc_clone = install_path_check_button_arc.clone();
     let content_label_arc_clone = content_label_arc.clone();
     let content_arc_clone = content_arc.clone();
+    let select_file_button_arc_clone = select_file_button_arc.clone();
     let vault_db_arc_clone = vault_db.clone();
     let status_label_arc_clone = status_label_arc.clone();
     let save_button_arc_clone = save_button_arc.clone();
@@ -220,6 +239,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
             install_path_check_button_arc_clone.clone(),
             content_label_arc_clone.clone(),
             content_arc_clone.clone(),
+            select_file_button_arc_clone.clone(),
             notes_label_arc_clone.clone(),
             notes_arc_clone.clone(),
             save_button_arc_clone.clone(),
@@ -297,11 +317,21 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     let install_path_arc_clone = install_path_arc.clone();
     let content_arc_clone = content_arc.clone();
     let status_label_arc_clone = status_label_arc.clone();
+    let vault_arc_clone = Arc::new(Mutex::new(vault.clone()));
+    let db_entries_dict_arc_clone = db_entries_dict.clone();
+    let ecies_arc_clone = ecies.clone();
+    let current_selected_entry_arc_clone = current_selected_entry.clone();
+    let vault_db_arc_clone = vault_db.clone();
     // set install button callback
     install_button.set_callback(move |_| {
         super::callbacks::install_button_callback(
             install_path_arc_clone.clone(),
             content_arc_clone.clone(),
+            vault_arc_clone.clone(),
+            vault_db_arc_clone.clone(),
+            ecies_arc_clone.clone(),
+            current_selected_entry_arc_clone.clone(),
+            db_entries_dict_arc_clone.clone(),
             status_label_arc_clone.clone(),
             is_windows,
         );
@@ -315,6 +345,27 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
         super::callbacks::install_path_check_button_callback(
             status_label_arc_clone.clone(),
             install_path_arc_clone.clone(),
+        );
+    });
+
+    // clone the needed arc references
+    let content_arc_clone = content_arc.clone();
+    let status_label_arc_clone = status_label_arc.clone();
+    let current_selected_entry_arc_clone = current_selected_entry.clone();
+    let vault_arc_clone = Arc::new(Mutex::new(vault.clone()));
+    let vault_db_arc_clone = vault_db.clone();
+    let ecies_arc_clone = ecies.clone();
+    let db_entries_dict_arc_clone = db_entries_dict.clone();
+    // set select file button callback
+    select_file_button.set_callback(move |_| {
+        super::callbacks::select_file_button(
+            status_label_arc_clone.clone(),
+            content_arc_clone.clone(),
+            current_selected_entry_arc_clone.clone(),
+            vault_db_arc_clone.clone(),
+            ecies_arc_clone.clone(),
+            vault_arc_clone.clone(),
+            db_entries_dict_arc_clone.clone(),
         );
     });
 

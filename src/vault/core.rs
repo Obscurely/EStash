@@ -12,7 +12,7 @@ use std::sync::{Arc, Mutex};
 #[derive(Serialize, Deserialize)]
 pub struct VaultValue {
     pub install_path: String,
-    pub content: String,
+    pub content: Vec<u8>,
     pub notes: String,
 }
 
@@ -20,7 +20,7 @@ impl VaultValue {
     pub fn new_empty() -> VaultValue {
         VaultValue {
             install_path: String::new(),
-            content: String::new(),
+            content: Vec::new(),
             notes: String::new(),
         }
     }
@@ -39,6 +39,13 @@ pub enum NewEntryErr {
     PoisonErr(u16),
     DbCorrupted(u16),
     DbInaccesible(u16),
+    UnknownError(u16),
+}
+
+pub enum UpdateContentErr {
+    PoisonErr(u16),
+    DisplayNotInSync(u16),
+    MemoryNotInSync(u16),
     UnknownError(u16),
 }
 
@@ -346,4 +353,150 @@ pub fn add_new_entry(
     };
 
     Ok(entrie_add_input_value_encrypted)
+}
+
+pub fn update_content_in_entry(
+    current_selected_entry_arc: Arc<Mutex<String>>,
+    vault_db_arc: Arc<Mutex<Db>>,
+    ecies_arc: Arc<Mutex<ECIES>>,
+    vault_arc: Arc<Mutex<Vault>>,
+    db_entries_dict_arc: Arc<Mutex<HashMap<String, Vec<u8>>>>,
+    file_content: Vec<u8>,
+) -> Result<bool, UpdateContentErr> {
+    //
+    // Get current saved data entry in the database
+    //
+
+    // get value under arc
+    let current_selected_entry = match current_selected_entry_arc.lock() {
+        Ok(object) => object,
+        Err(err) => {
+            eprintln!("ERROR: Failed to get value under current_selected_entry_arc ARC!\n{err}");
+            return Err(UpdateContentErr::PoisonErr(0));
+        }
+    };
+
+    // get entry data
+    let entry_value_json = match super::core::get_entry_value_plain(
+        vault_db_arc.clone(),
+        ecies_arc.clone(),
+        vault_arc.clone(),
+        &current_selected_entry,
+        db_entries_dict_arc.clone(),
+    ) {
+        Ok(json) => json,
+        Err(VaultValueErr::DbCorrupted(_)) => {
+            process::exit(100);
+        }
+        Err(VaultValueErr::PoisonErr(_)) => {
+            return Err(UpdateContentErr::PoisonErr(0));
+        }
+        Err(VaultValueErr::DisplayNotInSync(_)) => {
+            return Err(UpdateContentErr::DisplayNotInSync(0));
+        }
+        Err(VaultValueErr::MemoryNotInSync(_)) => {
+            return Err(UpdateContentErr::MemoryNotInSync(0));
+        }
+    };
+
+    //
+    // Save the entry with new data
+    //
+
+    let entry_value_json_new = VaultValue {
+        install_path: entry_value_json.install_path,
+        content: file_content,
+        notes: entry_value_json.notes,
+    };
+
+    // shouldn't error, hopefully
+    let entry_value_string = match serde_json::to_string(&entry_value_json_new) {
+        Ok(s) => s,
+        Err(err) => {
+            eprintln!("ERROR: Somehow converting the struct to json error'd out, shouldn't have, here is the error,\n{err}");
+            return Err(UpdateContentErr::UnknownError(0));
+        }
+    };
+
+    // get value under ecies_arc arc
+    let mut ecies = match ecies_arc.lock() {
+        Ok(object) => object,
+        Err(err) => {
+            eprintln!("ERROR: Failed to get value under ecies_arc ARC!\n{err}");
+            return Err(UpdateContentErr::PoisonErr(0));
+        }
+    };
+
+    // get value under arc
+    let vault = match vault_arc.lock() {
+        Ok(object) => object,
+        Err(err) => {
+            eprintln!("ERROR: Failed to get value under ecies_arc ARC!\n{err}");
+            return Err(UpdateContentErr::PoisonErr(0));
+        }
+    };
+
+    // there should be no way for this to error out since once the vault is loaded it means the
+    // keys work
+    let entry_value_encrypted = match ecies.encrypt_bytes_array(
+        &entry_value_string.as_bytes(),
+        &vault.priv_key,
+        &vault.pub_key,
+    ) {
+        Ok(cipher) => cipher,
+        Err(err) => {
+            eprintln!("ERROR: Failed to encrypt the data input by user, there should be no way for this to error out since once the vault is loaded it means the keys work, anyways here is the error,\n{err}");
+            return Err(UpdateContentErr::UnknownError(0));
+        }
+    };
+
+    // drop arc ref
+    drop(ecies);
+    drop(ecies_arc);
+
+    // get value under arc
+    let db_entries_dict = match db_entries_dict_arc.lock() {
+        Ok(object) => object,
+        Err(err) => {
+            eprintln!("ERROR: Failed to get value under db_entries_dict_arc ARC!\n{err}");
+            return Err(UpdateContentErr::PoisonErr(0));
+        }
+    };
+
+    // get value under arc
+    let selected_item = current_selected_entry.to_owned();
+
+    let selected_item_encrypted = match db_entries_dict.get(&selected_item) {
+        Some(cipher) => cipher.to_owned(),
+        None => {
+            eprintln!("ERROR: The Values In Memory are not in sync with the ones on screen!");
+            return Err(UpdateContentErr::DisplayNotInSync(0));
+        }
+    };
+
+    // drop arc
+    drop(selected_item);
+    drop(current_selected_entry);
+    drop(current_selected_entry_arc);
+    drop(db_entries_dict);
+    drop(db_entries_dict_arc);
+
+    // get value under arc
+    let vault_db = match vault_db_arc.lock() {
+        Ok(object) => object,
+        Err(err) => {
+            eprintln!("ERROR: Failedt to get value under vault_db_arc ARC!\n{err}");
+            return Err(UpdateContentErr::PoisonErr(0));
+        }
+    };
+
+    match vault_db.insert(selected_item_encrypted, entry_value_encrypted) {
+        Ok(_) => (),
+        Err(err) => {
+            eprintln!("ERROR: There was an error storing the input value in the db, for some reason the db in not accesible, please report this error on github if you are able to replicate it!\n{err}");
+            process::exit(100);
+        }
+    };
+
+    Ok(true)
 }

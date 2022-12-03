@@ -13,8 +13,8 @@ use std::sync::{Arc, Mutex};
 ///
 pub fn singup_button_callback(
     input_user_arc: Arc<Mutex<input::Input>>,
-    input_pass_arc: Arc<Mutex<input::Input>>,
-    input_pass_again_arc: Arc<Mutex<input::Input>>,
+    input_pass_arc: Arc<Mutex<input::SecretInput>>,
+    input_pass_again_arc: Arc<Mutex<input::SecretInput>>,
     text_status_arc: Arc<Mutex<TextDisplay>>,
     is_windows: bool,
 ) {
@@ -160,8 +160,8 @@ pub fn window_callback(
     title: &mut Frame,
     back_button_arc: Arc<Mutex<button::Button>>,
     input_user_arc: Arc<Mutex<input::Input>>,
-    input_pass_arc: Arc<Mutex<input::Input>>,
-    input_pass_again_arc: Arc<Mutex<input::Input>>,
+    input_pass_arc: Arc<Mutex<input::SecretInput>>,
+    input_pass_again_arc: Arc<Mutex<input::SecretInput>>,
     but_signup_arc: Arc<Mutex<button::Button>>,
     text_status_arc: Arc<Mutex<TextDisplay>>,
     flex: &mut Flex,

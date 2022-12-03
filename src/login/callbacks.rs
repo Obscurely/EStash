@@ -16,7 +16,7 @@ use std::sync::{Arc, Mutex};
 ///
 pub fn login_button_callback(
     input_user_arc: Arc<Mutex<input::Input>>,
-    input_pass_arc: Arc<Mutex<input::Input>>,
+    input_pass_arc: Arc<Mutex<input::SecretInput>>,
     text_status_arc: Arc<Mutex<text::TextDisplay>>,
     wind_clone: &mut DoubleWindow,
     is_windows: bool,
@@ -146,7 +146,7 @@ pub fn resize_callback(
     title: &mut Frame,
     back_button_arc: Arc<Mutex<button::Button>>,
     input_user_arc: Arc<Mutex<input::Input>>,
-    input_pass_arc: Arc<Mutex<input::Input>>,
+    input_pass_arc: Arc<Mutex<input::SecretInput>>,
     but_login_arc: Arc<Mutex<button::Button>>,
     text_status_arc: Arc<Mutex<text::TextDisplay>>,
     flex: &mut Flex,

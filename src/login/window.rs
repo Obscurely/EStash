@@ -34,7 +34,7 @@ pub fn create(is_windows: bool, start_wind: Arc<Mutex<DoubleWindow>>) -> fltk::w
     let input_user_arc = Arc::new(Mutex::new(input_user.clone()));
 
     // password for vault input
-    let mut input_pass = fltk::input::Input::default();
+    let mut input_pass = fltk::input::SecretInput::default();
     input_pass.set_color(input_pass.color().lighter());
     let input_pass_arc = Arc::new(Mutex::new(input_pass.clone()));
 

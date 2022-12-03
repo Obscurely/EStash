@@ -4,11 +4,11 @@ use fltk::{
     frame,
     group::{self, Flex},
     prelude::*,
-    window::Window,
+    window::{Window, DoubleWindow},
 };
 use std::sync::{Arc, Mutex};
 
-pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
+pub fn create(is_windows: bool, start_wind: Arc<Mutex<DoubleWindow>>) -> fltk::window::DoubleWindow {
     //
     //  Make window | UI Part
     //
@@ -20,6 +20,9 @@ pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
     // title
     let mut title = frame::Frame::default();
     title.set_label("EStash");
+    // go back button
+    let mut back_button = Button::default().with_size(25, 20).with_label("<");
+    let back_button_arc = Arc::new(Mutex::new(back_button.clone()));
 
     // window layout
     let mut flex = Flex::default();
@@ -71,12 +74,14 @@ pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
     let input_pass_again_arc_clone = input_pass_again_arc.clone();
     let text_status_arc_clone = text_status_arc.clone();
     let but_signup_arc_clone = but_signup_arc.clone();
+    let back_button_arc_clone = back_button_arc.clone();
     // window callback
     wind.resize_callback(move |_, _, _, w, h| {
         super::callbacks::window_callback(
             w,
             h,
             &mut title,
+            back_button_arc_clone.clone(),
             input_user_arc_clone.clone(),
             input_pass_arc_clone.clone(),
             input_pass_again_arc_clone.clone(),
@@ -100,6 +105,21 @@ pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
             text_status_arc_clone.clone(),
             is_windows,
         )
+    });
+
+    // clone the needed objects
+    let mut wind_clone = wind.clone();
+    // set back button callback
+    back_button.set_callback(move |_| {
+        wind_clone.hide();
+        match start_wind.lock() {
+            Ok(mut win) => {
+                win.show();
+            }
+            Err(err) => {
+                eprintln!("ERROR: Failed to get valune under start window ARC!\n{err}");
+            }
+        }
     });
 
     wind

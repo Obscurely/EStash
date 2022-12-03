@@ -4,11 +4,11 @@ use fltk::{
     frame,
     group::{self, Flex},
     prelude::*,
-    window::Window,
+    window::{Window, DoubleWindow},
 };
 use std::sync::{Arc, Mutex};
 
-pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
+pub fn create(is_windows: bool, start_wind: Arc<Mutex<DoubleWindow>>) -> fltk::window::DoubleWindow {
     //
     //  Make window | UI Part
     //
@@ -16,8 +16,12 @@ pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
     // Create login window
     let mut wind = Window::default().with_size(710, 200).with_label("Login");
     wind.set_xclass("estash");
+    // title
     let mut title = frame::Frame::default();
     title.set_label("EStash");
+    // go back button
+    let mut back_button = Button::default().with_size(25, 20).with_label("<");
+    let back_button_arc = Arc::new(Mutex::new(back_button.clone()));
 
     // set window layout
     let mut flex = Flex::default();
@@ -55,6 +59,7 @@ pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
 
     // clone the window so we can move it in the callback
     let mut wind_clone = wind.clone();
+    let mut wind_clone2 = wind.clone();
 
     //
     //  Window callbacks
@@ -65,12 +70,14 @@ pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
     let input_pass_arc_clone = input_pass_arc.clone();
     let but_login_arc_clone = but_login_arc.clone();
     let text_status_arc_clone = text_status_arc.clone();
+    let back_button_arc_clone = back_button_arc.clone();
     // resize callback
     wind.resize_callback(move |_, _, _, w, h| {
         super::callbacks::resize_callback(
             w,
             h,
             &mut title,
+            back_button_arc_clone.clone(),
             input_user_arc_clone.clone(),
             input_pass_arc_clone.clone(),
             but_login_arc_clone.clone(),
@@ -93,6 +100,19 @@ pub fn create(is_windows: bool) -> fltk::window::DoubleWindow {
             is_windows,
         )
     });
+
+    // set back button callback
+    back_button.set_callback(move |_| {
+        wind_clone2.hide();
+        match start_wind.lock() {
+            Ok(mut win) => {
+                win.show();
+            }
+            Err(err) => {
+                eprintln!("ERROR: Failed to get valune under start window ARC!\n{err}");
+            }
+        }
+    }); 
 
     wind
 }

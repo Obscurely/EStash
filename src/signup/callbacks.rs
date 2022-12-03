@@ -158,6 +158,7 @@ pub fn window_callback(
     w: i32,
     h: i32,
     title: &mut Frame,
+    back_button_arc: Arc<Mutex<button::Button>>,
     input_user_arc: Arc<Mutex<input::Input>>,
     input_pass_arc: Arc<Mutex<input::Input>>,
     input_pass_again_arc: Arc<Mutex<input::Input>>,
@@ -171,6 +172,17 @@ pub fn window_callback(
 
     title.set_label_size(font_size * 2);
     title.set_pos((w / 2) - (font_size / 24), font_size);
+
+    match back_button_arc.lock() {
+        Ok(mut o) => {
+            o.set_label_size(font_size / 2);
+        }
+        Err(err) => {
+            eprintln!(
+                "ERROR: There was an error changing back_button text size, arc poison error!\n{err}"
+            );
+        }
+    };
 
     match input_user_arc.lock() {
         Ok(mut o) => {
@@ -212,7 +224,7 @@ pub fn window_callback(
                 "ERROR: There was an error changing but_signup size, arc poison error!\n{err}"
             );
         }
-    }
+    };
 
     match text_status_arc.lock() {
         Ok(mut o) => {

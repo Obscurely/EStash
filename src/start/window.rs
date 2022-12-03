@@ -38,7 +38,9 @@ pub fn create() -> fltk::window::DoubleWindow {
 
     // clone the wind so we can move it inside the callbacks
     let mut wind_clone_one = wind.clone();
+    let wind_clone_one_arc = Arc::new(Mutex::new(wind_clone_one.clone()));
     let mut wind_clone_two = wind.clone();
+    let wind_clone_two_arc = Arc::new(Mutex::new(wind_clone_two.clone()));
 
     //
     //  Window callbacks
@@ -81,7 +83,7 @@ pub fn create() -> fltk::window::DoubleWindow {
         wind_clone_one.hide();
 
         // initialize login window
-        let mut login_wind = login::window::create(utils::is_windows());
+        let mut login_wind = login::window::create(utils::is_windows(), wind_clone_one_arc.clone());
         login_wind.show();
     });
 
@@ -90,7 +92,7 @@ pub fn create() -> fltk::window::DoubleWindow {
         wind_clone_two.hide();
 
         // intialize signup window
-        let mut signup_wind = signup::window::create(utils::is_windows());
+        let mut signup_wind = signup::window::create(utils::is_windows(), wind_clone_two_arc.clone());
         signup_wind.show();
     });
 

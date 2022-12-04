@@ -92,7 +92,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     let mut clear_content_button = button::Button::default()
         .with_size(100, 20)
         .below_of(&content, 2);
-    clear_content_button.set_label("Delete Content");
+    clear_content_button.set_label("Clear Content");
     clear_content_button.set_pos(225, clear_content_button.y());
     clear_content_button.hide();
     let clear_content_button_arc = Arc::new(Mutex::new(clear_content_button.clone()));

@@ -1,6 +1,5 @@
 use fltk::{
     button::Button,
-    enums::Font,
     frame,
     group::{self, Flex},
     prelude::*,
@@ -17,7 +16,7 @@ pub fn create(
     //
 
     // Create login window
-    let mut wind = Window::default().with_size(710, 200).with_label("Login");
+    let mut wind = Window::default().with_size(1000, 500).with_label("Login");
     wind.set_xclass("estash");
     // title
     let mut title = frame::Frame::default();
@@ -44,13 +43,11 @@ pub fn create(
     // login button
     let mut but_login = Button::default().with_label("Login");
     but_login.set_color(but_login.color().lighter());
-    but_login.set_label_font(Font::ScreenBold);
     let but_login_arc = Arc::new(Mutex::new(but_login.clone()));
 
     // the status of the operation
     let mut text_status = fltk::text::TextDisplay::default();
     text_status.set_color(text_status.color().lighter());
-    text_status.set_text_font(Font::ScreenBold);
     let mut text_status_buf = fltk::text::TextBuffer::default();
     text_status_buf.set_text("Status: Nothing");
     text_status.set_buffer(text_status_buf);

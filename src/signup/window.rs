@@ -1,6 +1,5 @@
 use fltk::{
     button::Button,
-    enums::Font,
     frame,
     group::{self, Flex},
     prelude::*,
@@ -17,7 +16,7 @@ pub fn create(
     //
 
     // Create signup window
-    let mut wind = Window::default().with_size(710, 200).with_label("Singup");
+    let mut wind = Window::default().with_size(1000, 500).with_label("Singup");
     wind.set_xclass("estash");
 
     // title
@@ -50,13 +49,11 @@ pub fn create(
     // signup button
     let mut but_signup = Button::default().with_label("Signup");
     but_signup.set_color(but_signup.color().lighter());
-    but_signup.set_label_font(Font::ScreenBold);
     let but_signup_arc = Arc::new(Mutex::new(but_signup.clone()));
 
     // the status of the operation
     let mut text_status = fltk::text::TextDisplay::default();
     text_status.set_color(text_status.color().lighter());
-    text_status.set_text_font(Font::ScreenBold);
     let mut text_status_buf = fltk::text::TextBuffer::default();
     text_status_buf.set_text("Status: Nothing");
     text_status.set_buffer(text_status_buf);

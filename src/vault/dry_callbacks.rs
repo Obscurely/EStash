@@ -71,10 +71,11 @@ pub fn wind_resize_callback(
     status_label_arc: Arc<Mutex<frame::Frame>>,
 ) {
     let font_size = (f32::sqrt(w as f32 * h as f32) / 20.0).floor() as i32;
+    let font_size_25 = (font_size as f32 / 2.6).floor() as i32;
 
     match entrie_add_input_arc.lock() {
         Ok(mut o) => {
-            o.set_text_size(font_size / 3);
+            o.set_text_size(font_size_25);
         }
         Err(err) => {
             eprintln!(
@@ -85,7 +86,7 @@ pub fn wind_resize_callback(
 
     match entrie_add_button_arc.lock() {
         Ok(mut o) => {
-            o.set_label_size(font_size / 3);
+            o.set_label_size(font_size_25);
         }
         Err(err) => {
             eprintln!(
@@ -118,7 +119,7 @@ pub fn wind_resize_callback(
 
     match enable_install_path_arc.lock() {
         Ok(mut o) => {
-            o.set_label_size(font_size / 3);
+            o.set_label_size(font_size_25);
         }
         Err(err) => {
             eprintln!(
@@ -129,7 +130,7 @@ pub fn wind_resize_callback(
 
     match install_path_arc.lock() {
         Ok(mut o) => {
-            o.set_text_size(font_size / 3);
+            o.set_text_size(font_size_25);
         }
         Err(err) => {
             eprintln!(
@@ -140,7 +141,7 @@ pub fn wind_resize_callback(
 
     match install_path_check_button_arc.lock() {
         Ok(mut o) => {
-            o.set_label_size(font_size / 3);
+            o.set_label_size(font_size_25);
         }
         Err(err) => {
             eprintln!("ERROR: There was an error getting value behind install_path_checK_button_arc ARC!\n {err}");
@@ -160,7 +161,7 @@ pub fn wind_resize_callback(
 
     match content_arc.lock() {
         Ok(mut o) => {
-            o.set_text_size(font_size / 3);
+            o.set_text_size(font_size_25);
         }
         Err(err) => {
             eprintln!("ERROR: There was an error getting value behind content_arc ARC!\n {err}");
@@ -169,7 +170,7 @@ pub fn wind_resize_callback(
 
     match clear_content_button_arc.lock() {
         Ok(mut o) => {
-            o.set_label_size(font_size / 3);
+            o.set_label_size(font_size_25);
         }
         Err(err) => {
             eprintln!("ERROR: There was an error getting value behind delete_content_button_arc ARC!\n {err}");
@@ -178,7 +179,7 @@ pub fn wind_resize_callback(
 
     match select_file_button_arc.lock() {
         Ok(mut o) => {
-            o.set_label_size(font_size / 3);
+            o.set_label_size(font_size_25);
         }
         Err(err) => {
             eprintln!("ERROR: There was an error getting value behind select_file_button_arc ARC!\n {err}");
@@ -198,7 +199,7 @@ pub fn wind_resize_callback(
 
     match notes_arc.lock() {
         Ok(mut o) => {
-            o.set_text_size(font_size / 3);
+            o.set_text_size(font_size_25);
         }
         Err(err) => {
             eprintln!("ERROR: There was an error getting value behind notes_arc ARC!\n {err}");
@@ -207,7 +208,7 @@ pub fn wind_resize_callback(
 
     match delete_button_arc.lock() {
         Ok(mut o) => {
-            o.set_label_size(font_size / 3);
+            o.set_label_size(font_size_25);
         }
         Err(err) => {
             eprintln!(
@@ -217,7 +218,7 @@ pub fn wind_resize_callback(
     };
 
     match install_button_arc.lock() {
-        Ok(mut o) => o.set_label_size(font_size / 3),
+        Ok(mut o) => o.set_label_size(font_size_25),
         Err(err) => {
             eprintln!(
                 "ERROR: There was an error getting value behind install_button_arc ARC!\n {err}"
@@ -227,7 +228,7 @@ pub fn wind_resize_callback(
 
     match save_button_arc.lock() {
         Ok(mut o) => {
-            o.set_label_size(font_size / 3);
+            o.set_label_size(font_size_25);
         }
         Err(err) => {
             eprintln!(
@@ -238,7 +239,7 @@ pub fn wind_resize_callback(
 
     match status_label_arc.lock() {
         Ok(mut o) => {
-            o.set_label_size(font_size / 3);
+            o.set_label_size(font_size_25);
         }
         Err(err) => {
             eprintln!(

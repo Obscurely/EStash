@@ -228,7 +228,7 @@ pub fn window_callback(
 
     match text_status_arc.lock() {
         Ok(mut o) => {
-            o.set_text_size(font_size / 3);
+            o.set_text_size(font_size / 2);
         }
         Err(err) => {
             eprintln!("ERROR: There was an error changing text_status text size, arc poison error!\n{err}");

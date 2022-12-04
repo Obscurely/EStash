@@ -12,9 +12,16 @@ pub fn create() -> fltk::window::DoubleWindow {
     //  Make window | UI Part
     //
 
+    // Create parent window
+    let mut main_wind = Window::default().with_size(1000, 500);
+    main_wind.set_xclass("estash");
+    let main_wind_arc = Arc::new(Mutex::new(main_wind.clone()));
     // Create start window
     let mut wind = Window::default().with_size(1000, 500).with_label("Start");
     wind.set_xclass("estash");
+    let wind_arc = Arc::new(Mutex::new(wind.clone()));
+    
+
     // app title
     let mut title = frame::Frame::default();
     title.set_label("EStash");
@@ -36,11 +43,17 @@ pub fn create() -> fltk::window::DoubleWindow {
     wind.end();
     wind.make_resizable(true);
 
-    // clone the wind so we can move it inside the callbacks
-    let mut wind_clone_one = wind.clone();
-    let wind_clone_one_arc = Arc::new(Mutex::new(wind_clone_one.clone()));
-    let mut wind_clone_two = wind.clone();
-    let wind_clone_two_arc = Arc::new(Mutex::new(wind_clone_two.clone()));
+    // Create login and singup window
+    let mut login_wind = login::window::create(utils::is_windows(), wind_arc.clone(), main_wind_arc.clone());
+    login_wind.hide();
+    login_wind.end();
+    let mut signup_wind = signup::window::create(utils::is_windows(), wind_arc.clone());
+    signup_wind.hide();
+    signup_wind.end();
+
+    // End main_wind
+    main_wind.end();
+    main_wind.make_resizable(true);
 
     //
     //  Window callbacks
@@ -77,25 +90,38 @@ pub fn create() -> fltk::window::DoubleWindow {
         flex.resize(w_center / 2, h_center / 2, w_center, h_center);
     });
 
+    // clone needed arc refs
+    let wind_arc_clone = wind_arc.clone();
     // callbacks
     login_button.set_callback(move |_| {
-        // hide the start window, might wanna reshow it later
-        wind_clone_one.hide();
-
-        // initialize login window
-        let mut login_wind = login::window::create(utils::is_windows(), wind_clone_one_arc.clone());
+        // hide start window
+        match wind_arc_clone.lock() {
+            Ok(mut w) => {
+                w.hide();
+            }
+            Err(err) => {
+                eprintln!("ERROR: Failed to get value under wind_arc ARC! Quitting program, a restart is better!\n{err}");
+            }
+        };
+        // show the login wind        
         login_wind.show();
     });
 
+    // clone needed arc refs
+    let wind_arc_clone = wind_arc.clone();
     signup_button.set_callback(move |_| {
-        // hide the start window, might wanna reshow it later
-        wind_clone_two.hide();
-
-        // intialize signup window
-        let mut signup_wind =
-            signup::window::create(utils::is_windows(), wind_clone_two_arc.clone());
+        // hide start window
+        match wind_arc_clone.lock() {
+            Ok(mut w) => {
+                w.hide();
+            }
+            Err(err) => {
+                eprintln!("ERROR: Failed to get value under wind_arc ARC! Quitting program, a restart is better!\n{err}");
+            }
+        };
+        // show the singup wind
         signup_wind.show();
     });
 
-    wind
+    main_wind
 }

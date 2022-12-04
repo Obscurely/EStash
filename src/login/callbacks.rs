@@ -19,7 +19,6 @@ pub fn login_button_callback(
     input_pass_arc: Arc<Mutex<input::SecretInput>>,
     text_status_arc: Arc<Mutex<text::TextDisplay>>,
     wind_clone: &mut DoubleWindow,
-    main_wind: Arc<Mutex<DoubleWindow>>,
     is_windows: bool,
 ) {
     // get values behind arc
@@ -133,14 +132,6 @@ pub fn login_button_callback(
 
     // open vault window
     wind_clone.hide();
-    match main_wind.lock() {
-        Ok(mut w) => {
-            w.hide();
-        }
-        Err(err) => {
-            eprintln!("ERROR: Failed to get value under main_wind ARC!\n{err}");
-        }
-    };
     let mut vault_wind = vault::window::create(is_windows, vault);
     vault_wind.show();
 }

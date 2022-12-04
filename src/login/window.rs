@@ -10,7 +10,6 @@ use std::sync::{Arc, Mutex};
 pub fn create(
     is_windows: bool,
     start_wind: Arc<Mutex<DoubleWindow>>,
-    main_wind: Arc<Mutex<DoubleWindow>>,
 ) -> fltk::window::DoubleWindow {
     //
     //  Make window | UI Part
@@ -98,7 +97,6 @@ pub fn create(
             input_pass_arc_clone.clone(),
             text_status_arc_clone.clone(),
             &mut wind_clone,
-            main_wind.clone(),
             is_windows,
         )
     });

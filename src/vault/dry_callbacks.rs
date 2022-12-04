@@ -28,15 +28,22 @@ pub fn install_path_check_button_callback(
         }
     };
 
-    if !utils::is_path_os_valid(&install_path.value()) {
-        status_label.set_label("The given path is invalid on the current operating system!");
-        status_label.show();
-        return;
+    if install_path.active() {
+        if !utils::is_path_os_valid(&install_path.value()) {
+            status_label.set_label("The given path is invalid on the current operating system!");
+            status_label.show();
+            return;
+        } else {
+            status_label.set_label("The given path is valid on the current operating system!");
+            status_label.show();
+            return;
+        }
     } else {
-        status_label.set_label("The given path is valid on the current operating system!");
+        status_label.set_label("The install path is disabled for this entry!");
         status_label.show();
         return;
     }
+    
 }
 
 ///
@@ -50,6 +57,7 @@ pub fn wind_resize_callback(
     entrie_add_button_arc: Arc<Mutex<button::Button>>,
     entrie_name_arc: Arc<Mutex<frame::Frame>>,
     install_path_label_arc: Arc<Mutex<frame::Frame>>,
+    enable_install_path_arc: Arc<Mutex<button::Button>>,
     install_path_arc: Arc<Mutex<input::Input>>,
     install_path_check_button_arc: Arc<Mutex<button::Button>>,
     content_label_arc: Arc<Mutex<frame::Frame>>,
@@ -105,6 +113,17 @@ pub fn wind_resize_callback(
         Err(err) => {
             eprintln!(
                 "ERROR: There was an error getting value behind install_path_label ARC!\n {err}"
+            );
+        }
+    };
+
+    match enable_install_path_arc.lock() {
+        Ok(mut o) => {
+            o.set_label_size(font_size / 3);
+        }
+        Err(err) => {
+            eprintln!(
+                "ERROR: There was an error getting value behind enable_install_path_arc ARC!\n {err}"
             );
         }
     };
@@ -250,5 +269,24 @@ pub fn clear_content_button_callback(content_arc: Arc<Mutex<input::MultilineInpu
             status_label.show();
             return;
         }
+    }
+}
+
+pub fn enable_install_path_button_callback(b: &mut button::Button, install_path_arc: Arc<Mutex<input::Input>>) {
+    // get value behind arc
+    let mut install_path = match install_path_arc.lock() {
+        Ok(object) => object,
+        Err(err) => {
+            eprintln!("ERROR: Failed to get value under install_path_arc ARC!\n{err}");
+            return;
+        }
+    };
+    // change label back and forth
+    if b.label() == "-" {
+        b.set_label("+");
+        install_path.deactivate();
+    } else {
+        b.set_label("-");
+        install_path.activate();
     }
 }

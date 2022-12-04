@@ -16,6 +16,7 @@ pub fn entries_callback(
     entries: &mut tree::Tree,
     entrie_name_arc: Arc<Mutex<frame::Frame>>,
     install_path_label_arc: Arc<Mutex<frame::Frame>>,
+    enable_install_path_arc: Arc<Mutex<button::Button>>,
     install_path_arc: Arc<Mutex<input::Input>>,
     install_path_check_button_arc: Arc<Mutex<button::Button>>,
     content_label_arc: Arc<Mutex<frame::Frame>>,
@@ -65,6 +66,15 @@ pub fn entries_callback(
         Ok(object) => object,
         Err(err) => {
             eprintln!("ERROR: Failed to get value under install_path_label_arc ARC!\n{err}");
+            status_label.set_label("There was a Poison Error, try again, or try to restart!");
+            status_label.show();
+            return;
+        }
+    };
+    let mut enable_install_path = match enable_install_path_arc.lock() {
+        Ok(object) => object,
+        Err(err) => {
+            eprintln!("ERROR: Failed to get value under enable_install_path ARC!\n{err}");
             status_label.set_label("There was a Poison Error, try again, or try to restart!");
             status_label.show();
             return;
@@ -190,6 +200,7 @@ pub fn entries_callback(
     if selected_item == "ROOT" || selected_item == "" {
         entrie_name.hide();
         install_path_label.hide();
+        enable_install_path.hide();
         install_path.hide();
         install_path_check_button.hide();
         content_label.hide();
@@ -243,7 +254,15 @@ pub fn entries_callback(
         drop(db_entries_dict_arc_clone);
 
         // set value
-        install_path.set_value(&entry_value_json.install_path);
+        install_path.set_value("");
+        if &entry_value_json.install_path == "" {
+            install_path.deactivate();
+            enable_install_path.set_label("+");
+        } else {
+            install_path.activate();
+            install_path.set_value(&entry_value_json.install_path);
+            enable_install_path.set_label("-");
+        }
 
         if &entry_value_json.content.len() >= &32767 {
             content.set_value("File content is too big to be displayed!\nThe actual value is kept in the database.");
@@ -266,6 +285,7 @@ pub fn entries_callback(
         // Unhide widgets
         entrie_name.show();
         install_path_label.show();
+        enable_install_path.show();
         install_path.show();
         install_path_check_button.show();
         content_label.show();

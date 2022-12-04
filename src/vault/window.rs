@@ -37,7 +37,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     entrie_name.hide();
     let entrie_name_arc = Arc::new(Mutex::new(entrie_name.clone()));
 
-    // install path
+    // install path label
     let mut install_path_label = fltk::frame::Frame::default()
         .with_size(750, 20)
         .below_of(&entrie_name, 5);
@@ -45,9 +45,18 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     install_path_label.set_label("Install Path");
     install_path_label.hide();
     let install_path_label_arc = Arc::new(Mutex::new(install_path_label.clone()));
+
+    // install path enable check
+    let mut enable_install_path = fltk::button::Button::default().with_size(20, 20).below_of(&install_path_label, 1);
+    enable_install_path.set_label("-");
+    enable_install_path.hide();
+    wind.add_resizable(&enable_install_path);
+    let enable_install_path_arc = Arc::new(Mutex::new(enable_install_path.clone()));
+
+    // instal path input
     let mut install_path = fltk::input::Input::default()
-        .with_size(690, 20)
-        .below_of(&install_path_label, 1);
+        .with_size(665, 20)
+        .right_of(&enable_install_path, 5);
     install_path.set_color(install_path.color().lighter());
     install_path.set_text_size(15);
     install_path.hide();
@@ -64,7 +73,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     // entry content
     let mut content_label = fltk::frame::Frame::default()
         .with_size(750, 20)
-        .below_of(&install_path, 5);
+        .below_of(&enable_install_path, 5);
     content_label.set_label_size(20);
     content_label.set_label("Content");
     content_label.hide();
@@ -188,6 +197,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     let save_button_arc_clone = save_button_arc.clone();
     let delete_button_arc_clone = delete_button_arc.clone();
     let install_button_arc_clone = install_button_arc.clone();
+    let enable_install_path_arc_clone = enable_install_path_arc.clone();
     // wind resize callback
     wind.resize_callback(move |_, _, _, w, h| {
         super::dry_callbacks::wind_resize_callback(
@@ -197,6 +207,7 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
             entrie_add_button_arc.clone(),
             entrie_name_arc_clone.clone(),
             install_path_label_arc_clone.clone(),
+            enable_install_path_arc_clone.clone(),
             install_path_arc_clone.clone(),
             install_path_check_button_arc_clone.clone(),
             content_label_arc_clone.clone(),
@@ -232,12 +243,14 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     let save_button_arc_clone = save_button_arc.clone();
     let delete_button_arc_clone = delete_button_arc.clone();
     let install_button_arc_clone = install_button_arc.clone();
+    let enable_install_path_arc_clone = enable_install_path_arc.clone();
     // set entries callback
     entries.set_callback(move |e| {
         super::entries_callbacks::entries_callback(
             e,
             entrie_name_arc_clone.clone(),
             install_path_label_arc_clone.clone(),
+            enable_install_path_arc_clone.clone(),
             install_path_arc_clone.clone(),
             install_path_check_button_arc_clone.clone(),
             content_label_arc_clone.clone(),
@@ -379,6 +392,13 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     // set delete content button callback
     clear_content_button.set_callback(move |_| {
         super::dry_callbacks::clear_content_button_callback(content_arc_clone.clone(), status_label_arc_clone.clone());
+    });
+
+    // clone the needed arc references
+    let install_path_arc_clone = install_path_arc.clone();
+    // set enable/disable install path button
+    enable_install_path.set_callback(move |b| {
+        super::dry_callbacks::enable_install_path_button_callback(b, install_path_arc_clone.clone());
     });
 
     wind

@@ -34,8 +34,8 @@ pub fn save_button_callback(
             return;
         }
     };
-    let install_path_value = match install_path_arc.lock() {
-        Ok(object) => object.value(),
+    let install_path = match install_path_arc.lock() {
+        Ok(object) => object,
         Err(err) => {
             eprintln!("ERROR: Failed to get value under install_path_arc ARC!\n{err}");
             status_label.set_label("There was a Poison Error, try again, or try to restart!");
@@ -66,10 +66,17 @@ pub fn save_button_callback(
     status_label.set_label("");
 
     // check if the given path is valid
-    if !utils::is_path_os_valid(&install_path_value) {
-        status_label.set_label("The given path is invalid on the current operating system!");
-        status_label.show();
-        return;
+    let install_path_value: String;
+    if install_path.active() {
+        if !utils::is_path_os_valid(&install_path.value()) {
+            status_label.set_label("The given path is invalid on the current operating system!");
+            status_label.show();
+            return;
+        } else {
+            install_path_value = install_path.value().to_string();
+        }
+    } else {
+        install_path_value = String::new();
     }
 
     // if the content widget isn't active it mean that it has either a file that is too big or a
@@ -136,6 +143,7 @@ pub fn save_button_callback(
     }
 
     // drop arc ref
+    drop(install_path);
     drop(install_path_arc);
     drop(content);
     drop(content_arc);
@@ -415,6 +423,12 @@ pub fn install_button_callback(
             return;
         }
     };
+
+    if !install_path.active() {
+        status_label.set_label("There is no install path active for this entry!");
+        status_label.show();
+        return;
+    }
 
     let install_path_value = install_path.value().to_owned();
     let content_value: Vec<u8>;

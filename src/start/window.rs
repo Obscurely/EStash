@@ -92,7 +92,8 @@ pub fn create() -> fltk::window::DoubleWindow {
         wind_clone_two.hide();
 
         // intialize signup window
-        let mut signup_wind = signup::window::create(utils::is_windows(), wind_clone_two_arc.clone());
+        let mut signup_wind =
+            signup::window::create(utils::is_windows(), wind_clone_two_arc.clone());
         signup_wind.show();
     });
 

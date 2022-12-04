@@ -47,7 +47,9 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     let install_path_label_arc = Arc::new(Mutex::new(install_path_label.clone()));
 
     // install path enable check
-    let mut enable_install_path = fltk::button::Button::default().with_size(20, 20).below_of(&install_path_label, 1);
+    let mut enable_install_path = fltk::button::Button::default()
+        .with_size(20, 20)
+        .below_of(&install_path_label, 1);
     enable_install_path.set_label("-");
     enable_install_path.hide();
     wind.add_resizable(&enable_install_path);
@@ -87,7 +89,9 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     let content_arc = Arc::new(Mutex::new(content.clone()));
 
     // clear content from the content box button (doesn't also save the entry)
-    let mut clear_content_button = button::Button::default().with_size(100, 20).below_of(&content, 2);
+    let mut clear_content_button = button::Button::default()
+        .with_size(100, 20)
+        .below_of(&content, 2);
     clear_content_button.set_label("Delete Content");
     clear_content_button.set_pos(225, clear_content_button.y());
     clear_content_button.hide();
@@ -391,14 +395,20 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     let content_arc_clone = content_arc.clone();
     // set delete content button callback
     clear_content_button.set_callback(move |_| {
-        super::dry_callbacks::clear_content_button_callback(content_arc_clone.clone(), status_label_arc_clone.clone());
+        super::dry_callbacks::clear_content_button_callback(
+            content_arc_clone.clone(),
+            status_label_arc_clone.clone(),
+        );
     });
 
     // clone the needed arc references
     let install_path_arc_clone = install_path_arc.clone();
     // set enable/disable install path button
     enable_install_path.set_callback(move |b| {
-        super::dry_callbacks::enable_install_path_button_callback(b, install_path_arc_clone.clone());
+        super::dry_callbacks::enable_install_path_button_callback(
+            b,
+            install_path_arc_clone.clone(),
+        );
     });
 
     wind

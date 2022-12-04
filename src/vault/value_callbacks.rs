@@ -550,7 +550,7 @@ pub fn install_button_callback(
 /// Callback function called when you hit select file
 /// Basically it brings up the native file explorer,
 /// it falls back to fltk's one if needed
-/// It lets you select a file and if its content is not 
+/// It lets you select a file and if its content is not
 /// bigger then 32767 bytes and it's in utf8 it will display
 /// the content in the content box, otherwise it will save
 /// the content in the database, deactivate the content box

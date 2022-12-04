@@ -43,7 +43,6 @@ pub fn install_path_check_button_callback(
         status_label.show();
         return;
     }
-    
 }
 
 ///
@@ -249,7 +248,10 @@ pub fn wind_resize_callback(
     };
 }
 
-pub fn clear_content_button_callback(content_arc: Arc<Mutex<input::MultilineInput>>, status_label_arc: Arc<Mutex<frame::Frame>>) {
+pub fn clear_content_button_callback(
+    content_arc: Arc<Mutex<input::MultilineInput>>,
+    status_label_arc: Arc<Mutex<frame::Frame>>,
+) {
     // get the actual object from arcs
     let mut status_label = match status_label_arc.lock() {
         Ok(object) => object,
@@ -272,7 +274,10 @@ pub fn clear_content_button_callback(content_arc: Arc<Mutex<input::MultilineInpu
     }
 }
 
-pub fn enable_install_path_button_callback(b: &mut button::Button, install_path_arc: Arc<Mutex<input::Input>>) {
+pub fn enable_install_path_button_callback(
+    b: &mut button::Button,
+    install_path_arc: Arc<Mutex<input::Input>>,
+) {
     // get value behind arc
     let mut install_path = match install_path_arc.lock() {
         Ok(object) => object,

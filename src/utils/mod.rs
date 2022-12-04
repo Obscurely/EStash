@@ -29,7 +29,6 @@ pub fn is_windows() -> bool {
     }
 }
 
-
 ///
 /// Checks if the given path is valid on the current OS
 ///

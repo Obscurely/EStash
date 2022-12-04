@@ -4,11 +4,14 @@ use fltk::{
     frame,
     group::{self, Flex},
     prelude::*,
-    window::{Window, DoubleWindow},
+    window::{DoubleWindow, Window},
 };
 use std::sync::{Arc, Mutex};
 
-pub fn create(is_windows: bool, start_wind: Arc<Mutex<DoubleWindow>>) -> fltk::window::DoubleWindow {
+pub fn create(
+    is_windows: bool,
+    start_wind: Arc<Mutex<DoubleWindow>>,
+) -> fltk::window::DoubleWindow {
     //
     //  Make window | UI Part
     //
@@ -112,7 +115,7 @@ pub fn create(is_windows: bool, start_wind: Arc<Mutex<DoubleWindow>>) -> fltk::w
                 eprintln!("ERROR: Failed to get valune under start window ARC!\n{err}");
             }
         }
-    }); 
+    });
 
     wind
 }

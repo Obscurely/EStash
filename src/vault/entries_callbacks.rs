@@ -5,9 +5,9 @@ use fltk::{prelude::*, *};
 use sled;
 use sled::Db;
 use std::collections::HashMap;
+use std::process;
 use std::str;
 use std::sync::{Arc, Mutex};
-use std::process;
 
 ///
 /// Callback for when you click on a different entry in the vault

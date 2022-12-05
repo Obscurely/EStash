@@ -55,9 +55,27 @@ pub enum UpdateContentErr {
 pub fn load_vault(is_windows: bool, vault: &Vault) -> Arc<Mutex<Db>> {
     let vaults_root_path;
     if is_windows {
-        vaults_root_path = constants::VAULTS_ROOT_PATH_WINDOWS.to_string();
+        let document_dir = match dirs::document_dir() {
+                Some(dir) => dir,
+                None => {
+                    eprintln!("ERROR: Failed to get document dir");
+                    process::exit(200);
+                }
+            };
+        // unwrap here is alright
+        let estash_dir = document_dir.to_str().unwrap().to_owned() + "\\estash\\";
+        vaults_root_path = (estash_dir + &constants::VAULTS_ROOT_PATH_WINDOWS).to_string();
     } else {
-        vaults_root_path = constants::VAULTS_ROOT_PATH_UNIX.to_string();
+        let home_dir = match dirs::home_dir() {
+            Some(dir) => dir,
+            None => {
+                eprintln!("ERROR: Failed to get home dir");
+                process::exit(200);
+            }
+        };
+        // unwrap here is alright
+        let estash_dir = home_dir.to_str().unwrap().to_owned() + "/.estash/";
+        vaults_root_path = (estash_dir + constants::VAULTS_ROOT_PATH_UNIX).to_string();
     }
     let vault_db = Arc::new(Mutex::new(
         match sled::open(vaults_root_path + &vault.id.to_string()) {

@@ -4,7 +4,7 @@ use crate::{
     utils::{self, db},
 };
 use serde::{Deserialize, Serialize};
-use std::fs;
+use std::{fs, process};
 use std::str;
 
 #[derive(Serialize, Deserialize)]
@@ -130,17 +130,44 @@ pub fn create_vault(
 
     // create vault
     if is_windows {
+        let document_dir = match dirs::document_dir() {
+            Some(dir) => dir,
+            None => {
+                eprintln!("ERROR: Failed to get document dir");
+                process::exit(200);
+            }
+        };
+        // unwrap here is alright
+        let estash_dir = document_dir.to_str().unwrap().to_owned() + "\\estash\\";
         match sled::open(
-            utils::constants::VAULTS_ROOT_PATH_WINDOWS.to_string() + &new_id.to_string(),
+            estash_dir.clone() + utils::constants::VAULTS_ROOT_PATH_WINDOWS + &new_id.to_string(),
         ) {
             Ok(db) => db,
             Err(error) => {
                 eprintln!("ERROR: There was an error creating the vault!\n{error}");
+
+                // cleanup potential created folder
+                match fs::remove_dir_all(
+                    estash_dir.clone() + utils::constants::VAULTS_ROOT_PATH_UNIX + &new_id.to_string(),
+                ) {
+                    Ok(_) => (),
+                    Err(_) => (),
+                };
+
                 return Err(SingupError::FailedToCreateVault(0));
             }
         };
     } else {
-        match sled::open(utils::constants::VAULTS_ROOT_PATH_UNIX.to_string() + &new_id.to_string())
+        let home_dir = match dirs::home_dir() {
+            Some(dir) => dir,
+            None => {
+                eprintln!("ERROR: Failed to get home dir");
+                process::exit(200);
+            }
+        };
+        // unwrap here is alright
+        let estash_dir = home_dir.to_str().unwrap().to_owned() + "/.estash/";
+        match sled::open(estash_dir.clone() + utils::constants::VAULTS_ROOT_PATH_UNIX + &new_id.to_string())
         {
             Ok(db) => db,
             Err(error) => {
@@ -148,7 +175,7 @@ pub fn create_vault(
 
                 // cleanup potential created folder
                 match fs::remove_dir_all(
-                    utils::constants::VAULTS_ROOT_PATH_UNIX.to_string() + &new_id.to_string(),
+                    estash_dir.clone() + utils::constants::VAULTS_ROOT_PATH_UNIX + &new_id.to_string(),
                 ) {
                     Ok(_) => (),
                     Err(_) => (),

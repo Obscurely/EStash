@@ -56,12 +56,12 @@ pub fn load_vault(is_windows: bool, vault: &Vault) -> Arc<Mutex<Db>> {
     let vaults_root_path;
     if is_windows {
         let document_dir = match dirs::document_dir() {
-                Some(dir) => dir,
-                None => {
-                    eprintln!("ERROR: Failed to get document dir");
-                    process::exit(200);
-                }
-            };
+            Some(dir) => dir,
+            None => {
+                eprintln!("ERROR: Failed to get document dir");
+                process::exit(200);
+            }
+        };
         // unwrap here is alright
         let estash_dir = document_dir.to_str().unwrap().to_owned() + "\\estash\\";
         vaults_root_path = (estash_dir + &constants::VAULTS_ROOT_PATH_WINDOWS).to_string();

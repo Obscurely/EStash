@@ -74,7 +74,7 @@ impl Argon2id<'_> {
         Ok(hash.into_bytes())
     }
 
-    /// 
+    ///
     /// Check if 2 hashes are equal.
     /// you can't just use == since there is salt used
     /// to make the hash different each time the hashing process
@@ -89,7 +89,7 @@ impl Argon2id<'_> {
         argon2::verify_encoded(hash_str, pass.as_bytes())
     }
 
-    /// 
+    ///
     /// Check if 2 hashes are equal.
     /// you can't just use == since there is salt used
     /// to make the hash different each time the hashing process

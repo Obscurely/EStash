@@ -4,8 +4,8 @@ use crate::{
     utils::{self, db},
 };
 use serde::{Deserialize, Serialize};
-use std::{fs, process};
 use std::str;
+use std::{fs, process};
 
 #[derive(Serialize, Deserialize)]
 pub struct VaultDbValue {
@@ -148,7 +148,9 @@ pub fn create_vault(
 
                 // cleanup potential created folder
                 match fs::remove_dir_all(
-                    estash_dir.clone() + utils::constants::VAULTS_ROOT_PATH_UNIX + &new_id.to_string(),
+                    estash_dir.clone()
+                        + utils::constants::VAULTS_ROOT_PATH_UNIX
+                        + &new_id.to_string(),
                 ) {
                     Ok(_) => (),
                     Err(_) => (),
@@ -167,15 +169,18 @@ pub fn create_vault(
         };
         // unwrap here is alright
         let estash_dir = home_dir.to_str().unwrap().to_owned() + "/.estash/";
-        match sled::open(estash_dir.clone() + utils::constants::VAULTS_ROOT_PATH_UNIX + &new_id.to_string())
-        {
+        match sled::open(
+            estash_dir.clone() + utils::constants::VAULTS_ROOT_PATH_UNIX + &new_id.to_string(),
+        ) {
             Ok(db) => db,
             Err(error) => {
                 eprintln!("ERROR: There was an error creating the vault!\n{error}");
 
                 // cleanup potential created folder
                 match fs::remove_dir_all(
-                    estash_dir.clone() + utils::constants::VAULTS_ROOT_PATH_UNIX + &new_id.to_string(),
+                    estash_dir.clone()
+                        + utils::constants::VAULTS_ROOT_PATH_UNIX
+                        + &new_id.to_string(),
                 ) {
                     Ok(_) => (),
                     Err(_) => (),

@@ -15,7 +15,7 @@ impl EstashDb {
     /// Loads the database needed by the program.
     ///
     pub fn new() -> Result<EstashDb, sled::Error> {
-        if std::env::consts::FAMILY == "windows" { 
+        if std::env::consts::FAMILY == "windows" {
             let document_dir = match dirs::document_dir() {
                 Some(dir) => dir,
                 None => {
@@ -29,14 +29,16 @@ impl EstashDb {
                 Ok(db) => db,
                 Err(error) => return Err(error),
             };
-            let vault_pub_key_db = match sled::open(estash_dir.clone() + constants::VAULT_PUB_KEY_DB_PATH_WINDOWS) {
-                Ok(db) => db,
-                Err(error) => return Err(error),
-            };
-            let vault_priv_key_db = match sled::open(estash_dir.clone() + constants::VAULT_PRIV_KEY_DB_PATH_WINDOWS) {
-                Ok(db) => db,
-                Err(error) => return Err(error),
-            };
+            let vault_pub_key_db =
+                match sled::open(estash_dir.clone() + constants::VAULT_PUB_KEY_DB_PATH_WINDOWS) {
+                    Ok(db) => db,
+                    Err(error) => return Err(error),
+                };
+            let vault_priv_key_db =
+                match sled::open(estash_dir.clone() + constants::VAULT_PRIV_KEY_DB_PATH_WINDOWS) {
+                    Ok(db) => db,
+                    Err(error) => return Err(error),
+                };
 
             Ok(EstashDb {
                 vault_db,
@@ -57,14 +59,16 @@ impl EstashDb {
                 Ok(db) => db,
                 Err(error) => return Err(error),
             };
-            let vault_pub_key_db = match sled::open(estash_dir.clone() + constants::VAULT_PUB_KEY_DB_PATH_UNIX) {
-                Ok(db) => db,
-                Err(error) => return Err(error),
-            };
-            let vault_priv_key_db = match sled::open(estash_dir.clone() + constants::VAULT_PRIV_KEY_DB_PATH_UNIX) {
-                Ok(db) => db,
-                Err(error) => return Err(error),
-            };
+            let vault_pub_key_db =
+                match sled::open(estash_dir.clone() + constants::VAULT_PUB_KEY_DB_PATH_UNIX) {
+                    Ok(db) => db,
+                    Err(error) => return Err(error),
+                };
+            let vault_priv_key_db =
+                match sled::open(estash_dir.clone() + constants::VAULT_PRIV_KEY_DB_PATH_UNIX) {
+                    Ok(db) => db,
+                    Err(error) => return Err(error),
+                };
 
             Ok(EstashDb {
                 vault_db,

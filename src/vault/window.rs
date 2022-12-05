@@ -1,9 +1,17 @@
 use crate::utils::Vault;
 use crate::ECIES;
-use fltk::{prelude::*, window::{Window, DoubleWindow}, *};
+use fltk::{
+    prelude::*,
+    window::{DoubleWindow, Window},
+    *,
+};
 use std::sync::{Arc, Mutex};
 
-pub fn create(is_windows: bool, vault: Vault, login_wind: &mut DoubleWindow) -> fltk::window::DoubleWindow {
+pub fn create(
+    is_windows: bool,
+    vault: Vault,
+    login_wind: &mut DoubleWindow,
+) -> fltk::window::DoubleWindow {
     //
     //  Make window | UI Part
     //

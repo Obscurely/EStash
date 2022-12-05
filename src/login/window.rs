@@ -56,7 +56,7 @@ pub fn create(
     // End customizing window
     wind.end();
     wind.make_resizable(true);
-    
+
     // set window position and size same as start window
     match start_wind.lock() {
         Ok(w) => {

@@ -56,6 +56,17 @@ pub fn create(
     // End customizing window
     wind.end();
     wind.make_resizable(true);
+    
+    // set window position and size same as start window
+    match start_wind.lock() {
+        Ok(w) => {
+            wind.set_pos(w.x(), w.y());
+            wind.set_size(w.width(), w.height());
+        }
+        Err(err) => {
+            eprintln!("ERROR: Failed to set signup window size and position, poison error!\n{err}");
+        }
+    };
 
     // clone the window so we can move it in the callback
     let mut wind_clone = wind.clone();

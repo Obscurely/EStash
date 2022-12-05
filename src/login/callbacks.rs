@@ -132,7 +132,7 @@ pub fn login_button_callback(
 
     // open vault window
     wind_clone.hide();
-    let mut vault_wind = vault::window::create(is_windows, vault);
+    let mut vault_wind = vault::window::create(is_windows, vault, wind_clone);
     vault_wind.show();
 }
 

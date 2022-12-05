@@ -1,9 +1,9 @@
 use crate::utils::Vault;
 use crate::ECIES;
-use fltk::{prelude::*, window::Window, *};
+use fltk::{prelude::*, window::{Window, DoubleWindow}, *};
 use std::sync::{Arc, Mutex};
 
-pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
+pub fn create(is_windows: bool, vault: Vault, login_wind: &mut DoubleWindow) -> fltk::window::DoubleWindow {
     //
     //  Make window | UI Part
     //
@@ -160,6 +160,10 @@ pub fn create(is_windows: bool, vault: Vault) -> fltk::window::DoubleWindow {
     // End customizing window
     wind.end();
     wind.make_resizable(true);
+
+    // set window position and size same as start window
+    wind.set_pos(login_wind.x(), login_wind.y());
+    wind.set_size(login_wind.width(), login_wind.height());
 
     //
     // Window mechanics part

@@ -117,6 +117,8 @@ pub fn create(
         wind_clone2.hide();
         match start_wind.lock() {
             Ok(mut win) => {
+                win.set_pos(wind_clone2.x(), wind_clone2.y());
+                win.set_size(wind_clone2.width(), wind_clone2.height());
                 win.show();
             }
             Err(err) => {

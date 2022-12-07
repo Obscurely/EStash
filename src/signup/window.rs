@@ -3,7 +3,7 @@ use fltk::{
     frame,
     group::{self, Flex},
     prelude::*,
-    window::{DoubleWindow, Window},
+    window::{DoubleWindow, Window}, enums::Color,
 };
 use std::sync::{Arc, Mutex};
 
@@ -22,9 +22,12 @@ pub fn create(
     // title
     let mut title = frame::Frame::default();
     title.set_label("EStash");
+    title.set_label_color(Color::from_rgb(140, 140, 140));
     // go back button
     let mut back_button = Button::default().with_size(25, 20).with_label("<");
     let back_button_arc = Arc::new(Mutex::new(back_button.clone()));
+    back_button.set_label_color(Color::from_rgb(140, 140, 140));
+    back_button.set_color(Color::from_rgb(43, 43, 43));
 
     // window layout
     let mut flex = Flex::default();
@@ -35,25 +38,34 @@ pub fn create(
     let mut input_user = fltk::input::Input::default();
     input_user.set_color(input_user.color().lighter());
     let input_user_arc = Arc::new(Mutex::new(input_user.clone()));
+    input_user.set_color(Color::from_rgb(31, 31, 31));
+    input_user.set_text_color(Color::from_rgb(140, 140, 140));
 
     // password input
     let mut input_pass = fltk::input::SecretInput::default();
     input_pass.set_color(input_pass.color().lighter());
     let input_pass_arc = Arc::new(Mutex::new(input_pass.clone()));
+    input_pass.set_color(Color::from_rgb(31, 31, 31));
+    input_pass.set_text_color(Color::from_rgb(140, 140, 140));
 
     // password, again input
     let mut input_pass_again = fltk::input::SecretInput::default();
     input_pass_again.set_color(input_pass_again.color().lighter());
     let input_pass_again_arc = Arc::new(Mutex::new(input_pass_again.clone()));
+    input_pass_again.set_color(Color::from_rgb(31, 31, 31));
+    input_pass_again.set_text_color(Color::from_rgb(140, 140, 140));
 
     // signup button
     let mut but_signup = Button::default().with_label("Signup");
     but_signup.set_color(but_signup.color().lighter());
     let but_signup_arc = Arc::new(Mutex::new(but_signup.clone()));
+    but_signup.set_label_color(Color::from_rgb(140, 140, 140));
+    but_signup.set_color(Color::from_rgb(51, 51, 51));
 
     // the status of the operation
     let mut text_status = fltk::text::TextDisplay::default();
-    text_status.set_color(text_status.color().lighter());
+    text_status.set_color(Color::from_rgb(23, 23, 23));
+    text_status.set_text_color(Color::from_rgb(140, 140, 140));
     let mut text_status_buf = fltk::text::TextBuffer::default();
     text_status_buf.set_text("Status: Nothing");
     text_status.set_buffer(text_status_buf);

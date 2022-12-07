@@ -1,4 +1,5 @@
 use fltk::{
+    enums::Color,
     button::Button,
     frame,
     group::{self, Flex},
@@ -21,9 +22,12 @@ pub fn create(
     // title
     let mut title = frame::Frame::default();
     title.set_label("EStash");
+    title.set_label_color(Color::from_rgb(140, 140, 140));
     // go back button
     let mut back_button = Button::default().with_size(25, 20).with_label("<");
     let back_button_arc = Arc::new(Mutex::new(back_button.clone()));
+    back_button.set_label_color(Color::from_rgb(140, 140, 140));
+    back_button.set_color(Color::from_rgb(43, 43, 43));
 
     // set window layout
     let mut flex = Flex::default();
@@ -34,20 +38,27 @@ pub fn create(
     let mut input_user = fltk::input::Input::default();
     input_user.set_color(input_user.color().lighter());
     let input_user_arc = Arc::new(Mutex::new(input_user.clone()));
+    input_user.set_color(Color::from_rgb(31, 31, 31));
+    input_user.set_text_color(Color::from_rgb(140, 140, 140));
 
     // password for vault input
     let mut input_pass = fltk::input::SecretInput::default();
     input_pass.set_color(input_pass.color().lighter());
     let input_pass_arc = Arc::new(Mutex::new(input_pass.clone()));
+    input_pass.set_color(Color::from_rgb(31, 31, 31));
+    input_pass.set_text_color(Color::from_rgb(140, 140, 140));
 
     // login button
     let mut but_login = Button::default().with_label("Login");
     but_login.set_color(but_login.color().lighter());
     let but_login_arc = Arc::new(Mutex::new(but_login.clone()));
+    but_login.set_label_color(Color::from_rgb(140, 140, 140));
+    but_login.set_color(Color::from_rgb(51, 51, 51));
 
     // the status of the operation
     let mut text_status = fltk::text::TextDisplay::default();
-    text_status.set_color(text_status.color().lighter());
+    text_status.set_color(Color::from_rgb(23, 23, 23));
+    text_status.set_text_color(Color::from_rgb(140, 140, 140));
     let mut text_status_buf = fltk::text::TextBuffer::default();
     text_status_buf.set_text("Status: Nothing");
     text_status.set_buffer(text_status_buf);

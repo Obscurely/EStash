@@ -1,6 +1,7 @@
 use crate::login;
 use crate::signup;
 use crate::utils;
+use fltk::enums::Color;
 use fltk::frame;
 use fltk::group;
 use fltk::group::Flex;
@@ -18,6 +19,7 @@ pub fn create() -> fltk::window::DoubleWindow {
     // app title
     let mut title = frame::Frame::default();
     title.set_label("EStash");
+    title.set_label_color(Color::from_rgb(140, 140, 140));
 
     // flex
     let mut flex = Flex::default();
@@ -27,10 +29,14 @@ pub fn create() -> fltk::window::DoubleWindow {
     // login button
     let mut login_button = fltk::button::Button::default().with_label("Login");
     let login_button_arc = Arc::new(Mutex::new(login_button.clone()));
+    login_button.set_label_color(Color::from_rgb(140, 140, 140));
+    login_button.set_color(Color::from_rgb(43, 43, 43));
 
     // signup button
     let mut signup_button = fltk::button::Button::default().with_label("Signup");
     let signup_button_arc = Arc::new(Mutex::new(signup_button.clone()));
+    signup_button.set_label_color(Color::from_rgb(140, 140, 140));
+    signup_button.set_color(Color::from_rgb(43, 43, 43));
 
     // End customizing window
     wind.end();

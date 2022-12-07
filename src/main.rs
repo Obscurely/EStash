@@ -6,16 +6,20 @@ mod start;
 mod utils;
 mod vault;
 use encrypter::ecies::ECIES;
-use fltk::{app, prelude::*};
-use fltk_theme::{color_themes, ColorTheme, SchemeType, WidgetScheme};
+use fltk::{app, prelude::*, enums::FrameType};
 
 fn main() {
     // Configure app and theme it
     let app = app::App::default().with_scheme(app::Scheme::Gtk);
-    let theme = ColorTheme::new(color_themes::BLACK_THEME);
-    theme.apply();
-    let widget_scheme = WidgetScheme::new(SchemeType::Clean);
-    widget_scheme.apply();
+    // let theme = ColorTheme::new(color_themes::BLACK_THEME);
+    // theme.apply();
+    // let widget_scheme = WidgetScheme::new(SchemeType::Clean);
+    // widget_scheme.apply();
+
+    fltk::app::background(37, 37, 37);
+    fltk::app::set_selection_color(112, 112, 112);
+    fltk::app::set_frame_type(FrameType::GtkDownBox);
+    fltk::app::set_visible_focus(false);
 
     // Create start window
     let mut start_wind = start::window::create();
@@ -30,8 +34,8 @@ fn main() {
 
             // drop the objects manually, cause why not
             drop(start_wind);
-            drop(widget_scheme);
-            drop(theme);
+            // drop(widget_scheme);
+            // drop(theme);
             drop(app);
 
             // exit the program

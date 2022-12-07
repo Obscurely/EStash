@@ -137,24 +137,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cocoa-colors"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a7fc3439406f349e0bc20d7de87314803378a535190d12e62991f7c8474d5296"
-dependencies = [
- "cc",
-]
-
-[[package]]
-name = "color-maps"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "120b737cc99b0d73bf0a9bfa6086e84c0bde3b955851f37f812865bc08b35feb"
-dependencies = [
- "lazy_static",
-]
-
-[[package]]
 name = "constant_time_eq"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -297,7 +279,6 @@ dependencies = [
  "crypto_box",
  "dirs",
  "fltk",
- "fltk-theme",
  "rand",
  "rand_hc",
  "rust-argon2",
@@ -327,18 +308,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ce5c11f6d0d7d8c12a93d540d749d6e30460c2e322af632edb287abe78bcf9de"
 dependencies = [
  "cmake",
-]
-
-[[package]]
-name = "fltk-theme"
-version = "0.4.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "abee3d9b0ed8bd45d10e4cc279d757ce71c37224482e8377a99906f7be771266"
-dependencies = [
- "cocoa-colors",
- "color-maps",
- "fltk",
- "lazy_static",
 ]
 
 [[package]]
@@ -395,12 +364,6 @@ name = "itoa"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4217ad341ebadf8d8e724e264f13e593e0648f5b3e94b3896a5df283be015ecc"
-
-[[package]]
-name = "lazy_static"
-version = "1.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
 name = "libc"

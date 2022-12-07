@@ -3,7 +3,7 @@ use crate::ECIES;
 use fltk::{
     prelude::*,
     window::{DoubleWindow, Window},
-    *,
+    *, enums::Color,
 };
 use std::sync::{Arc, Mutex};
 
@@ -22,18 +22,27 @@ pub fn create(
 
     // entries coloumn
     let mut entries = tree::Tree::default().with_size(200, 475);
+    entries.set_color(Color::from_rgb(14, 14, 14));
+    entries.set_selection_color(Color::from_rgb(140, 140, 140).darker());
+    entries.set_item_label_fgcolor(Color::from_rgb(140, 140, 140));
+    entries.set_show_root(false);
+    entries.set_select_frame(enums::FrameType::FlatBox);
+    entries.set_connector_color(Color::from_rgb(140, 140, 140));
     let entries_arc = Arc::new(Mutex::new(entries.clone()));
 
     // add entrie
     let mut entrie_add_input = fltk::input::Input::default()
         .with_size(175, 25)
         .below_of(&entries, 0);
-    entrie_add_input.set_color(entrie_add_input.color().lighter());
+    entrie_add_input.set_color(Color::from_rgb(31, 31, 31));
+    entrie_add_input.set_text_color(Color::from_rgb(140, 140, 140));
     let entrie_add_input_arc = Arc::new(Mutex::new(entrie_add_input.clone()));
     let mut entrie_add_button = fltk::button::Button::default()
         .with_size(25, 25)
         .right_of(&entrie_add_input, 0)
         .with_label("+");
+    entrie_add_button.set_color(Color::from_rgb(43, 43, 43));
+    entrie_add_button.set_label_color(Color::from_rgb(140, 140, 140));
     let entrie_add_button_arc = Arc::new(Mutex::new(entrie_add_button.clone()));
 
     // entry name
@@ -43,6 +52,7 @@ pub fn create(
     entrie_name.set_label_size(30);
     entrie_name.set_pos(entrie_name.x(), 10);
     entrie_name.hide();
+    entrie_name.set_label_color(Color::from_rgb(140, 140, 140));
     let entrie_name_arc = Arc::new(Mutex::new(entrie_name.clone()));
 
     // install path label
@@ -52,6 +62,7 @@ pub fn create(
     install_path_label.set_label_size(20);
     install_path_label.set_label("Install Path");
     install_path_label.hide();
+    install_path_label.set_label_color(Color::from_rgb(140, 140, 140));
     let install_path_label_arc = Arc::new(Mutex::new(install_path_label.clone()));
 
     // install path enable check
@@ -60,7 +71,8 @@ pub fn create(
         .below_of(&install_path_label, 1);
     enable_install_path.set_label("-");
     enable_install_path.hide();
-    wind.add_resizable(&enable_install_path);
+    enable_install_path.set_color(Color::from_rgb(43, 43, 43));
+    enable_install_path.set_label_color(Color::from_rgb(140, 140, 140));
     let enable_install_path_arc = Arc::new(Mutex::new(enable_install_path.clone()));
 
     // instal path input
@@ -70,6 +82,8 @@ pub fn create(
     install_path.set_color(install_path.color().lighter());
     install_path.set_text_size(15);
     install_path.hide();
+    install_path.set_color(Color::from_rgb(31, 31, 31));
+    install_path.set_text_color(Color::from_rgb(140, 140, 140));
     let install_path_arc = Arc::new(Mutex::new(install_path.clone()));
 
     // check install path button
@@ -78,6 +92,8 @@ pub fn create(
         .right_of(&install_path, 5);
     install_path_check_button.set_label("Check");
     install_path_check_button.hide();
+    install_path_check_button.set_color(Color::from_rgb(43, 43, 43));
+    install_path_check_button.set_label_color(Color::from_rgb(140, 140, 140));
     let install_path_check_button_arc = Arc::new(Mutex::new(install_path_check_button.clone()));
 
     // entry content
@@ -86,12 +102,14 @@ pub fn create(
         .below_of(&enable_install_path, 5);
     content_label.set_label_size(20);
     content_label.set_label("Content");
+    content_label.set_label_color(Color::from_rgb(140, 140, 140));
     content_label.hide();
     let content_label_arc = Arc::new(Mutex::new(content_label.clone()));
     let mut content = fltk::input::MultilineInput::default()
         .with_size(750, 150)
         .below_of(&content_label, 1);
-    content.set_color(content.color().lighter());
+    content.set_color(Color::from_rgb(31, 31, 31));
+    content.set_text_color(Color::from_rgb(140, 140, 140));
     content.set_text_size(15);
     content.hide();
     let content_arc = Arc::new(Mutex::new(content.clone()));
@@ -102,6 +120,8 @@ pub fn create(
         .below_of(&content, 2);
     clear_content_button.set_label("Clear Content");
     clear_content_button.set_pos(225, clear_content_button.y());
+    clear_content_button.set_color(Color::from_rgb(43, 43, 43));
+    clear_content_button.set_label_color(Color::from_rgb(140, 140, 140));
     clear_content_button.hide();
     let clear_content_button_arc = Arc::new(Mutex::new(clear_content_button.clone()));
 
@@ -111,6 +131,8 @@ pub fn create(
         .below_of(&content, 2);
     select_file_button.set_label("Select File");
     select_file_button.set_pos(875, select_file_button.y());
+    select_file_button.set_color(Color::from_rgb(43, 43, 43));
+    select_file_button.set_label_color(Color::from_rgb(140, 140, 140));
     select_file_button.hide();
     let select_file_button_arc = Arc::new(Mutex::new(select_file_button.clone()));
 
@@ -120,12 +142,14 @@ pub fn create(
         .below_of(&content, 5);
     notes_label.set_label_size(20);
     notes_label.set_label("Notes");
+    notes_label.set_label_color(Color::from_rgb(140, 140, 140));
     notes_label.hide();
     let notes_label_arc = Arc::new(Mutex::new(notes_label.clone()));
     let mut notes = fltk::input::MultilineInput::default()
         .with_size(750, 150)
         .below_of(&notes_label, 1);
-    notes.set_color(notes.color().lighter());
+    notes.set_color(Color::from_rgb(31, 31, 31));
+    notes.set_text_color(Color::from_rgb(140, 140, 140));
     notes.set_text_size(15);
     notes.hide();
     let notes_arc = Arc::new(Mutex::new(notes.clone()));
@@ -136,6 +160,8 @@ pub fn create(
         .below_of(&notes, 5);
     save_button.set_pos(900, save_button.y());
     save_button.set_label("Save");
+    save_button.set_color(Color::from_rgb(43, 43, 43));
+    save_button.set_label_color(Color::from_rgb(140, 140, 140));
     save_button.hide();
     let save_button_arc = Arc::new(Mutex::new(save_button.clone()));
 
@@ -144,6 +170,8 @@ pub fn create(
         .with_size(75, 25)
         .below_of(&notes, 5);
     delete_button.set_label("Delete");
+    delete_button.set_color(Color::from_rgb(43, 43, 43));
+    delete_button.set_label_color(Color::from_rgb(140, 140, 140));
     delete_button.hide();
     let delete_button_arc = Arc::new(Mutex::new(delete_button.clone()));
 
@@ -153,6 +181,8 @@ pub fn create(
         .below_of(&notes, 5);
     install_button.set_label("Install");
     install_button.set_pos(562, install_button.y());
+    install_button.set_color(Color::from_rgb(43, 43, 43));
+    install_button.set_label_color(Color::from_rgb(140, 140, 140));
     install_button.hide();
     let install_button_arc = Arc::new(Mutex::new(install_button.clone()));
 
@@ -162,6 +192,7 @@ pub fn create(
         .below_of(&notes, 5);
     status_label.set_label_size(14);
     status_label.set_pos(status_label.x(), status_label.y() + 25);
+    status_label.set_label_color(Color::from_rgb(140, 140, 140));
     status_label.hide();
     let status_label_arc = Arc::new(Mutex::new(status_label.clone()));
 

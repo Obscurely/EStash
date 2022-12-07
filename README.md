@@ -73,7 +73,7 @@ and that key is used to encrypt the private key. The encryption algorithm used i
 
 ### Video showcase
 
-https://user-images.githubusercontent.com/59087558/164259195-416191d5-07c6-4b7d-8af6-aecb3ef53537.mp4
+https://user-images.githubusercontent.com/59087558/206248579-a786b277-b0fc-4306-be50-9db1c948e901.mp4
 
 ### Built with
 

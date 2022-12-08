@@ -12,7 +12,7 @@
   <h1 align="center">EStash</h1>
 
   <p align="center">
-    An open source, programmed in rust, encrypted digital vault (store files and text) with the capability to set a path and 
+    An open source, cross-platform, programmed in rust, encrypted digital vault (store files and text) with the capability to set a path and 
     with the click of a button to copy the content to that file. For example store your ssh keys safely, put your vault in like your github dotfiles, 
     download it on another machine and easily install those keys.
     <br />
@@ -69,7 +69,7 @@
 with the click of a button to copy the content to that file. For example store your ssh keys safely, put your vault in like your github dotfiles, 
 download it on another machine and easily install those keys.<br>
 * The vault is encrypted using a key derived from your password (the strength of your password decides the safetyness of your vault) using argon2id 
-and that key is used to encrypt the private key. The encryption algorithm used is an ECIES, combines X25519 Diffie-Hellman function and XChaCha20Poly1305.
+and that key is used to encrypt the private key. The encryption algorithm used is an ECIES, combines X25519 Diffie-Hellman function and XChaCha20Poly1305. (I used an [ECIES](https://itecspec.com/spec/3gpp-33-501-c-3-elliptic-curve-integrated-encryption-scheme-ecies/) for future proof reasons as there are no security downsides)
 
 ### Video showcase
 
@@ -77,41 +77,45 @@ https://user-images.githubusercontent.com/59087558/206248579-a786b277-b0fc-4306-
 
 ### Built with
 
-- [Rust 1.60.0](https://www.rust-lang.org/)
+- [Rust 1.64.0](https://www.rust-lang.org/)
 
 #### The stock libraries and these awesome 3rd party ones:
-- [reqwest](https://lib.rs/crates/reqwest) for making all the HTTPs requests.
-- [tokio](https://lib.rs/crates/tokio) for making requests asynchronously.
-- [regex](https://lib.rs/crates/regex) for scraping information about pages, like getting urls etc.
-- [urlencoding](https://lib.rs/crates/urlencoding) for encoding the query in order to be URL compliant.
-- [futures](https://lib.rs/crates/futures) for handling the asynchronous tasks.
-- [colored](https://lib.rs/crates/colored) for easily colorizing the terminal output.
-- [crossterm](https://lib.rs/crates/crossterm) for manipulating the terminal, like getting key inputs, clearing it and others.
-- [html2text](https://lib.rs/crates/html2text) for converting html to readable text in order to display pages in terminal better.
-- [url](https://lib.rs/crates/url) for parsing strings to an URL object for easier and safer manipulation.
-- [indexmap](https://lib.rs/crates/indexmap) for having an object Hash Map like that supports indexing.
-- [argparse](https://lib.rs/crates/argparse) to easily handle command line arguments.
+- [BLAKE3](https://lib.rs/crates/blake3) hash function, much faster then sha2 and more secure.
+- [rust-argon2](https://lib.rs/crates/rust-argon2) for deriving the encryption key from the password.
+- [rand](https://lib.rs/crates/rand) random number generators and other randomness functionality.
+- [rand_hc](https://lib.rs/crates/rand_hc) HC128 random number generator.
+- [zeroize](https://lib.rs/crates/zeroize) securely clear secrets from memory with a simple trait.
+- [crypto_box](https://lib.rs/crates/crypto_box) [ECIES](https://itecspec.com/spec/3gpp-33-501-c-3-elliptic-curve-integrated-encryption-scheme-ecies/) that combines X25519 Diffie-Hellman function and XChaCha20Poly1305.
+- [chacha20poly1305](https://lib.rs/crates/chacha20poly1305) simple, fast and strong [AEAD](https://en.wikipedia.org/wiki/Authenticated_encryption) encryption algorithm.
+- [sled](https://lib.rs/crates/sled) lightweight high-performance pure-rust transactional embedded database.
+- [Serde](https://lib.rs/crates/serde) a generic serialization/deserialization framework.
+- [serde_json](https://lib.rs/crates/serde_json) a JSON serialization file format.
+- [FLTK](https://lib.rs/crates/fltk) rust bindings for the FLTK GUI library.
+- [dirs](https://lib.rs/crates/dirs) a tiny low-level library that provides platform-specific standard locations.
+
 
 ## Getting Started
 
 ### Running The Program
 
 #### Install with cargo
-This method will work across most (if not all) Linux distributions supporting cargo, and other operating systems that support rust and cargo (I only tested on Linux).
-1. Install rust, cargo and all it's things using the official [rustup installer](https://www.rust-lang.org/tools/install)
+This method will work across any Linux distribution, Windows 10/11 and macOS (Big Sur+ tested).
+1. Install rust, cargo and all it's things using the official [rustup installer](https://www.rust-lang.org/tools/install) or any pkg manager you may use.
 2. Run the following command in your terminal of choice:
 ```shell
 cargo install falion
 ```
-3. Make sure you have .cargo/bin in path, you would need to add the following line in your terminal RC file (e.g $HOME/.zshrc)
+3. Make sure you have .cargo/bin in path, for linux and macOS you would need to add the following line in your terminal RC file (e.g $HOME/.zshrc)
 ```shell
-export PATH=$HOME/.cargo/bin:$PATH
+export PATH=$HOME/.cargo/bin:$PATH # This is for Linux & macOS, look below for Windows.
 ```
 On windows it should work automatically (restart if just installed), if not you can follow this [guide](https://www.computerhope.com/issues/ch000549.htm) for how to add something to path. The cargo bin folder will be {your-user-folder}\\.cargo\\bin
 
+4. You may want to create a [symlink](https://www.freecodecamp.org/news/symlink-tutorial-in-linux-how-to-create-and-remove-a-symbolic-link/) on Linux & macOS or [create a shortcut](https://support.microsoft.com/en-us/office/create-a-desktop-shortcut-for-an-office-program-or-file-9a8df64b-cd87-4700-95cc-4bc3e2a962da) if you are on Windows to the bin file for easy access.
+
 4. In order to update run the install command again, and you can now follow [usage](#usage) for more information on how to use it.
 
-#### Install from AUR
+#### Install from AUR (for Arch & Arch derivatives)
 a. Using yay or any other AUR helper
   - You can install it by building from source the latest stable release
   ```shell
@@ -146,7 +150,7 @@ b. Manually cloning and building it from AUR
 
 #### Install from provided binaries
 a. For Arch Linux based distros (not recommended, use AUR in order to have auto updates as well)
-  1. Download from the [releases tab](https://github.com/Obscurely/falion/releases/) from the version you want (latest stable recommended), the file named like falion-bin-\*.pkg.tar.zst
+  1. Download from the [releases tab](https://github.com/Obscurely/EStash/releases/) from the version you want (latest stable recommended), the file named like falion-bin-\*.pkg.tar.zst
   2. From where you downloaded it run the following command in your terminal of choice (where * is just an any other characters place holder):
   ```shell
   sudo pacman -U falion-bin-*.pkg.tar.zst
@@ -160,7 +164,7 @@ b. For Debian based distros (I'm working on a PPA, for now I recommended you use
 
 #### Manually
 Placing the executable somewhere than adding it to path. (Not recommended, [installing it with cargo](#install-with-cargo) is better)
-1. Either follow [compilation](#compilation) and build it for the platform of your choice or download from the [releases tab](https://github.com/Obscurely/falion/releases/) the prebuilt Linux binary, called "falion"
+1. Either follow [compilation](#compilation) and build it for the platform of your choice or download from the [releases tab](https://github.com/Obscurely/EStash/releases/) the prebuilt Linux binary, called "falion"
 2. Copy the falion executable to a location you want (it will have to stay there), usually in Linux you would create a folder in /opt called falion and put the executable there, or you can place anywhere else in the home dir.
 3. On Linux modify your .zshrc / .bashrc / .fishrc , the hell you use, and add this line to it: (without quotation marks) "alias falion=your/path". On windows you will have to modify your path variable, here is a [guide](https://www.computerhope.com/issues/ch000549.htm). And on Mac same as Linux.
 4. After you are done, you should be able to just type "falion" in terminal and you should see something pop up, saying you didn't input any query and directing you to run falion -h.

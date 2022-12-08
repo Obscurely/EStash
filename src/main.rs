@@ -1,3 +1,4 @@
+#![windows_subsystem = "windows"] // hide terminal
 mod encrypter;
 mod hasher;
 mod login;

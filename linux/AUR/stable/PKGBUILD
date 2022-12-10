@@ -29,6 +29,6 @@ check() {
 
 package() {
   cd "$pkgname-$pkgver"
-  install -Dm 755 "target/release/dym" -t "$pkgdir/usr/bin"
+  install -Dm 755 "target/release/estash" -t "$pkgdir/usr/bin"
   install -Dm 644 docs/README.md -t "$pkgdir/usr/share/doc/$pkgname"
 }

@@ -15,6 +15,6 @@ sha256sums=("SHA-PLACEHOLDER")
 package() {
     cd "$srcdir/"
 
-    install -Dm755 dym -t "${pkgdir}/usr/bin/"
+    install -Dm755 estash -t "${pkgdir}/usr/bin/"
     install -Dm644 README.md -t "${pkgdir}/usr/share/doc/${pkgname%-bin}/"
 }

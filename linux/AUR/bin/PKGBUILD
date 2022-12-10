@@ -9,7 +9,7 @@ url="https://github.com/Obscurely/EStash"
 license=('GPL3')
 provides=('estash-bin')
 conflicts=('estash' 'estash-git')
-source=("https://github.com/Obscurely/EStash/releases/download/v${pkgver}/estash-linux.tar.gz")
+source=("https://github.com/Obscurely/EStash/releases/download/v${pkgver}-stable/estash-linux.tar.gz")
 sha256sums=("SHA-PLACEHOLDER")
 
 package() {

@@ -8,7 +8,7 @@ url="https://github.com/Obscurely/EStash"
 license=('GPL3')
 makedepends=('git' 'rust' 'cargo' 'binutils' 'libx11' 'libxext' 'libxft' 'libxinerama' 'libxcursor' 'libxrender' 'libxfixes' 'pango' 'cairo' 'libgl' 'mesa')
 source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
-sha512sums=('SHA-PLACEHOLDER')
+sha256sums=('SHA-PLACEHOLDER')
 
 prepare() {
   cd "$pkgname-$pkgver"

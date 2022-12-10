@@ -4,10 +4,27 @@ authors = ["Obscurely <adrian.obscurely@protonmail.com>"]
 version = "0.5.1"
 edition = "2021"
 rust-version = "1.64" # Minimum rust version, should work with older ones, but this is the one I used.
-description = "An encrypted (highly secure) vault to store your data, files, and with the abillity to install them in a desired location."
-documentation = "https://github.com/Obscurely/EStash"
+description = "An open source, cross-platform, programmed in rust, encrypted digital vault (store files and text) with the capability to set a path and with the click of a button to copy the contents to that file."
+documentation = "https://github.com/Obscurely/EStash/blob/master/README.md"
 repository = "https://github.com/Obscurely/EStash"
 homepage = "https://github.com/Obscurely/EStash"
+categories = ["gui", "vault", "encrypt"]
+keywords = ["rust", "open-source", "encryption", "cross-platform", "vault", "secure", "rust-lang", "encrypted", "rustlang", "encrypt", "cross-platform-app"]
+readme = "README.md"
+license = "GPL-3.0-only"
+
+[package.metadata.deb]
+maintainer = "Obscurely <adrian.obscurely@protonmail.com>"
+copyright = "2022, 2022 <adrian.obscurely@protonmail.com>"
+license-file = ["LICENSE", "0"]
+extended-description = """\
+An open source, cross-platform, programmed in rust, encrypted digital vault 
+(store files and text) with the capability to set a path and with the click of a button 
+to copy the content to that file. For example store your ssh keys safely, put your 
+vault in like your github dotfiles, download it on another machine and easily 
+install those keys.""""
+depends = "$auto"
+section = "utility"
 
 [profile.release]
 strip = true      # Automatically strip symbols from the binary.

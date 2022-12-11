@@ -23,7 +23,7 @@ pkgbase = estash-git
 	provides = estash-git
 	conflicts = estash-bin
 	conflicts = estash
-	source = git+https://github.com/Obscurely/EStash
+	source = git+https://github.com/Obscurely/estash
 	sha256sums = SKIP
 
 pkgname = estash-git

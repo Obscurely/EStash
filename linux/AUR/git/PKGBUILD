@@ -41,4 +41,9 @@ package() {
 
     install -Dm644 LICENSE -t "${pkgdir}/usr/share/licenses/${pkgname%-git}/"
     install -Dm644 README.md -t "${pkgdir}/usr/share/doc/${pkgname%-git}/"
+    install -Dm0644 -t "$pkgdir/usr/share/applications/" "linux/desktop/EStash.desktop"
+    for size in 16x16 24x24 32x32 48x48 64x64 128x128 256x256; do
+      install -Dm0644 "linux/desktop/icons/hicolor/$size/apps/estash.png" \
+        "$pkgdir/usr/share/icons/hicolor/$size/apps/estash.png"
+    done
 }

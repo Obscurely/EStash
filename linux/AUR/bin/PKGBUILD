@@ -17,4 +17,9 @@ package() {
 
     install -Dm755 estash -t "${pkgdir}/usr/bin/"
     install -Dm644 README.md -t "${pkgdir}/usr/share/doc/${pkgname%-bin}/"
+    install -Dm0644 -t "$pkgdir/usr/share/applications/" "EStash.desktop"
+    for size in 16x16 24x24 32x32 48x48 64x64 128x128 256x256; do
+      install -Dm0644 "icons/hicolor/$size/apps/estash.png" \
+        "$pkgdir/usr/share/icons/hicolor/$size/apps/estash.png"
+    done
 }

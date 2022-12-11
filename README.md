@@ -255,13 +255,13 @@ Either post an issue in the [Issues Tab](https://github.com/Obscurely/falion/iss
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 
-[contributors-shield]: https://img.shields.io/github/contributors/Obscurely/falion.svg?style=for-the-badge
-[contributors-url]: https://github.com/Obscurely/falion/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/Obscurely/falion.svg?style=for-the-badge
-[forks-url]: https://github.com/Obscurely/falion/network/members
-[stars-shield]: https://img.shields.io/github/stars/Obscurely/falion.svg?style=for-the-badge
-[stars-url]: https://github.com/Obscurely/falion/stargazers
-[issues-shield]: https://img.shields.io/github/issues/Obscurely/falion.svg?style=for-the-badge
-[issues-url]: https://github.com/Obscurely/falion/issues
-[license-shield]: https://img.shields.io/github/license/Obscurely/falion.svg?style=for-the-badge
-[license-url]: https://github.com/Obscurely/falion/blob/master/LICENSE
+[contributors-shield]: https://img.shields.io/github/contributors/Obscurely/EStash.svg?style=for-the-badge
+[contributors-url]: https://github.com/Obscurely/EStash/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/Obscurely/EStash.svg?style=for-the-badge
+[forks-url]: https://github.com/Obscurely/EStash/network/members
+[stars-shield]: https://img.shields.io/github/stars/Obscurely/EStash.svg?style=for-the-badge
+[stars-url]: https://github.com/Obscurely/EStash/stargazers
+[issues-shield]: https://img.shields.io/github/issues/Obscurely/EStash.svg?style=for-the-badge
+[issues-url]: https://github.com/Obscurely/EStash/issues
+[license-shield]: https://img.shields.io/github/license/Obscurely/EStash.svg?style=for-the-badge
+[license-url]: https://github.com/Obscurely/EStash/blob/master/LICENSE

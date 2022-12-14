@@ -70,6 +70,7 @@ with the click of a button to copy the content to that file. For example store y
 download it on another machine and easily install those keys.<br>
 * The vault is encrypted using a key derived from your password (the strength of your password decides the safetyness of your vault) using argon2id 
 and that key is used to encrypt the private key. The encryption algorithm used is an ECIES, combines X25519 Diffie-Hellman function and XChaCha20Poly1305. (I used an [ECIES](https://itecspec.com/spec/3gpp-33-501-c-3-elliptic-curve-integrated-encryption-scheme-ecies/) for future proof reasons as there are no security downsides)
+* The way this works is by hashing your vault name with blake3. The password doesn't get stored, but a key derived from your password of 32 bytes length using argon2id gets generated with some very strong options and with this key the private encryption key for the vault (from the ECIES) get's encrypted. You get logged into a vault if the private key is decrypted sucessfully and the vault name is present basically. And all the content inside a vault is encrypted using the key-pair for that vault, basically nothing gets leaked.
 
 ### Video showcase
 
@@ -98,6 +99,10 @@ https://user-images.githubusercontent.com/59087558/206248579-a786b277-b0fc-4306-
 
 ### Running The Program
 - [Windows](#windows)
+- [Linux](#linux)
+- [MacOS](#macos)
+- [All Platforms](#all-platforms)
+---
 
 ### Windows
 - [Portable EXE](#portable-exe)
@@ -113,6 +118,8 @@ https://user-images.githubusercontent.com/59087558/206248579-a786b277-b0fc-4306-
 2. Double click the installer and go through the it as you would with any other installer.
 3. If you look now in the start menu (or on the desktop if you ticked create desktop shortcut) you are gonna see a shortcut for estash, just run it like any other program.
 4. Might wanna take a look at the [Usage Tab](usage) if you don't understand something about it.
+
+---
 
 ### Linux
 - [Portable Bin](#portable-bin)
@@ -187,7 +194,58 @@ sudo pacman -U estash-linux.pkg.tar.zst
 3. Search for estash in your app launcher and launch it.
 4. Might wanna take a look at the [Usage Tab](usage) if you don't understand something about it.
 
+---
+
+### MacOS
+- [Portable binary](#portable-binary)
+- [App Folder](#app-folder)
+- [DMG Installer](#dmg-installer)
+- [Homebrew](#homebrew)
+
+#### Portable binary
+1. Go to the [Releases Tab](https://github.com/Obscurely/EStash/releases) and download the *estash-macos* file.
+2. Double click the bin you just downloaded and there you go the program works.
+3. Might wanna take a look at the [Usage Tab](usage) if you don't understand something about it.
+
+#### App Folder
+Very simillar to [portable binary](#portable-binary), only real difference is this has an icon.
+1. Go to the [Releases Tab](https://github.com/Obscurely/EStash/releases) and download the *estash-macos-app.tar.gz* file.
+2. Use your archive manager or run in the terminal the following command:
+```shell
+tar -xzf estash-macos-app.tar.gz
+```
+3. Double clikc the app folder you just downloaded and there you go the program works.
+4. Might wanna take a look at the [Usage Tab](usage) if you don't understand something about it.
+
+#### DMG Installer
+Works just like any other dmg installer you've used.
+1. Go to the [Releases Tab](https://github.com/Obscurely/EStash/releases) and download the *estash-macos-installer.dmg* file.
+2. Double click to run the dmg.
+3. Drag the app folder over the *Applications* folder.
+4. Done, you've just installed the app, should see it in launchpad now.
+5. Might wanna take a look at the [Usage Tab](usage) if you don't understand something about it.
+
+#### Homebrew
+Note this method doesn't come with a desktop entry. You'll have to run the *estash* command or just [create a shortcut yourself](https://siytek.com/macos-terminal-command-as-a-shortcut/#2.-Create-a-new-shortcut), it's really easy.
+1. You will need to have [homebrew](https://brew.sh) installed, if you don't have it installed run the following command:
+```shell
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+2. You'll need to add my tap repo, run the following command for that:
+```shell
+brew tap Obscurely/tap
+```
+3. Install the pkg.
+```shell
+brew install estash
+```
+4. Might wanna take a look at the [Usage Tab](usage) if you don't understand something about it.
+
+---
+
+### All Platforms
 This method will work across any Linux distribution, Windows 10/11 and macOS (Big Sur+ tested).
+
 1. Install rust, either using the official [rustup installer](https://www.rust-lang.org/tools/install) or any pkg manager you may use. (There is also a shell.nix file in the repo if you use nix)
 2. Run the following command in your terminal of choice:
 ```shell
@@ -201,69 +259,17 @@ On windows it should work automatically (restart if just installed), if not you 
 
 4. You may want to create a [symlink](https://www.freecodecamp.org/news/symlink-tutorial-in-linux-how-to-create-and-remove-a-symbolic-link/) on Linux & macOS or [create a shortcut](https://support.microsoft.com/en-us/office/create-a-desktop-shortcut-for-an-office-program-or-file-9a8df64b-cd87-4700-95cc-4bc3e2a962da) if you are on Windows to the bin file for easy access.
 
-4. In order to update run the install command again, and you can now follow [usage](#usage) for more information on how to use it.
+5. In order to update run the install command again, and you can now follow [usage](#usage) for more information on how to use it.
 
-#### Install from AUR (for Arch & Arch derivatives)
-a. Using yay or any other AUR helper
-  - You can install it by building from source the latest stable release
-  ```shell
-  yay -Sy falion
-  ```
-  - Or you can install the bin version so you don't have to wait for it to compile
-  ```shell
-  yay -Sy falion-bin
-  ```
-  - Or you can install it by building from source the latest git commit (that compiles and runs)
-  ```shell
-  yay -Sy falion-git
-  ```
-  
-b. Manually cloning and building it from AUR
-  1. First install the basic build dependencies, if you don't already have them:
-  ```shell
-  sudo pacman -Sy gcc base-devel --needed
-  ```
-  2. Then clone the build script
-  ```shell
-  git clone https://aur.archlinux.org/falion-bin.git
-  ```
-  3. Cd into the new cloned repository and run the following to build the package
-  ```shell
-  makepkg
-  ```
-  4. In order to install the package run the following (where * is just an any other characters place holder)
-  ```shell
-  sudo pacman -U falion-bin-*.pkg.tar.zst
-  ```
-
-#### Install from provided binaries
-a. For Arch Linux based distros (not recommended, use AUR in order to have auto updates as well)
-  1. Download from the [releases tab](https://github.com/Obscurely/EStash/releases/) from the version you want (latest stable recommended), the file named like falion-bin-\*.pkg.tar.zst
-  2. From where you downloaded it run the following command in your terminal of choice (where * is just an any other characters place holder):
-  ```shell
-  sudo pacman -U falion-bin-*.pkg.tar.zst
-  ```
-b. For Debian based distros (I'm working on a PPA, for now I recommended you use the cargo version instead)
-  1. Download from the [releases tab](https://github.com/Obscurely/falion/releases/) from the version you want (latest stable recommended), the file named like falion_\*\_debian_amd64.deb
-  2. From where you downloaded it run the following command in your terminal of choice (where * is just an any other characters place holder):
-  ```shell
-  sudo dpkg -i falion_*_debian_amd64.deb
-  ```
-
-#### Manually
-Placing the executable somewhere than adding it to path. (Not recommended, [installing it with cargo](#install-with-cargo) is better)
-1. Either follow [compilation](#compilation) and build it for the platform of your choice or download from the [releases tab](https://github.com/Obscurely/EStash/releases/) the prebuilt Linux binary, called "falion"
-2. Copy the falion executable to a location you want (it will have to stay there), usually in Linux you would create a folder in /opt called falion and put the executable there, or you can place anywhere else in the home dir.
-3. On Linux modify your .zshrc / .bashrc / .fishrc , the hell you use, and add this line to it: (without quotation marks) "alias falion=your/path". On windows you will have to modify your path variable, here is a [guide](https://www.computerhope.com/issues/ch000549.htm). And on Mac same as Linux.
-4. After you are done, you should be able to just type "falion" in terminal and you should see something pop up, saying you didn't input any query and directing you to run falion -h.
+---
 
 ### Compilation
 
-This program only uses cross platform libraries, but I have problems compiling it for windows from Linux, when I have time I will spin up a VM to see if it compiles in windows (on MacOS it should like 99.99% compile without problems). The following steps require that you have rust installed, check their official [installation page](https://www.rust-lang.org/tools/install).
+This program only uses cross platform libraries. The following steps require that you have rust installed, check their official [installation page](https://www.rust-lang.org/tools/install) or use any pkg manager you may want. (There is also a shell.nix file in the repo if you use nix).
 
 1.  Clone this repo on your PC, you can use "git clone", if you have git installed, like this:
 ```shell
-git clone https://github.com/Obscurely/falion.git
+git clone https://github.com/Obscurely/estash.git
 ```
 Otherwise in the right up side of the repo page you will see a download button, download the repo as zip and extract it in a folder
 
@@ -279,54 +285,37 @@ cargo build --release
 ```
 It will take a bit depending on your system because of executable size optimizations, but be patient.
 
-4. Done, navigate to target/release and grab only the "falion" file from there. Now you can follow [manually](#manually) install
+4. Done, navigate to target/release and grab only the "estash" file from there.
 
 ## Usage
+**In the provided [video](#video-showcase) it's presented everything you should know on how to use EStash. I also think the UI is intuitive enough, but I obviously can't have an unbiased opinion or a first look experience, so here you go.**
 
 ### Basics
-1. First you would have to get it installed and in path, follow [this](#getting-started), after you can continue.
-2. Then from the terminal (regardless of the os) you can use it by running these commands. <div></div>
-For getting help about the program
-```shell
-falion -h
-```
-For getting a list of the key binds, also available on this README at [key binds](#key-binds)
-```shell
-falion -k
-```
-For doing a search
-```shell
-falion rust how to print
-```
-Or if you want to do a search and see all the warnings (like parsing problems of text etc) run it in verbose mode
-```shell
-falion -v rust how to print
-```
+#### Login
+1. First click on signup. The first field is the name of the vault, the second field is the password, and the third one is to verify the password. After inputting you desired credentials (note you can also make a vault with nothing as the vault name and password) click Singup and wait.
+2. After the vault has been created in left up corner you will se a back arrow, click that.
+3. Now that we are in the main menu click on Login. The first field is the name of the vault and the second one is the password. After inputting your credentials hit Login.
 
-### Key binds
+#### The Vault
+- Add an entry by adding some text in the left down corner box and hitting the plus sign besides it.
+- Get the content of an entry by clicking on its name in the tree
+- Hit the plus/minus sign besides the install path box if you want to enable/disable the install path. The install path is checked if it's working on you current operating system.
+- The Check button besides the install path box checks if the path is valid on your current operating system.
+- The Content box represents what you would want to store, you can write anything utf-8 here, if it's not the UI will not let you do it so you don't have to worry about this.
+- The Clear Content button simply clears anything in the content box.
+- The Select File button let's you select a file from you system, any file, using the native file selecter or the one packaged with FLTK if none is found, and import all of its content inside the contents box. If the file is too big or is not in utf-8 format (for example it's a photo) the content box will be disabled and a message will you up and the file will automatically be stored in the entry.
+- The Notes box has no real effect on the functionallity, if you want to add anything extra just write it there.
+- The Delete button deletes the entry without question
+- The Install button takes the contents of the content box even if you've modified it and not saved it and tries installing it to the desired install path if the install path is enabled.
+- The Save button will simply save the entry, encrypted, to the db.
 
-#### Key Binds list for falion!
-**Note: where '..' is used it means from that to that like '1..5' would mean from 1 to 5.**
-
-#### Main menu:
-**[1..5]**         = Access that resource.<br />
-**SHIFT + [1..5]** = Go to the next element in the list of that resource.<br />
-**ALT + [1..5]**   = Go to the previous element in the list of that resource.<br />
-**CTRL + n**       = Move to the next element in the list of every resource.<br />
-**CTRL + b**       = Move back to the previous element in the list of every resource.<br />
-**CTRL + c**       = Clear terminal and exit.<br />
-
-#### Sub menus for the resources:
-**CTRL + n**       = Move to the next element in the content list (like questions & answers).<br />
-**CTRL + b**       = Move back to the previous element in the content list.<br />
-**CTRL + q**       = Go back to the main menu.<br />
-**CTRL + c**       = Clear terminal and exit.<br />
-
-#### These were all the key binds, enjoy using Falion!
+### Advanced
+- Change the install path or add one without saving the entry, you may want this as an one time use.
+- Change the content without saving the entry and installing that to a file.
 
 ## Road Map
 
-Adding more generic resources, but also maybe add lanaguage related one that get enabled based on the first word in the query. And also just improve it in general.
+To be added.
 
 ## Contributing
 

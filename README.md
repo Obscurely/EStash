@@ -97,13 +97,101 @@ https://user-images.githubusercontent.com/59087558/206248579-a786b277-b0fc-4306-
 ## Getting Started
 
 ### Running The Program
+- [Windows](#windows)
 
-#### Install with cargo
+### Windows
+- [Portable EXE](#portable-exe)
+- [Installer](#installer)
+
+#### Portable EXE
+1. Go to the [Releases Tab](https://github.com/Obscurely/EStash/releases) and download the *estash-windows.exe* file (might have to click show all).
+2. Double click the exe you just downloaded and there you go the program works.
+3. Might wanna take a look at the [Usage Tab](usage) if you don't understand something about it.
+
+#### Installer
+1. Go to the [Releases Tab](https://github.com/Obscurely/EStash/releases) and download the *estash-windows-installer.exe* files (might have to click show all).
+2. Double click the installer and go through the it as you would with any other installer.
+3. If you look now in the start menu (or on the desktop if you ticked create desktop shortcut) you are gonna see a shortcut for estash, just run it like any other program.
+4. Might wanna take a look at the [Usage Tab](usage) if you don't understand something about it.
+
+### Linux
+- [Portable Bin](#portable-bin)
+- [AppImage](#appimage)
+- [AUR](#aur)
+- [Nix File](#nix-file)
+- [Deb File](#deb-file)
+- [Arch Pkg File](#arch-pkg-file)
+
+#### Portable Bin
+1. Go to the [Releases Tab](https://github.com/Obscurely/EStash/releases) and download the *estash-linux* file.
+2. Double click the bin you just downloaded and there you go the program works.
+3. Might wanna take a look at the [Usage Tab](usage) if you don't understand something about it.
+
+#### AppImage
+1. Go to the [Releases Tab](https://github.com/Obscurely/EStash/releases) and download the *estash-linux.AppImage* file.
+2. Double click the AppImage you download and there you go the program just works. You may want to install [AppImageLauncher](https://github.com/TheAssassin/AppImageLauncher) if you don't have it already, when you start the AppImage you'll get a prompt asking if you want to integrate and run it and if you do so it will appear just as if you installed it.
+3. Might wanna take a look at the [Usage Tab](usage) if you don't understand something about it.
+
+#### AUR
+The PKGs are: estash (for stable), estash-bin (for precompiled) and estash-git (to compile latest source code)
+
+a. if you have an AUR manager (like [paru](https://github.com/Morganamilo/paru/blob/master/README.md#installation) or [yay](https://github.com/Jguer/yay/blob/next/README.md#installation), which you should)
+  1. Just like with any other AUR pkg choose your prefered type and you can run the following command for example.
+  ```shell
+  paru -Sy estash
+  ```
+  2. Search for estash in your app launcher and launch it.
+  3. Might wanna take a look at the [Usage Tab](usage) if you don't understand something about it.
+  
+b. Manually cloning and building it from AUR
+  1. First install the basic build dependencies, if you don't already have them:
+  ```shell
+  sudo pacman -Sy gcc base-devel --needed
+  ```
+  2. Then clone the build script
+  ```shell
+  git clone https://aur.archlinux.org/estash.git # or estash-bin & estash-git
+  ```
+  3. Cd into the new cloned repository and run the following to build the package
+  ```shell
+  makepkg
+  ```
+  4. In order to install the package run the following (where * is just an any other characters place holder)
+  ```shell
+  sudo pacman -U estash-*.pkg.tar.zst
+  ```
+
+#### Nix File
+You are using NixOS, don't worry I got you bro.
+1. Go to the [Releases Tab](https://github.com/Obscurely/EStash/releases) and download the *estash-linux.nix* file.
+2. If you use flakes then put it in your pkgs folder, and up-top add your tag (like *my*). If you don't just add the code in your default.nix file and install it this way.
+3. Might wanna take a look at the [Usage Tab](usage) if you don't understand something about it.
+
+#### Deb File
+You should use the app image. This does not provide a desktop file, you'll have to run it from the command line. It's here just as another means if needed. I will try to make a ppa.
+1. Go to the [Releases Tab](https://github.com/Obscurely/EStash/releases) and download the *estash-linux.deb* file.
+2. Open a terminal in the folder where your download is and run the following command:
+```shell
+sudo dpkg -i estash-linux.deb
+```
+3. Run *estash* in the terminal and there it is, the app.
+4. Might wanna take a look at the [Usage Tab](usage) if you don't understand something about it.
+
+#### Arch Pkg File
+You shouldn't use this method, install the estash-bin AUR pkg instead. This is here just as another means if needed.
+1. Go to the [Releases Tab](https://github.com/Obscurely/EStash/releases) and download the *estash-linux.pkg.tar.zst* file.
+2. From you Arch Linux command line run the following command:
+```shell
+sudo pacman -U estash-linux.pkg.tar.zst
+```
+3. Search for estash in your app launcher and launch it.
+4. Might wanna take a look at the [Usage Tab](usage) if you don't understand something about it.
+
 This method will work across any Linux distribution, Windows 10/11 and macOS (Big Sur+ tested).
-1. Install rust, cargo and all it's things using the official [rustup installer](https://www.rust-lang.org/tools/install) or any pkg manager you may use.
+1. Install rust, either using the official [rustup installer](https://www.rust-lang.org/tools/install) or any pkg manager you may use. (There is also a shell.nix file in the repo if you use nix)
 2. Run the following command in your terminal of choice:
 ```shell
-cargo install falion
+cargo install estash
 ```
 3. Make sure you have .cargo/bin in path, for linux and macOS you would need to add the following line in your terminal RC file (e.g $HOME/.zshrc)
 ```shell

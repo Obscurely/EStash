@@ -9,7 +9,7 @@ documentation = "https://github.com/Obscurely/EStash/blob/master/README.md"
 repository = "https://github.com/Obscurely/EStash"
 homepage = "https://github.com/Obscurely/EStash"
 categories = ["gui", "vault", "encrypt"]
-keywords = ["rust", "open-source", "encryption", "cross-platform", "vault", "secure", "rust-lang", "encrypted", "rustlang", "encrypt", "cross-platform-app"]
+keywords = ["open-source", "cross-platform", "vault", "secure", "encrypt"]
 readme = "README.md"
 license = "GPL-3.0-only"
 

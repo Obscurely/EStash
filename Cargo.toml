@@ -1,7 +1,7 @@
 [package]
 name = "estash"
 authors = ["Obscurely <adrian.obscurely@protonmail.com>"]
-version = "0.5.1"
+version = "0.6.2"
 edition = "2021"
 rust-version = "1.64" # Minimum rust version, should work with older ones, but this is the one I used.
 description = "An open source, cross-platform, programmed in rust, encrypted digital vault (store files and text) with the capability to set a path and with the click of a button to copy the contents to that file."

@@ -336,7 +336,7 @@ It will take a bit depending on your system because of executable size optimizat
 
 ## Road Map
 
-To be added.
+The roadmap (kanban board) is located up top in the projects tab or at [this link](https://github.com/users/Obscurely/projects/1).
 
 ## Contributing
 

@@ -9,7 +9,9 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <h1 align="center">EStash</h1>
+  <img src="https://github.com/Obscurely/EStash/blob/master/assets/logo.png" alt="Logo" width="150" height="150">
+
+  <h1 align="center"></h1>
 
   <p align="center">
     An open source, cross-platform, programmed in rust, encrypted digital vault (store files and text) with the capability to set a path and 
@@ -85,7 +87,7 @@
   </ol>
 </details>
 
-## About The Project
+## 🪽 About The Project
 * An open source, programmed in rust, encrypted digital vault (store files and text) with the capability to set a path and 
 with the click of a button to copy the content to that file. For example store your ssh keys safely, put your vault in like your github dotfiles, 
 download it on another machine and easily install those keys.<br>
@@ -93,11 +95,11 @@ download it on another machine and easily install those keys.<br>
 and that key is used to encrypt the private key. The encryption algorithm used is an ECIES, combines X25519 Diffie-Hellman function and XChaCha20Poly1305. (I used an [ECIES](https://itecspec.com/spec/3gpp-33-501-c-3-elliptic-curve-integrated-encryption-scheme-ecies/) for future proof reasons as there are no security downsides)
 * The way this works is by hashing your vault name with blake3. The password doesn't get stored, but a key derived from your password of 32 bytes length using argon2id gets generated with some very strong options and with this key the private encryption key for the vault (from the ECIES) get's encrypted. You get logged into a vault if the private key is decrypted sucessfully and the vault name is present basically. And all the content inside a vault is encrypted using the key-pair for that vault, basically nothing gets leaked.
 
-### Video showcase
+### 🎥 Video showcase
 
 https://user-images.githubusercontent.com/59087558/206248579-a786b277-b0fc-4306-be50-9db1c948e901.mp4
 
-### Built with
+### 🍔 Built with
 
 - [Rust 1.64.0](https://www.rust-lang.org/)
 
@@ -116,16 +118,16 @@ https://user-images.githubusercontent.com/59087558/206248579-a786b277-b0fc-4306-
 - [dirs](https://lib.rs/crates/dirs) a tiny low-level library that provides platform-specific standard locations.
 
 
-## Getting Started
+## 🏁 Getting Started
 
-### Running The Program
+### 🏃‍♂️ Running The Program
 - [Windows](#windows)
 - [Linux](#linux)
 - [MacOS](#macos)
 - [All Platforms](#all-platforms)
 ---
 
-### Windows
+### 🪟 Windows
 - [Portable EXE](#portable-exe)
 - [Installer](#installer)
 
@@ -142,7 +144,7 @@ https://user-images.githubusercontent.com/59087558/206248579-a786b277-b0fc-4306-
 
 ---
 
-### Linux
+### 🐧 Linux
 - [Portable Bin](#portable-bin)
 - [AppImage](#appimage)
 - [AUR](#aur)
@@ -217,7 +219,7 @@ sudo pacman -U estash-linux.pkg.tar.zst
 
 ---
 
-### MacOS
+### 🍎 MacOS
 - [Portable binary](#portable-binary)
 - [App Folder](#app-folder)
 - [DMG Installer](#dmg-installer)
@@ -264,7 +266,7 @@ brew install estash
 
 ---
 
-### All Platforms
+### 🚉 All Platforms
 This method will work across any Linux distribution, Windows 10/11 and macOS (Big Sur+ tested).
 
 1. Install rust, either using the official [rustup installer](https://www.rust-lang.org/tools/install) or any pkg manager you may use. (There is also a shell.nix file in the repo if you use nix)
@@ -284,7 +286,7 @@ On windows it should work automatically (restart if just installed), if not you 
 
 ---
 
-### Compilation
+### 🛠️ Compilation
 
 This program only uses cross platform libraries. The following steps require that you have rust installed, check their official [installation page](https://www.rust-lang.org/tools/install) or use any pkg manager you may want. (There is also a shell.nix file in the repo if you use nix).
 
@@ -308,7 +310,7 @@ It will take a bit depending on your system because of executable size optimizat
 
 4. Done, navigate to target/release and grab only the "estash" file from there.
 
-## Usage
+## 🪧 Usage
 **In the provided [video](#video-showcase) it's presented everything you should know on how to use EStash. I also think the UI is intuitive enough, but I obviously can't have an unbiased opinion or a first look experience, so here you go.**
 
 ### Basics
@@ -334,19 +336,19 @@ It will take a bit depending on your system because of executable size optimizat
 - Change the install path or add one without saving the entry, you may want this as an one time use.
 - Change the content without saving the entry and installing that to a file.
 
-## Road Map
+## 🛣️ Road Map
 
 The roadmap (kanban board) is located up top in the projects tab or at [this link](https://github.com/users/Obscurely/projects/1).
 
-## Contributing
+## 💁 Contributing
 
 Edit a file you want, do a [pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request), I will look at it and if the change makes sense and is a good one I will accept it and that's it.
 
-## License
+## 🪪 License
 
-Is under [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.html) so stick to the license conditions and have fun :)
+Is under [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.html) so stick to the license conditions and have fun :)</br>
 
-## Contact
+## 📧 Contact
 
 Either post an issue in the [Issues Tab](https://github.com/Obscurely/falion/issues) or contact me at this email adddress if you have more to say: obscurely.social@protonmail.com
 

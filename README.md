@@ -342,7 +342,7 @@ The roadmap (kanban board) is located up top in the projects tab or at [this lin
 
 ## 💁 Contributing
 
-Edit a file you want, do a [pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request), I will look at it and if the change makes sense and is a good one I will accept it and that's it.
+Please read [CONTRIBUTING.md](https://github.com/Obscurely/EStash/blob/master/CONTRIBUTING.md), but to generalise it the basic process is: edit a file you want, do a [pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request), I will look at it and if the change makes sense and is a good one I will accept it and that's it.
 
 ## 🪪 License
 

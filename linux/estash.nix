@@ -30,7 +30,6 @@ appimageTools.wrapType2 rec {
     cp ${appimageContents}/estash.png $out/share/pixmaps/
     cp ${appimageContents}/EStash.desktop $out
     cp ${appimageContents}/LICENSE $out/share/licenses/estash/LICENSE
-    mv $out/bin/${name} $out/bin/estash
     ${desktop-file-utils}/bin/desktop-file-install --dir $out/share/applications \
       --set-key Exec --set-value $out/bin/estash \
       --set-key Comment --set-value "EStash Linux" \
